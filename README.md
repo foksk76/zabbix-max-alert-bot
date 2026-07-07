@@ -90,11 +90,7 @@ tasks/plan.md
 tasks/todo.md
 ```
 
-Внешний набор skills используется ссылкой, без submodule:
-
-```text
-https://github.com/addyosmani/agent-skills
-```
+Внешний набор skills используется ссылкой, без submodule. Детали описаны в `docs/agent-skills-integration.md`.
 
 Для документации и ADR используется `documentation-and-adrs`. Для задач используется `planning-and-task-breakdown`.
 
@@ -114,4 +110,4 @@ npm run verify
 
 ## Статус
 
-Phase 1, Phase 2, Task 8 и Task 9 выполнены. Task 10 подготовлена содержательно: будущие варианты повторной отправки, журнала доставки и маршрутизации описаны без изменения webhook-кода и без добавления новых компонентов. Перед завершением первого этапа остается подтверждение `npm test` после изменений Task 10 и финальная сверка с `docs/project-acceptance.md`.
+Phase 1, Phase 2, Task 8, Task 9 и Task 10 выполнены. Будущие варианты повторной отправки, журнала доставки и маршрутизации описаны без изменения webhook-кода и без добавления новых компонентов. Перед завершением первого этапа остается финальная сверка с `docs/project-acceptance.md`.
