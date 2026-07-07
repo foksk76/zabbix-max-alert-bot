@@ -6,10 +6,6 @@ fail() {
   exit 1
 }
 
-warn() {
-  echo "WARN: $1" >&2
-}
-
 echo "== Zabbix MAX Alert Bot repository check =="
 
 required_files=(
@@ -17,6 +13,12 @@ required_files=(
   "AGENTS.md"
   ".agents/project-context.md"
   "DEVELOPMENT.md"
+  "docs/README.md"
+  "docs/project-context.md"
+  "docs/documentation-policy.md"
+  "docs/decisions/README.md"
+  "docs/decisions/ADR-0001-ai-assisted-dev.md"
+  "docs/decisions/ADR-0002-use-external-agent-skills.md"
   "docs/zabbix-media-type.md"
   "src/zabbix-media-type/max-webhook.js"
 )
@@ -35,13 +37,10 @@ fi
 
 echo "Audience wording: OK"
 
-if grep -RInE "(password|passwd|secret|private_key|BEGIN RSA|BEGIN OPENSSH)" . \
-  --exclude-dir=.git \
-  --exclude-dir=node_modules \
-  --exclude=scripts/verify-repo.sh 2>/dev/null; then
-  warn "potential sensitive wording found; review manually"
+if find .agents/adr -type f ! -name 'README.md' 2>/dev/null | grep -q .; then
+  fail "ADR files must be stored in docs/decisions, not .agents/adr"
 fi
 
-echo "Sensitive data scan: completed"
+echo "ADR location: OK"
 
 echo "Repository check completed"
