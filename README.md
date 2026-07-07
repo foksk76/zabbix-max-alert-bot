@@ -46,17 +46,18 @@ Zabbix Action
 ## Repo map
 
 ```text
-.github/      шаблоны issue и pull request
-.agents/      контекст, задачи, ADR, prompts и чек-листы для AI/Codex
-AGENTS.md     главные инструкции для Codex и AI-агентов
-CHANGELOG.md  журнал заметных изменений
-DEVELOPMENT.md процесс разработки
-SECURITY.md   правила по чувствительным данным
-docs/         проектное описание, Redmine-статья, эксплуатационные заметки
-examples/     параметры Zabbix Media type и примеры тестовых сообщений
-scripts/      вспомогательные скрипты и проверки
-src/          исходники webhook-скрипта для Zabbix
-tests/        место для будущих тестов и проверок
+.github/          шаблоны issue и pull request
+.agents/          рабочий контекст, задачи, prompts и чек-листы для AI/Codex
+AGENTS.md         главные инструкции для Codex и AI-агентов
+CHANGELOG.md      журнал заметных изменений
+DEVELOPMENT.md    процесс разработки
+SECURITY.md       правила по чувствительным данным
+docs/             проектная, эксплуатационная документация и ADR
+docs/decisions/   каноничное место для Architecture Decision Records
+examples/         параметры Zabbix Media type и примеры тестовых сообщений
+scripts/          вспомогательные скрипты и проверки
+src/              исходники webhook-скрипта для Zabbix
+tests/            место для будущих тестов и проверок
 ```
 
 ## Основной файл
@@ -79,6 +80,22 @@ docs/zabbix-media-type.md
 
 `To` используется как идентификатор нужного чата или получателя в МАХ. Для разных групп сопровождения, мониторинга, реагирования или отдельных получателей можно использовать разные значения `To` через пользователей, группы пользователей и Actions в Zabbix.
 
+## Документация и решения
+
+Документация ведется по подходу `documentation-and-adrs`: фиксируем не только что сделано, но и почему выбран именно такой вариант.
+
+Основные документы:
+
+```text
+docs/project-context.md             рабочий контекст проекта
+docs/documentation-policy.md        правила ведения документации
+docs/decisions/README.md            индекс архитектурных решений
+docs/agent-skills-integration.md    порядок использования внешних skills
+docs/zabbix-media-type.md           настройка Zabbix Media type
+```
+
+Перед изменением архитектуры, границ проекта, процесса разработки или внешних зависимостей сначала проверяются ADR в `docs/decisions/`.
+
 ## Разработка с AI / Codex
 
 Репозиторий подготовлен для аккуратной разработки с помощью Codex и других AI-агентов.
@@ -89,6 +106,8 @@ docs/zabbix-media-type.md
 AGENTS.md
 .agents/project-context.md
 .agents/tasks/current.md
+docs/project-context.md
+docs/decisions/README.md
 docs/agent-skills-integration.md
 ```
 
@@ -101,8 +120,9 @@ https://github.com/addyosmani/agent-skills
 Для документации и ADR используется подход `documentation-and-adrs`. Подробности зафиксированы в:
 
 ```text
+docs/documentation-policy.md
 docs/agent-skills-integration.md
-.agents/adr/ADR-0002-use-external-agent-skills.md
+docs/decisions/ADR-0002-use-external-agent-skills.md
 ```
 
 Базовая проверка проекта:
