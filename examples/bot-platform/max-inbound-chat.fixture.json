@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "synthetic": true,
+    "realPayload": false,
+    "description": "Synthetic group chat message fixture for local tests"
+  },
+  "source": "max",
+  "event_type": "message_created",
+  "chat": {
+    "type": "group",
+    "id": "<synthetic-chat-id>",
+    "title": "Synthetic Chat"
+  },
+  "sender": {
+    "type": "user",
+    "id": "<synthetic-user-id>",
+    "display_name": "Synthetic User"
+  },
+  "message": {
+    "id": "<synthetic-message-id>",
+    "text": "show this chat recipient id"
+  },
+  "received_at": "<synthetic-timestamp>"
+}
