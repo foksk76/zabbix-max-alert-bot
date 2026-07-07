@@ -6,19 +6,35 @@
 
 ```text
 .agents/
-  project-context.md              краткий контекст проекта
+  project-context.md              короткий рабочий контекст агента
   README.md                       карта AI workspace
   tasks/
     current.md                    текущая задача
     backlog.md                    накопительный список задач
-  adr/
-    ADR-0001-ai-assisted-dev.md   решение о формате AI-assisted разработки
   checklists/
     pre-commit.md                 проверка перед фиксацией изменений
     security.md                   проверка на чувствительные данные
   prompts/
     implement.md                  шаблон задания на реализацию
     review.md                     шаблон задания на code review
+```
+
+## Где искать решения
+
+Архитектурные решения не хранятся в `.agents/`.
+
+Каноничное место для ADR:
+
+```text
+docs/decisions/
+```
+
+Перед изменением архитектуры, границ проекта или процесса разработки агент должен проверить:
+
+```text
+docs/decisions/README.md
+docs/documentation-policy.md
+docs/project-context.md
 ```
 
 ## Принцип
