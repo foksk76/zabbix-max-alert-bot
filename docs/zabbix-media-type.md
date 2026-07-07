@@ -17,19 +17,21 @@
 
 ```text
 APIUrl: https://platform-api2.max.ru/messages
+HTTPProxy:
 Message: {ALERT.MESSAGE}
 ParseMode: HTML
 RecipientType: chat_id
 Severity: {EVENT.SEVERITY}
 Subject: {ALERT.SUBJECT}
 To: {ALERT.SENDTO}
-Token: <скрыто>
+Token: <MAX_BOT_TOKEN>
 Trigger_status: {TRIGGER.STATUS}
 ```
 
 ## Назначение параметров
 
 - `APIUrl` — адрес метода MAX Bot API для отправки сообщений.
+- `HTTPProxy` — необязательный HTTP-прокси для исходящего запроса, если он нужен в среде Zabbix.
 - `Message` — тело уведомления из Zabbix.
 - `ParseMode` — формат разметки сообщения. Для первого этапа используется `HTML`.
 - `RecipientType` — тип получателя: `chat_id` для группового чата или `user_id` для личной отправки.
@@ -43,6 +45,7 @@ Trigger_status: {TRIGGER.STATUS}
 
 ```text
 APIUrl: https://platform-api2.max.ru/messages
+HTTPProxy:
 Message: Тестовое уведомление из Zabbix
 ParseMode: HTML
 RecipientType: chat_id
