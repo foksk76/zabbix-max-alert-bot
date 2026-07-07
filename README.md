@@ -114,4 +114,4 @@ npm run verify
 
 ## Статус
 
-Phase 1 и Phase 2 выполнены: параметры webhook сверены, тестовая доставка проверена, Problem и Recovery доставлены через Zabbix Action, получатель и перенос Media type описаны. Перед завершением первого этапа остается review по Task 8 и финальная сверка с `docs/project-acceptance.md`.
+Phase 1, Phase 2 и Task 8 выполнены: параметры webhook сверены, тестовая доставка проверена, Problem и Recovery доставлены через Zabbix Action, получатель и перенос Media type описаны, review документации и webhook-логики пройден. Перед завершением первого этапа остается финальная сверка с `docs/project-acceptance.md`.
