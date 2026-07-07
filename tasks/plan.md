@@ -27,13 +27,13 @@ docs/project-acceptance.md
 
 - [x] Task 1: Сверить параметры webhook с документацией проекта.
 - [x] Task 2: Проверить MAX Media type на тестовом получателе.
-- [ ] Task 3: Проверить Problem и Recovery.
+- [x] Task 3: Проверить Problem и Recovery.
 
 ### Checkpoint: После Phase 1
 
-- [ ] Задачи 1-3 закрыты по своим verification.
-- [ ] Найденные расхождения оформлены как отдельные задачи или ADR.
-- [ ] Project-level статус сверяется только с `docs/project-acceptance.md`.
+- [x] Задачи 1-3 закрыты по своим verification.
+- [x] Найденные расхождения оформлены как отдельные задачи или ADR.
+- [x] Project-level статус сверяется только с `docs/project-acceptance.md`.
 
 ### Phase 2: Воспроизводимость настройки
 
