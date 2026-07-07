@@ -5,6 +5,7 @@
 ## Быстрый вход
 
 - [`project-context.md`](project-context.md) — что делает проект, почему выбран текущий подход и где границы первого этапа.
+- [`project-acceptance.md`](project-acceptance.md) — единый источник критериев завершения первого этапа.
 - [`zabbix-media-type.md`](zabbix-media-type.md) — параметры и проверка Zabbix Media type `MAX`.
 - [`agent-skills-integration.md`](agent-skills-integration.md) — как использовать внешний набор skills.
 - [`documentation-policy.md`](documentation-policy.md) — правила ведения документации и ADR.
