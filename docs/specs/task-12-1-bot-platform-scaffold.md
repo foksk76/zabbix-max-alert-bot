@@ -5,7 +5,7 @@
 ## Status
 
 ```text
-Implemented / CI pending
+Done
 ```
 
 ## Goal
@@ -92,20 +92,29 @@ createIdentityPlugin()
 - [x] Placeholder exports доступны для будущих задач.
 - [x] Реальный МАХ API не подключен.
 - [x] Текущий `src/zabbix-media-type/max-webhook.js` не изменен.
-- [ ] `npm test` подтвержден локально или в GitHub Actions.
+- [x] `npm test` подтвержден локально или в GitHub Actions.
 
 ## Verification
 
 - [x] Добавлены smoke tests на импорт модулей.
 - [x] Тесты не требуют секретов и реальных идентификаторов.
 - [x] Тесты не выполняют сетевых запросов.
-- [ ] GitHub Actions green после commit.
+- [x] GitHub Actions green после commit.
+
+## CI confirmation
+
+```text
+Commit: 89f63c11ddda36da48ae773f682470710f4638d7
+Node.js: 22.23.1
+npm: 10.9.8
+Tests: 22
+Pass: 22
+Fail: 0
+```
 
 ## Next tasks
 
-Следующий шаг после подтверждения CI:
-
 ```text
-Task 12.2: описать internal event contract
-Task 12.3: добавить обезличенные fixtures
+Task 12.2: Done — internal event contract
+Task 12.3: добавить обезличенные fixtures входящих событий
 ```
