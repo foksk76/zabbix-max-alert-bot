@@ -1,18 +1,21 @@
 # Task List: Zabbix MAX Alert Bot
 
-Задачи оформлены по `planning-and-task-breakdown`: каждая задача небольшая, проверяемая и имеет явные критерии приемки.
+Задачи ведутся по `planning-and-task-breakdown`. Project-level критерии завершения первого этапа хранятся только в `docs/project-acceptance.md`.
 
-Project-level критерии завершения первого этапа хранятся только в:
+## Status summary
 
 ```text
-docs/project-acceptance.md
+Done: Task 1, Task 1.1, Task 2, Task 3, Task 4, Task 6.1
+Open: Task 5, Task 6, Task 7, Task 8, Task 9, Task 10
 ```
+
+---
 
 ## Task 1: Сверить параметры webhook с документацией проекта
 
 **Status:** Done
 
-**Description:** Проверить, что текущий `docs/zabbix-media-type.md`, `examples/media-params.md` и `src/zabbix-media-type/max-webhook.js` описывают один и тот же набор параметров без противоречий.
+**Description:** Сверить `docs/zabbix-media-type.md`, `examples/media-params.md` и `src/zabbix-media-type/max-webhook.js`.
 
 **Method:** Static documentation check
 
@@ -21,25 +24,21 @@ docs/project-acceptance.md
 **Acceptance criteria:**
 
 - [x] Список параметров в документации и примере совпадает.
-- [x] Webhook-скрипт читает только описанные параметры или найденные расхождения оформлены отдельной задачей.
-- [x] Найденные расхождения оформлены как отдельная задача или исправлены минимальным изменением.
+- [x] Webhook-скрипт читает только описанные параметры.
+- [x] Найденные расхождения оформлены или исправлены минимально.
 
 **Verification:**
 
-- [x] Вручную сверены `docs/zabbix-media-type.md`, `examples/media-params.md`, `src/zabbix-media-type/max-webhook.js`.
+- [x] Выполнена ручная сверка файлов.
 - [x] Выполнен `npm test` через GitHub Actions.
 
-**Result:** Документация, пример и webhook-скрипт приведены к одному набору параметров. Найденное расхождение по необязательному параметру `HTTPProxy` закрыто в Task 1.1. Проверка `npm test` подтверждена успешным GitHub Actions запуском: 14 тестов прошли, ошибок нет.
+**Result:** Документация, пример и webhook-скрипт приведены к одному набору параметров. Расхождение по `HTTPProxy` закрыто в Task 1.1.
 
 **Dependencies:** None
 
-**Files likely touched:**
+**Files likely touched:** `docs/zabbix-media-type.md`, `examples/media-params.md`, `tasks/todo.md`
 
-- `docs/zabbix-media-type.md`
-- `examples/media-params.md`
-- `tasks/todo.md`
-
-**Estimated scope:** Small: 1-2 files
+**Estimated scope:** Small
 
 ---
 
@@ -47,7 +46,7 @@ docs/project-acceptance.md
 
 **Status:** Done
 
-**Description:** Добавить необязательный параметр `HTTPProxy` в `docs/zabbix-media-type.md` и `examples/media-params.md`, потому что webhook-скрипт уже поддерживает его через `request.setProxy()`.
+**Description:** Добавить `HTTPProxy` в документацию и пример параметров.
 
 **Method:** Documentation update
 
@@ -57,24 +56,20 @@ docs/project-acceptance.md
 
 - [x] `HTTPProxy` добавлен в список параметров Media type.
 - [x] `HTTPProxy` добавлен в пример параметров.
-- [x] Описано, что параметр необязательный и используется только при необходимости исходящего прокси в среде Zabbix.
+- [x] Описано, что параметр необязательный.
 
 **Verification:**
 
-- [x] Сверены `docs/zabbix-media-type.md`, `examples/media-params.md`, `src/zabbix-media-type/max-webhook.js`.
+- [x] Сверены документация, пример и webhook-скрипт.
 - [x] Выполнен `npm test` через GitHub Actions.
 
-**Result:** `HTTPProxy` добавлен в документацию и пример параметров. Webhook-код не менялся. Проверка `npm test` подтверждена успешным GitHub Actions запуском: 14 тестов прошли, ошибок нет.
+**Result:** `HTTPProxy` описан как необязательный параметр. Webhook-код не менялся.
 
 **Dependencies:** Task 1
 
-**Files likely touched:**
+**Files likely touched:** `docs/zabbix-media-type.md`, `examples/media-params.md`, `tasks/todo.md`
 
-- `docs/zabbix-media-type.md`
-- `examples/media-params.md`
-- `tasks/todo.md`
-
-**Estimated scope:** Small: 1-2 files
+**Estimated scope:** Small
 
 ---
 
@@ -82,7 +77,7 @@ docs/project-acceptance.md
 
 **Status:** Done
 
-**Description:** Выполнить ручной тест Zabbix Media type `MAX` на тестового получателя МАХ и зафиксировать обезличенный результат проверки.
+**Description:** Выполнить ручной тест Zabbix Media type `MAX` на тестового получателя МАХ.
 
 **Method:** Integration run
 
@@ -91,28 +86,22 @@ docs/project-acceptance.md
 **Acceptance criteria:**
 
 - [x] Тест Media type в Zabbix выполнен.
-- [x] Получен понятный результат: успешно доставлено или зафиксирована конкретная ошибка.
-- [x] Результат описан без публикации чувствительных значений.
+- [x] Получен понятный результат.
+- [x] Результат описан без чувствительных значений.
 
 **Verification:**
 
-- [x] Подготовлен ручной runbook: `docs/test-runs/max-media-type-manual-run.md`.
-- [x] Проверен результат в тестовом получателе МАХ.
-- [x] Ошибок не зафиксировано; Zabbix показал успешное тестирование способа оповещения.
-- [x] Документация обновлена только по фактически проверенному поведению.
+- [x] Подготовлен `docs/test-runs/max-media-type-manual-run.md`.
+- [x] Сообщение доставлено в тестового получателя.
+- [x] Ошибок не зафиксировано.
 
-**Result:** Ручной тест Zabbix Media type `MAX` выполнен успешно. Сообщение доставлено в МАХ. Результат зафиксирован обезличенно в `docs/test-runs/max-media-type-manual-run.md`. В доставленном тестовом сообщении остались `{ALERT.SUBJECT}` и `{ALERT.MESSAGE}`, потому что ручной тест был выполнен с макросами как с тестовыми строками. Этот прогон подтверждает транспорт Zabbix -> MAX и авторизацию бота, но не проверяет подстановку макросов в реальном Action.
+**Result:** Ручной тест доставки выполнен успешно. Проверен транспорт Zabbix -> MAX и авторизация бота. Подстановка макросов в реальном Action проверяется отдельно в Task 3.
 
 **Dependencies:** Task 1, Task 1.1
 
-**Files likely touched:**
+**Files likely touched:** `docs/test-runs/`, `docs/zabbix-media-type.md`, `tasks/todo.md`
 
-- `docs/test-runs/`
-- `docs/zabbix-media-type.md`
-- `examples/media-params.md`
-- `tasks/todo.md`
-
-**Estimated scope:** Small: 1-2 files
+**Estimated scope:** Small
 
 ---
 
@@ -120,7 +109,7 @@ docs/project-acceptance.md
 
 **Status:** Done
 
-**Description:** Проверить доставку уведомления о проблеме и уведомления о восстановлении через тот же Media type `MAX`.
+**Description:** Проверить доставку Problem и Recovery через реальный сценарий Zabbix Action.
 
 **Method:** Problem/Recovery run
 
@@ -130,31 +119,29 @@ docs/project-acceptance.md
 
 - [x] Проверено событие Problem.
 - [x] Проверено событие Recovery.
-- [x] Формат сообщений описан только по фактическому результату проверки.
+- [x] Формат сообщений описан по фактическому результату.
 
 **Verification:**
 
 - [x] Проверен текст Problem-сообщения.
 - [x] Проверен текст Recovery-сообщения.
-- [x] При расхождении между ожидаемым и фактическим поведением создана отдельная задача или ADR.
+- [x] Нераскрытые макросы не обнаружены.
 
-**Result:** Problem и Recovery уведомления успешно доставлены в МАХ через реальный сценарий Zabbix Action. В Problem-сообщении зафиксированы начало проблемы, test trigger, test host, severity, operational data и original problem ID. В Recovery-сообщении зафиксированы восстановление, длительность 1m 0s, test trigger, test host, severity и тот же original problem ID. Нераскрытые макросы в сообщениях не обнаружены. Результат зафиксирован обезличенно в `docs/test-runs/max-problem-recovery-run.md`.
+**Result:** Problem и Recovery доставлены в МАХ. Результат зафиксирован в `docs/test-runs/max-problem-recovery-run.md`.
 
 **Dependencies:** Task 2
 
-**Files likely touched:**
+**Files likely touched:** `docs/test-runs/max-problem-recovery-run.md`, `docs/test-runs/README.md`, `tasks/todo.md`
 
-- `docs/test-runs/max-problem-recovery-run.md`
-- `docs/test-runs/README.md`
-- `tasks/todo.md`
-
-**Estimated scope:** Small: 1-2 files
+**Estimated scope:** Small
 
 ---
 
 ## Task 4: Описать получение идентификатора получателя в МАХ
 
-**Description:** Подготовить нейтральное описание порядка получения идентификатора получателя в МАХ для личной или групповой отправки.
+**Status:** Done
+
+**Description:** Описать порядок получения идентификатора получателя для личной отправки и группового чата.
 
 **Method:** Documentation update
 
@@ -162,30 +149,31 @@ docs/project-acceptance.md
 
 **Acceptance criteria:**
 
-- [ ] Описан общий порядок получения идентификатора получателя.
-- [ ] Разделены сценарии личного получателя и группового чата.
-- [ ] Примеры обезличены.
+- [x] Описан общий порядок получения идентификатора получателя.
+- [x] Разделены сценарии личного получателя и группового чата.
+- [x] Примеры обезличены.
 
 **Verification:**
 
-- [ ] Документ можно использовать для повторной настройки.
-- [ ] Нет реальных идентификаторов, внутренних адресов и организационных названий.
-- [ ] Проверено соответствие `docs/documentation-policy.md`.
+- [x] Документ можно использовать для повторной настройки.
+- [x] Нет реальных идентификаторов, внутренних адресов и организационных названий.
+- [x] Проверено соответствие `docs/documentation-policy.md`.
+
+**Result:** В `docs/zabbix-media-type.md` добавлено описание пары `RecipientType` и `To`. Добавлен обезличенный пример `examples/recipient-id.md`. В `examples/media-params.md` добавлена ссылка на пример и указано соответствие `user_id` / `chat_id`.
 
 **Dependencies:** None
 
-**Files likely touched:**
+**Files likely touched:** `docs/zabbix-media-type.md`, `examples/media-params.md`, `examples/recipient-id.md`, `tasks/todo.md`
 
-- `docs/zabbix-media-type.md`
-- `examples/media-params.md`
-
-**Estimated scope:** Small: 1-2 files
+**Estimated scope:** Small
 
 ---
 
 ## Task 5: Описать перенос или повторное создание Media type
 
-**Description:** Описать, как повторно создать Media type `MAX` в Zabbix или перенести его в другую среду без публикации чувствительных значений.
+**Status:** Open
+
+**Description:** Описать повторное создание Media type `MAX` в Zabbix или перенос в другую среду без публикации чувствительных значений.
 
 **Method:** Documentation update
 
@@ -199,24 +187,23 @@ docs/project-acceptance.md
 
 **Verification:**
 
-- [ ] Инструкция сверена с текущим `docs/zabbix-media-type.md`.
-- [ ] README не дублирует критерии завершения проекта.
+- [ ] Инструкция сверена с `docs/zabbix-media-type.md`.
+- [ ] README не дублирует project-level критерии.
 - [ ] Выполнен `npm test`.
 
-**Dependencies:** Task 1
+**Dependencies:** Task 1, Task 4
 
-**Files likely touched:**
+**Files likely touched:** `docs/zabbix-media-type.md`, `examples/`, `tasks/todo.md`
 
-- `docs/zabbix-media-type.md`
-- `examples/`
-
-**Estimated scope:** Medium: 2-3 files
+**Estimated scope:** Medium
 
 ---
 
 ## Task 6: Принять техническое решение по локальной проверке форматирования
 
-**Description:** До написания кода определить, как именно проверять формирование текста webhook-сообщения вне Zabbix runtime. Решение должно быть зафиксировано в ADR.
+**Status:** Open
+
+**Description:** До написания кода определить, как проверять формирование текста webhook-сообщения вне Zabbix runtime.
 
 **Method:** ADR before implementation
 
@@ -227,7 +214,7 @@ docs/project-acceptance.md
 - [ ] Создан ADR в `docs/decisions/`.
 - [ ] В ADR указан выбранный способ проверки форматирования.
 - [ ] В ADR указано, какие ограничения Zabbix runtime не эмулируются.
-- [ ] До принятия ADR код тестового harness не добавляется.
+- [ ] До принятия ADR код test harness не добавляется.
 
 **Verification:**
 
@@ -237,12 +224,9 @@ docs/project-acceptance.md
 
 **Dependencies:** Task 1
 
-**Files likely touched:**
+**Files likely touched:** `docs/decisions/`, `tasks/todo.md`
 
-- `docs/decisions/`
-- `tasks/todo.md`
-
-**Estimated scope:** Small: 1-2 files
+**Estimated scope:** Small
 
 ---
 
@@ -250,7 +234,7 @@ docs/project-acceptance.md
 
 **Status:** Done
 
-**Description:** Зафиксировать ADR и перенести базовую проверку репозитория из shell-скрипта в Node.js policy tests с автоматическим запуском через GitHub Actions.
+**Description:** Перенести базовую проверку репозитория из shell-скрипта в Node.js policy tests с автоматическим запуском через GitHub Actions.
 
 **Method:** Technical decision + repository policy tests
 
@@ -269,31 +253,22 @@ docs/project-acceptance.md
 
 - [x] Добавлен `docs/decisions/ADR-0004-use-node-policy-tests-and-github-actions.md`.
 - [x] Добавлен `.github/workflows/verify.yml`.
-- [x] Добавлены `tests/repo-structure.test.js`, `tests/docs-wording.test.js`, `tests/media-params.test.js`, `tests/webhook-static.test.js`.
+- [x] Добавлены policy tests.
 - [x] Выполнен `npm test` через GitHub Actions: 14 тестов прошли, ошибок нет.
 
-**Result:** Миграция проверки репозитория выполнена. Основная команда проверки теперь `npm test`; GitHub Actions запускает ее автоматически. Старый shell-скрипт удален. Успешный запуск GitHub Actions подтвержден на commit `722b49eb45b5495ed29f331eb0c2ec7b7e168748`.
+**Result:** Миграция проверки репозитория выполнена. Основная команда проверки теперь `npm test`.
 
 **Dependencies:** ADR-0004
 
-**Files likely touched:**
+**Files likely touched:** `docs/decisions/`, `.github/workflows/`, `tests/`, `package.json`, `README.md`, `AGENTS.md`, `DEVELOPMENT.md`, `docs/project-acceptance.md`, `tasks/plan.md`, `tasks/todo.md`
 
-- `docs/decisions/`
-- `.github/workflows/`
-- `tests/`
-- `package.json`
-- `README.md`
-- `AGENTS.md`
-- `DEVELOPMENT.md`
-- `docs/project-acceptance.md`
-- `tasks/plan.md`
-- `tasks/todo.md`
-
-**Estimated scope:** Medium: 5-10 files
+**Estimated scope:** Medium
 
 ---
 
 ## Task 7: Реализовать локальную проверку форматирования после ADR
+
+**Status:** Open
 
 **Description:** Реализовать минимальную локальную проверку формирования текста сообщения только после принятия ADR из Task 6.
 
@@ -316,19 +291,17 @@ docs/project-acceptance.md
 
 **Dependencies:** Task 6
 
-**Files likely touched:**
+**Files likely touched:** `tests/`, `package.json`, `docs/decisions/`
 
-- `tests/`
-- `package.json`
-- `docs/decisions/`
-
-**Estimated scope:** Medium: 3-5 files
+**Estimated scope:** Medium
 
 ---
 
 ## Task 8: Провести review документации, задач и webhook-логики
 
-**Description:** Проверить, что документация, задачи, ADR и webhook-логика согласованы между собой, а project-level критерии завершения находятся только в `docs/project-acceptance.md`.
+**Status:** Open
+
+**Description:** Проверить согласованность документации, задач, ADR и webhook-логики.
 
 **Method:** Code and documentation review
 
@@ -339,31 +312,27 @@ docs/project-acceptance.md
 - [ ] Проверены `README.md`, `AGENTS.md`, `DEVELOPMENT.md`, `docs/`, `tasks/`.
 - [ ] Проверено, что ADR находятся только в `docs/decisions/`.
 - [ ] Проверено, что задачи находятся только в `tasks/plan.md` и `tasks/todo.md`.
-- [ ] Проверено, что project-level критерии завершения не дублируются вне `docs/project-acceptance.md`.
+- [ ] Проверено, что project-level критерии не дублируются вне `docs/project-acceptance.md`.
 
 **Verification:**
 
 - [ ] Выполнен `npm test`.
 - [ ] Проверены чек-листы `.agents/checklists/`.
-- [ ] Найденные замечания оформлены отдельными задачами или исправлены минимально.
+- [ ] Замечания оформлены отдельными задачами или исправлены минимально.
 
 **Dependencies:** Task 1, Task 4, Task 5, Task 6
 
-**Files likely touched:**
+**Files likely touched:** `README.md`, `AGENTS.md`, `DEVELOPMENT.md`, `docs/`, `tasks/`
 
-- `README.md`
-- `AGENTS.md`
-- `DEVELOPMENT.md`
-- `docs/`
-- `tasks/`
-
-**Estimated scope:** Medium: 3-5 files
+**Estimated scope:** Medium
 
 ---
 
 ## Task 9: Оценить необходимость отдельного bot-service
 
-**Description:** После первого этапа и фактических прогонов оценить, достаточно ли прямого Zabbix Webhook или нужен отдельный сервис для будущего развития.
+**Status:** Open
+
+**Description:** После первого этапа оценить, достаточно ли прямого Zabbix Webhook или нужен отдельный сервис для будущего развития.
 
 **Method:** Technical decision review
 
@@ -383,19 +352,17 @@ docs/project-acceptance.md
 
 **Dependencies:** Task 8
 
-**Files likely touched:**
+**Files likely touched:** `docs/decisions/`, `docs/project-context.md`, `tasks/plan.md`
 
-- `docs/decisions/`
-- `docs/project-context.md`
-- `tasks/plan.md`
-
-**Estimated scope:** Small: 1-2 files
+**Estimated scope:** Small
 
 ---
 
 ## Task 10: Описать варианты повторной отправки и журнала доставки
 
-**Description:** Подготовить описание возможного развития после первого этапа: повторная отправка, журнал попыток доставки, отдельные маршруты по группам получателей.
+**Status:** Open
+
+**Description:** Описать возможное развитие после первого этапа: повторная отправка, журнал попыток доставки, отдельные маршруты по группам получателей.
 
 **Method:** Future options documentation
 
@@ -415,10 +382,6 @@ docs/project-acceptance.md
 
 **Dependencies:** Task 9
 
-**Files likely touched:**
+**Files likely touched:** `docs/project-context.md`, `docs/decisions/`, `tasks/plan.md`
 
-- `docs/project-context.md`
-- `docs/decisions/`
-- `tasks/plan.md`
-
-**Estimated scope:** Small: 1-2 files
+**Estimated scope:** Small
