@@ -53,14 +53,15 @@ docs/project-acceptance.md
 - [ ] Task 6: Deferred/Future — ADR по локальной проверке форматирования.
 - [x] Task 6.1: Перенести проверку репозитория на Node.js policy tests и GitHub Actions.
 - [ ] Task 7: Deferred/Future — локальная проверка форматирования после ADR.
-- [ ] Task 8: Провести review документации, задач и webhook-логики.
+- [ ] Task 8: Review complete / CI pending — review документации, задач и webhook-логики.
 
 ### Checkpoint: После Phase 3
 
-- [ ] Task 8 закрыта по verification.
-- [ ] Task 6 и Task 7 явно отложены и не блокируют первый этап.
-- [ ] Код не содержит поведения, не подтвержденного документацией или ADR.
-- [ ] Project-level статус сверяется только с `docs/project-acceptance.md`.
+- [x] Task 8 review выполнена содержательно.
+- [ ] `npm test` подтвержден после изменений Task 8.
+- [x] Task 6 и Task 7 явно отложены и не блокируют первый этап.
+- [x] Код не содержит поведения, не подтвержденного документацией или ADR.
+- [x] Project-level статус сверяется только с `docs/project-acceptance.md`.
 
 ### Phase 4: Решение о развитии после первого этапа
 
