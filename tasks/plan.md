@@ -76,6 +76,14 @@ docs/project-acceptance.md
 - [x] Будущие варианты повторной отправки, журнала доставки и маршрутизации описаны без немедленной реализации.
 - [x] `npm test` подтвержден после изменений Task 10.
 
+### First-stage acceptance
+
+- [x] Финальный приемочный прогон зафиксирован в `docs/test-runs/final-acceptance-run.md`.
+- [x] Первый этап принят по `docs/project-acceptance.md`.
+- [x] Telegram-канал продолжает работать.
+- [x] МАХ дублирует Telegram.
+- [x] GitHub Actions green.
+
 ## Risks and Mitigations
 
 | Risk | Impact | Mitigation |
