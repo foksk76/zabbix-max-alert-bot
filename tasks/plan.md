@@ -22,6 +22,12 @@ docs/second-stage-acceptance.md
 docs/third-stage-acceptance.md
 ```
 
+Детальная декомпозиция Task 12:
+
+```text
+docs/task-12-breakdown.md
+```
+
 ## Architecture Decisions
 
 - Основной рабочий артефакт первого этапа: `src/zabbix-media-type/max-webhook.js`.
@@ -122,7 +128,7 @@ docs/third-stage-acceptance.md
 
 Третий этап начинается после принятия второго этапа и реализует MVP `MAX Identity Bot` по ADR-0005.
 
-- [ ] Task 12: Подготовить каркас `src/bot-platform`.
+- [ ] Task 12: Подготовить каркас `src/bot-platform`; детальная декомпозиция — `docs/task-12-breakdown.md`.
 - [ ] Task 12.1: Реализовать MAX event normalizer и обезличенные fixtures.
 - [ ] Task 12.2: Реализовать identity plugin.
 - [ ] Task 12.3: Реализовать MAX inbound/outbound transport.
@@ -135,8 +141,8 @@ docs/third-stage-acceptance.md
 - [x] Критерии третьего этапа описаны в `docs/third-stage-acceptance.md`.
 - [x] План реализации описан в `docs/third-stage-implementation-plan.md`.
 - [x] WSL/LXC и agent workflow описаны в `docs/third-stage-stand-and-agent.md`.
+- [x] Task 12 декомпозирована по `planning-and-task-breakdown` в `docs/task-12-breakdown.md`.
 - [ ] Выбрана первичная среда разработки: WSL или LXC.
-- [ ] Подготовлена задача Task 12 с точным scope.
 - [ ] Подтверждено, что текущий Zabbix Webhook не меняется.
 
 ## Risks and Mitigations
@@ -145,7 +151,7 @@ docs/third-stage-acceptance.md
 |---|---|---|
 | Формат MAX API или Zabbix runtime понят неправильно | High | Не писать код по предположениям; сначала уточнить документацию или создать ADR |
 | В документацию попадут чувствительные значения | High | Использовать только обезличенные примеры и проверять `npm test` |
-| AI-агент расширит проект за пределы этапа | High | Перед задачей проверять `docs/project-acceptance.md`, `docs/second-stage-acceptance.md`, `docs/third-stage-acceptance.md`, `docs/decisions/README.md` и `AGENTS.md` |
+| AI-агент расширит проект за пределы этапа | High | Перед задачей проверять `docs/project-acceptance.md`, `docs/second-stage-acceptance.md`, `docs/third-stage-acceptance.md`, `docs/task-12-breakdown.md`, `docs/decisions/README.md` и `AGENTS.md` |
 | Задачи станут слишком крупными | Medium | Делить задачи до размера S/M и не выполнять L/XL без новой декомпозиции |
 | Поведение webhook изменится без обновления документации | Medium | Любое изменение `max-webhook.js` сверять с `docs/zabbix-media-type.md` и ADR |
 | Третий этап начнет промышленную реализацию вместо MVP | Medium | Ограничить scope identity-сценарием и criteria третьего этапа |
@@ -171,7 +177,7 @@ docs/third-stage-acceptance.md
 - Task 1 -> Task 2 -> Task 3;
 - Task 4 -> Task 5 -> Task 8 -> Task 9 -> Task 10;
 - Task 11 -> Task 11.1 -> ADR -> Task 12.x;
-- Task 12 -> Task 12.1 -> Task 12.2 -> Task 12.3 -> Task 12.6.
+- Task 12.0 -> Task 12.1 -> Task 12.2 -> Task 12.3 -> Task 12.4 -> Task 12.5 -> Task 12.6 -> Task 12.7 -> Task 12.8 -> Task 12.9 -> Task 12.10 -> Task 12.11 -> Task 12.12 -> Task 12.13.
 
 ## Definition of Done для плана
 
