@@ -56,19 +56,28 @@ Task 11: Исследовать модульную bot-platform для МАХ и
 Полученное значение используется для настройки получателя уведомлений в Zabbix.
 ```
 
+По итогам Task 11 и Task 11.1 выбран подход:
+
+```text
+Основной путь: Hubot-based MVP MAX Identity Bot
+Fallback: Node-RED workflow-прототип
+ADR: docs/decisions/ADR-0005-use-hubot-for-max-identity-bot-mvp.md
+```
+
 Критерии завершения второго этапа хранятся в:
 
 ```text
 docs/second-stage-acceptance.md
 ```
 
-Рабочее описание исследования Task 11 хранится в:
+Рабочие документы исследования:
 
 ```text
 docs/modular-bot-platform-research.md
+docs/modular-bot-platform-candidates.md
 ```
 
-Второй этап не меняет текущий Zabbix Webhook и не добавляет новый сервис, runtime или входящие webhooks без отдельного ADR.
+Второй этап не меняет текущий Zabbix Webhook. Реализация MVP не начинается без отдельной задачи реализации.
 
 ## Граница текущей принятой интеграции
 
@@ -108,6 +117,7 @@ docs/modular-bot-platform-research.md
 - хранить архитектурные решения в `docs/decisions/`;
 - хранить project-level критерии завершения первого этапа в `docs/project-acceptance.md`;
 - хранить критерии завершения второго этапа в `docs/second-stage-acceptance.md`;
+- по ADR-0005 использовать Hubot как основной вариант MVP `MAX Identity Bot`, а Node-RED только как fallback-прототип;
 - не реализовывать отдельный bot-service без подтвержденных требований и отдельного ADR;
 - не реализовывать очередь, базу данных, журнал доставки, автоматическую повторную отправку или маршрутизацию вне Zabbix без отдельного ADR.
 
