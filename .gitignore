@@ -20,6 +20,13 @@ coverage/
 .idea/
 .vscode/
 
+# Local AI / Codex skills installs
+.agents/external-skills/
+.agent-skills/
+.codex/skills/
+.local/agent-skills/
+vendor/agent-skills/
+
 # Secrets and local exports
 *token*
 *secret*
