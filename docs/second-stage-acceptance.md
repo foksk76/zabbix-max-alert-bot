@@ -7,7 +7,7 @@
 ## Статус
 
 ```text
-Research complete / CI pending
+Accepted
 ```
 
 Исследование второго этапа выполнено: выбран основной подход для MVP `MAX Identity Bot`, подготовлено сравнение кандидатов и создан ADR.
@@ -16,9 +16,9 @@ Research complete / CI pending
 Основной подход: Hubot-based MVP
 Fallback: Node-RED workflow-прототип
 ADR: docs/decisions/ADR-0005-use-hubot-for-max-identity-bot-mvp.md
+CI: confirmed on commit 66a76e7f325ab9127d2cda3effa2a42cd4e92511
+Tests: 14 passed, 0 failed
 ```
-
-Финальное закрытие второго этапа требует подтверждения `npm test` / GitHub Actions после последних документационных изменений.
 
 ## Старт второго этапа
 
@@ -105,7 +105,7 @@ docs/modular-bot-platform-candidates.md
 - [x] Подготовлен ADR на выбранный подход, если требуется новый сервис, runtime или входящие webhooks.
 - [x] Подтверждено, что текущий Zabbix Webhook не меняется в рамках второго этапа без отдельной задачи и ADR.
 - [x] Подтверждено, что первый этап остается принятым и не пересматривается.
-- [ ] Выполнен `npm test`, если менялись файлы, покрываемые policy tests.
+- [x] Выполнен `npm test`, если менялись файлы, покрываемые policy tests.
 
 ## Критерии качества выбора платформы
 
