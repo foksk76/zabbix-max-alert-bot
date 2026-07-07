@@ -118,6 +118,8 @@ docs/project-acceptance.md
 
 ## Task 3: Проверить Problem и Recovery
 
+**Status:** Done
+
 **Description:** Проверить доставку уведомления о проблеме и уведомления о восстановлении через тот же Media type `MAX`.
 
 **Method:** Problem/Recovery run
@@ -126,21 +128,24 @@ docs/project-acceptance.md
 
 **Acceptance criteria:**
 
-- [ ] Проверено событие Problem.
-- [ ] Проверено событие Recovery.
-- [ ] Формат сообщений описан только по фактическому результату проверки.
+- [x] Проверено событие Problem.
+- [x] Проверено событие Recovery.
+- [x] Формат сообщений описан только по фактическому результату проверки.
 
 **Verification:**
 
-- [ ] Проверен текст Problem-сообщения.
-- [ ] Проверен текст Recovery-сообщения.
-- [ ] При расхождении между ожидаемым и фактическим поведением создана отдельная задача или ADR.
+- [x] Проверен текст Problem-сообщения.
+- [x] Проверен текст Recovery-сообщения.
+- [x] При расхождении между ожидаемым и фактическим поведением создана отдельная задача или ADR.
+
+**Result:** Problem и Recovery уведомления успешно доставлены в МАХ через реальный сценарий Zabbix Action. В Problem-сообщении зафиксированы начало проблемы, test trigger, test host, severity, operational data и original problem ID. В Recovery-сообщении зафиксированы восстановление, длительность 1m 0s, test trigger, test host, severity и тот же original problem ID. Нераскрытые макросы в сообщениях не обнаружены. Результат зафиксирован обезличенно в `docs/test-runs/max-problem-recovery-run.md`.
 
 **Dependencies:** Task 2
 
 **Files likely touched:**
 
-- `docs/zabbix-media-type.md`
+- `docs/test-runs/max-problem-recovery-run.md`
+- `docs/test-runs/README.md`
 - `tasks/todo.md`
 
 **Estimated scope:** Small: 1-2 files
