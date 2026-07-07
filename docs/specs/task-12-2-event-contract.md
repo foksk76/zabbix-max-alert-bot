@@ -5,7 +5,7 @@
 ## Status
 
 ```text
-Implemented / CI pending
+Done
 ```
 
 ## Goal
@@ -104,7 +104,7 @@ createInternalEvent(input)
 - [x] Есть helper `isSupportedRecipientKind`.
 - [x] Есть helper `createInternalEvent`.
 - [x] Есть unit-тесты.
-- [ ] `npm test` подтвержден локально или в GitHub Actions.
+- [x] `npm test` подтвержден локально или в GitHub Actions.
 
 ## Verification
 
@@ -112,7 +112,18 @@ createInternalEvent(input)
 - [x] Unit-тест проверяет `chat` kind.
 - [x] Unit-тест проверяет unknown kind.
 - [x] Unit-тест проверяет создание internal event без real payload.
-- [ ] GitHub Actions green после commit.
+- [x] GitHub Actions green после commit.
+
+## CI confirmation
+
+```text
+Commit: 89f63c11ddda36da48ae773f682470710f4638d7
+Node.js: 22.23.1
+npm: 10.9.8
+Tests: 22
+Pass: 22
+Fail: 0
+```
 
 ## Next tasks
 
