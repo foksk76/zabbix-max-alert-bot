@@ -4,9 +4,12 @@
 
 ## Быстрый вход
 
-- [`project-context.md`](project-context.md) — что делает проект, где границы первого этапа и с чего начинается второй этап.
+- [`project-context.md`](project-context.md) — что делает проект, где границы первого этапа, второго этапа и третьего этапа.
 - [`project-acceptance.md`](project-acceptance.md) — единый источник критериев завершения первого этапа.
 - [`second-stage-acceptance.md`](second-stage-acceptance.md) — граница, стартовая задача и критерии завершения второго этапа.
+- [`third-stage-acceptance.md`](third-stage-acceptance.md) — граница и критерии завершения третьего этапа.
+- [`third-stage-implementation-plan.md`](third-stage-implementation-plan.md) — план реализации модульной bot-platform и задач Task 12.x.
+- [`third-stage-stand-and-agent.md`](third-stage-stand-and-agent.md) — WSL/LXC стенд и правила применения Codex agent или аналога.
 - [`zabbix-media-type.md`](zabbix-media-type.md) — параметры и проверка Zabbix Media type `MAX`.
 - [`bot-service-evaluation.md`](bot-service-evaluation.md) — оценка необходимости отдельного bot-service после базовой проверки Zabbix -> МАХ.
 - [`delivery-reliability-options.md`](delivery-reliability-options.md) — будущие варианты повторной отправки, журнала доставки и маршрутизации без немедленной реализации.
