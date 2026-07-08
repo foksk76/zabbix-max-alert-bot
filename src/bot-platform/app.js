@@ -1,6 +1,6 @@
 'use strict';
 
-const { createCore } = require('./core');
+const { createCore, runMaxIdentityDryRun } = require('./core');
 const { createMaxTransport } = require('./transports/max');
 const { createIdentityPlugin } = require('./plugins/identity');
 
@@ -14,10 +14,14 @@ function createBotPlatformApp() {
     },
     plugins: {
       identity: createIdentityPlugin()
+    },
+    pipeline: {
+      dryRun: 'available'
     }
   };
 }
 
 module.exports = {
-  createBotPlatformApp
+  createBotPlatformApp,
+  runMaxIdentityDryRun
 };
