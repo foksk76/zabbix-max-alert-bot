@@ -3,13 +3,14 @@ const assert = require('node:assert/strict');
 
 const { createBotPlatformApp } = require('../../src/bot-platform/app');
 const { createCore } = require('../../src/bot-platform/core');
-const { createMaxTransport } = require('../../src/bot-platform/transports/max');
+const { createMaxTransport, normalizeMaxEvent } = require('../../src/bot-platform/transports/max');
 const { createIdentityPlugin } = require('../../src/bot-platform/plugins/identity');
 
 test('bot platform scaffold modules can be imported', () => {
   assert.equal(typeof createBotPlatformApp, 'function');
   assert.equal(typeof createCore, 'function');
   assert.equal(typeof createMaxTransport, 'function');
+  assert.equal(typeof normalizeMaxEvent, 'function');
   assert.equal(typeof createIdentityPlugin, 'function');
 });
 
@@ -30,5 +31,5 @@ test('MAX transport scaffold does not enable network behavior', () => {
   assert.equal(transport.networkEnabled, false);
   assert.equal(transport.capabilities.inboundWebhook, 'pending');
   assert.equal(transport.capabilities.outboundClient, 'pending');
-  assert.equal(transport.capabilities.eventNormalizer, 'pending');
+  assert.equal(transport.capabilities.eventNormalizer, 'available');
 });
