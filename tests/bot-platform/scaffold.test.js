@@ -4,7 +4,11 @@ const assert = require('node:assert/strict');
 const { createBotPlatformApp } = require('../../src/bot-platform/app');
 const { createCore } = require('../../src/bot-platform/core');
 const { createMaxTransport, normalizeMaxEvent } = require('../../src/bot-platform/transports/max');
-const { createIdentityPlugin } = require('../../src/bot-platform/plugins/identity');
+const {
+  createIdentityPlugin,
+  formatIdentityResponse,
+  handleIdentityEvent
+} = require('../../src/bot-platform/plugins/identity');
 
 test('bot platform scaffold modules can be imported', () => {
   assert.equal(typeof createBotPlatformApp, 'function');
@@ -12,6 +16,8 @@ test('bot platform scaffold modules can be imported', () => {
   assert.equal(typeof createMaxTransport, 'function');
   assert.equal(typeof normalizeMaxEvent, 'function');
   assert.equal(typeof createIdentityPlugin, 'function');
+  assert.equal(typeof formatIdentityResponse, 'function');
+  assert.equal(typeof handleIdentityEvent, 'function');
 });
 
 test('bot platform app scaffold wires placeholder modules', () => {
@@ -32,4 +38,13 @@ test('MAX transport scaffold does not enable network behavior', () => {
   assert.equal(transport.capabilities.inboundWebhook, 'pending');
   assert.equal(transport.capabilities.outboundClient, 'pending');
   assert.equal(transport.capabilities.eventNormalizer, 'available');
+});
+
+test('identity plugin exposes formatter and handler capabilities', () => {
+  const plugin = createIdentityPlugin();
+
+  assert.equal(plugin.status, 'scaffold');
+  assert.equal(plugin.capabilities.userRecipient, 'available');
+  assert.equal(plugin.capabilities.chatRecipient, 'available');
+  assert.equal(plugin.capabilities.responseFormatter, 'available');
 });
