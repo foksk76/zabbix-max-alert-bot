@@ -1,5 +1,7 @@
 'use strict';
 
+const { normalizeMaxEvent } = require('./event-normalizer');
+
 const moduleName = 'max-transport';
 
 function createMaxTransport() {
@@ -9,7 +11,7 @@ function createMaxTransport() {
     capabilities: {
       inboundWebhook: 'pending',
       outboundClient: 'pending',
-      eventNormalizer: 'pending'
+      eventNormalizer: 'available'
     },
     networkEnabled: false
   };
@@ -17,5 +19,6 @@ function createMaxTransport() {
 
 module.exports = {
   moduleName,
-  createMaxTransport
+  createMaxTransport,
+  normalizeMaxEvent
 };
