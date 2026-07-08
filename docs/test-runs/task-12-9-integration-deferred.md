@@ -17,7 +17,7 @@ Deferred
 ## Причина
 
 ```text
-Для реального MAX callback path в режиме `webhook` сейчас нет безопасного ingress-контура.
+Для реального MAX callback path в режиме `webhook` сейчас нет безопасного ingress-контура, а network, DNS и port exposure для callback endpoint не определены.
 ```
 
 `long_polling` для разработки и тестирования допускается в текущем LXC по ADR-0007 и не является блокером. Deferred относится только к real callback path в режиме `webhook`.
@@ -25,10 +25,13 @@ Deferred
 ## Блокеры и условия старта
 
 - нет безопасного ingress-контурa для webhook callback flow;
-- не определены network, DNS и port exposure для webhook endpoint;
+- network для MAX callback path не документирована и не проверена;
+- DNS-имя webhook endpoint не определено;
+- inbound port exposure для webhook endpoint не определён;
 - не создана или не подтверждена локальная конфигурация `.env` на стенде для webhook path;
 - не задействован `systemd` unit для длительного запуска webhook-сервиса;
-- нет подтвержденного real MAX callback path.
+- нет подтвержденного real MAX callback path;
+- webhook остаётся production-only path, а outbound-only LXC остаётся только для `long_polling`.
 
 ## Следующий шаг
 
@@ -51,5 +54,5 @@ internal IPs/domains: none
 ## Вывод
 
 ```text
-Integration: deferred
+Integration: deferred until webhook ingress prerequisites are defined
 ```

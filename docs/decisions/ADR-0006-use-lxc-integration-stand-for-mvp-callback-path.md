@@ -54,6 +54,19 @@ For this project, “defined” means the integration stand has a concrete, docu
 
 If any of these are not known, the callback path is not ready and the integration run stays deferred.
 
+## Webhook ingress prerequisites
+
+Before a real MAX callback run can start, the following must be true for the selected integration stand:
+
+- the network path from MAX to the container is documented and reachable;
+- the callback hostname resolves to the integration stand DNS name;
+- the inbound listener port is known and exposed through the chosen NAT, firewall, proxy, or port-forwarding rule;
+- the service runs under `systemd` with secrets stored locally in the stand checkout;
+- the safe test bot flow has already passed in `long_polling`;
+- the real webhook path remains the only path that validates callback ingress.
+
+If the stand is outbound-only and cannot satisfy these prerequisites, it remains valid for development and testing in `long_polling` but not for the webhook callback run.
+
 ## Implementation sequence
 
 1. Provision or reuse the LXC container in Proxmox.

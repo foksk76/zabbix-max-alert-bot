@@ -64,6 +64,7 @@
 - для MVP предпочтительнее запускать Node.js напрямую без Docker, чтобы не усложнять LXC.
 - в режиме `webhook` этот LXC не подходит без отдельного ingress path;
 - в режиме `long_polling` этот LXC подходит для разработки и тестирования, потому что входящие подключения не требуются.
+- для webhook callback path отдельно должны быть определены network, DNS и port exposure; без этого callback run остаётся deferred.
 
 Итого:
 

@@ -134,16 +134,16 @@ agent-skills:api-and-interface-design
 
 Acceptance criteria:
 
-- [ ] docs explain network prerequisites;
-- [ ] docs explain DNS prerequisites;
-- [ ] docs explain port exposure prerequisites;
-- [ ] docs state webhook is production-only;
-- [ ] `npm test` проходит.
+- [x] docs explain network prerequisites;
+- [x] docs explain DNS prerequisites;
+- [x] docs explain port exposure prerequisites;
+- [x] docs state webhook is production-only;
+- [x] `npm test` проходит.
 
 Verification:
 
-- [ ] docs review;
-- [ ] `npm test`.
+- [x] docs review;
+- [x] `npm test`.
 
 Dependencies:
 
@@ -160,6 +160,12 @@ docs/test-runs/task-12-9-integration-deferred.md
 docs/runbooks/bot-platform-stand.md
 ```
 
+Result:
+
+```text
+Webhook ingress prerequisites are documented in ADR-0006, the stand notes, and the integration-deferred record. The production-only webhook boundary is explicit, and npm test passes.
+```
+
 Estimated scope: S
 
 ## Checkpoint: After Task 14.1
@@ -171,6 +177,6 @@ Estimated scope: S
 
 ## Checkpoint: After Task 14.2
 
-- [ ] webhook ingress prerequisites are documented;
-- [ ] production-only boundary is explicit;
-- [ ] `npm test` passes.
+- [x] webhook ingress prerequisites are documented;
+- [x] production-only boundary is explicit;
+- [x] `npm test` passes.
