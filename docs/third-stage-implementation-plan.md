@@ -35,6 +35,22 @@ Fallback: Node-RED workflow-прототип
 | `transports/max/event-normalizer` | преобразование события МАХ во внутренний формат |
 | `plugins/identity` | определение типа получателя и формирование ответа |
 
+## Локальный dry-run
+
+Для проверки MVP без реального MAX API используйте synthetic fixtures и CLI entrypoint:
+
+```bash
+node src/bot-platform/app.js examples/bot-platform/max-inbound-user.fixture.json
+node src/bot-platform/app.js examples/bot-platform/max-inbound-chat.fixture.json
+```
+
+Ожидаемое поведение:
+
+- результат печатает обезличенный dry-run response;
+- `networkEnabled` остается `false`;
+- `raw` payload не попадает в вывод;
+- реальные токены, callback URL, chat_id/user_id и внутренние адреса не используются.
+
 ## Предлагаемая структура репозитория
 
 ```text
@@ -126,7 +142,7 @@ Verification:
 - проверка, что учетные данные не логируются;
 - интеграционный прогон с тестовым ботом фиксируется отдельно.
 
-### Task 12.4: Подготовить stand runbook
+### Task 12.7: Подготовить stand runbook
 
 Scope:
 
@@ -144,7 +160,7 @@ Verification:
 - описана взаимозаменяемость WSL и LXC;
 - указано, что публикация внешнего endpoint на этом шаге не выполняется.
 
-### Task 12.5: Подготовить Codex agent workflow
+### Task 12.8: Подготовить Codex agent workflow
 
 Scope:
 

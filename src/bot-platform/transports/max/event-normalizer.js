@@ -37,16 +37,20 @@ function normalizeMaxEvent(payload) {
 
 function getRecipientFromChat(chat, sender) {
   if (chat.type === 'dialog') {
+    const userId = typeof sender.id === 'string' && sender.id ? sender.id : undefined;
+
     return {
       kind: RECIPIENT_KIND_USER,
-      value: sender.id || chat.id
+      value: userId
     };
   }
 
   if (chat.type === 'group') {
+    const chatId = typeof chat.id === 'string' && chat.id ? chat.id : undefined;
+
     return {
       kind: RECIPIENT_KIND_CHAT,
-      value: chat.id
+      value: chatId
     };
   }
 

@@ -1,6 +1,7 @@
 'use strict';
 
-const { normalizeMaxEvent } = require('../transports/max');
+const { normalizeMaxEvent } = require('../transports/max/event-normalizer');
+const { createMaxOutboundClient } = require('../transports/max/outbound-client');
 const { handleIdentityEvent } = require('../plugins/identity');
 const { createEventRouter } = require('./event-router');
 
@@ -10,10 +11,14 @@ function runMaxIdentityDryRun(maxPayload) {
     identity: handleIdentityEvent
   });
 
+  const response = router.route(event, { route: 'identity' });
+  const outboundClient = createMaxOutboundClient();
+
   return {
     mode: 'dry-run',
     networkEnabled: false,
-    response: router.route(event, { route: 'identity' })
+    response,
+    outbound: outboundClient.send(response)
   };
 }
 

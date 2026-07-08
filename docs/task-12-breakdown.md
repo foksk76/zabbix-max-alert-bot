@@ -43,6 +43,8 @@ src/bot-platform/
 
 Task 12 не обязана подключаться к реальному API МАХ. Она должна подготовить каркас, контракты модулей, безопасную конфигурацию и первые тесты.
 
+Нумерация ниже синхронизирована с `tasks/plan.md`: `Task 12.8` зарезервирована под Codex agent workflow, а последующие задачи сдвинуты на +1.
+
 ## Task 12.0: Зафиксировать baseline перед кодом
 
 Goal:
@@ -444,7 +446,60 @@ Risks:
 
 - преждевременно реализовать сложный plugin framework вместо минимального router.
 
-## Task 12.8: Реализовать config и безопасный logger
+## Task 12.8: Описать и применить Codex agent workflow
+
+Goal:
+
+Зафиксировать рабочий workflow для Codex agent на третьем этапе и привязать его к обязательным проверкам перед завершением Task 12.x.
+
+Scope:
+
+- описать, как агент получает задачу;
+- описать разрешенные команды и проверки;
+- описать запреты на изменение границ проекта и текущего Zabbix Webhook;
+- описать обязательные шаги перед обновлением task status.
+
+Out of scope:
+
+- новый runtime;
+- CI changes;
+- real API integration;
+- secret management.
+
+Dependencies:
+
+- Task 12.7;
+- `docs/third-stage-stand-and-agent.md`.
+
+Files likely touched:
+
+```text
+docs/third-stage-stand-and-agent.md
+docs/specs/task-12-8-agent-workflow.md
+docs/test-runs/task-12-8-agent-workflow-run.md
+tasks/plan.md
+```
+
+Acceptance criteria:
+
+- [ ] workflow описан в каноничном документе;
+- [ ] workflow ссылается на обязательные проверки;
+- [ ] workflow запрещает менять текущий Zabbix Webhook без отдельного решения;
+- [ ] `npm test` проходит после документационных изменений.
+
+Verification:
+
+- [ ] review workflow text;
+- [ ] `npm test`;
+- [ ] git diff по webhook пустой.
+
+Estimated size: S
+
+Risks:
+
+- агент начнет действовать вне каноничного контекста.
+
+## Task 12.9: Реализовать config и безопасный logger
 
 Goal:
 
@@ -478,16 +533,16 @@ tests/bot-platform/logger.test.js
 
 Acceptance criteria:
 
-- [ ] config читает нужные переменные;
-- [ ] env.example не содержит реальных секретов;
-- [ ] logger маскирует секретные значения;
-- [ ] `npm test` проходит.
+- [x] config читает нужные переменные;
+- [x] env.example не содержит реальных секретов;
+- [x] logger маскирует секретные значения;
+- [x] `npm test` проходит.
 
 Verification:
 
-- [ ] unit-тест config defaults;
-- [ ] unit-тест masking;
-- [ ] `npm test`.
+- [x] unit-тест config defaults;
+- [x] unit-тест masking;
+- [x] `npm test`.
 
 Estimated size: M
 
@@ -495,7 +550,14 @@ Risks:
 
 - случайно вывести токен или идентификатор в лог.
 
-## Task 12.9: Реализовать outbound client contract без реального API
+Result:
+
+- `src/bot-platform/core/config.js` добавлен и читает значения из environment.
+- `src/bot-platform/core/logger.js` добавлен и маскирует секреты в тексте и контексте.
+- `examples/bot-platform/env.example` добавлен с synthetic placeholders.
+- `npm test` подтвержден после изменения.
+
+## Task 12.10: Реализовать outbound client contract без реального API
 
 Goal:
 
@@ -517,7 +579,7 @@ Out of scope:
 Dependencies:
 
 - Task 12.5;
-- Task 12.8.
+- Task 12.9.
 
 Files likely touched:
 
@@ -528,18 +590,18 @@ tests/bot-platform/max-outbound-client.test.js
 
 Acceptance criteria:
 
-- [ ] outbound client принимает response object;
-- [ ] dry-run не делает сеть;
-- [ ] payload не содержит лишние raw поля;
-- [ ] token не логируется;
-- [ ] `npm test` проходит.
+- [x] outbound client принимает response object;
+- [x] dry-run не делает сеть;
+- [x] payload не содержит лишние raw поля;
+- [x] token не логируется;
+- [x] `npm test` проходит.
 
 Verification:
 
-- [ ] unit-тест payload construction;
-- [ ] unit-тест dry-run;
-- [ ] unit-тест no token in logs;
-- [ ] `npm test`.
+- [x] unit-тест payload construction;
+- [x] unit-тест dry-run;
+- [x] unit-тест no token in logs;
+- [x] `npm test`.
 
 Estimated size: M
 
@@ -547,7 +609,14 @@ Risks:
 
 - случайно добавить реальный API вызов раньше интеграционного этапа.
 
-## Task 12.10: Реализовать inbound webhook handler без публикации endpoint
+Result:
+
+- `src/bot-platform/transports/max/outbound-client.js` добавлен и строит dry-run request.
+- `src/bot-platform/transports/max/index.js` экспортирует outbound client helper.
+- `src/bot-platform/core/dry-run-pipeline.js` теперь проходит через dry-run outbound client.
+- `npm test` подтвержден после изменения.
+
+## Task 12.11: Реализовать inbound webhook handler без публикации endpoint
 
 Goal:
 
@@ -572,7 +641,7 @@ Dependencies:
 
 - Task 12.4;
 - Task 12.7;
-- Task 12.9.
+- Task 12.10.
 
 Files likely touched:
 
@@ -583,18 +652,18 @@ tests/bot-platform/max-inbound-webhook.test.js
 
 Acceptance criteria:
 
-- [ ] handler принимает user fixture;
-- [ ] handler принимает chat fixture;
-- [ ] handler возвращает response object;
-- [ ] invalid request обрабатывается безопасно;
-- [ ] `npm test` проходит.
+- [x] handler принимает user fixture;
+- [x] handler принимает chat fixture;
+- [x] handler возвращает response object;
+- [x] invalid request обрабатывается безопасно;
+- [x] `npm test` проходит.
 
 Verification:
 
-- [ ] unit-тест user request;
-- [ ] unit-тест chat request;
-- [ ] unit-тест invalid request;
-- [ ] `npm test`.
+- [x] unit-тест user request;
+- [x] unit-тест chat request;
+- [x] unit-тест invalid request;
+- [x] `npm test`.
 
 Estimated size: M
 
@@ -602,7 +671,27 @@ Risks:
 
 - смешать локальный handler и реальный exposed endpoint.
 
-## Task 12.11: Собрать app entrypoint для локального dry-run
+Result:
+
+```text
+src/bot-platform/transports/max/inbound-webhook.js
+tests/bot-platform/max-inbound-webhook.test.js
+tests/bot-platform/scaffold.test.js
+tests/bot-platform/dry-run-pipeline.test.js
+```
+
+```text
+npm test: pass
+networkEnabled: false
+response payload exposure: none
+invalid request handling: safe
+```
+
+```text
+Task 12.11 inbound webhook implementation: pass
+```
+
+## Task 12.12: Собрать app entrypoint для локального dry-run
 
 Goal:
 
@@ -623,7 +712,7 @@ Out of scope:
 
 Dependencies:
 
-- Task 12.10.
+- Task 12.11.
 
 Files likely touched:
 
@@ -635,16 +724,16 @@ tests/bot-platform/app-dry-run.test.js
 
 Acceptance criteria:
 
-- [ ] dry-run запускается на user fixture;
-- [ ] dry-run запускается на chat fixture;
-- [ ] результат не содержит секретов;
-- [ ] `npm test` проходит.
+- [x] dry-run запускается на user fixture;
+- [x] dry-run запускается на chat fixture;
+- [x] результат не содержит секретов;
+- [x] `npm test` проходит.
 
 Verification:
 
-- [ ] локальный dry-run;
-- [ ] unit-тест CLI behavior, если удобно;
-- [ ] `npm test`.
+- [x] локальный dry-run;
+- [x] unit-тест CLI behavior, если удобно;
+- [x] `npm test`.
 
 Estimated size: M
 
@@ -652,7 +741,26 @@ Risks:
 
 - добавить слишком сложный CLI вместо минимального dry-run.
 
-## Task 12.12: Обновить документацию запуска dry-run
+Result:
+
+```text
+src/bot-platform/app.js
+tests/bot-platform/app-dry-run.test.js
+```
+
+```text
+npm test: pass
+user fixture CLI: pass
+chat fixture CLI: pass
+networkEnabled: false
+raw payload exposure: none
+```
+
+```text
+Task 12.12 dry-run app entrypoint: pass
+```
+
+## Task 12.13: Обновить документацию запуска dry-run
 
 Goal:
 
@@ -672,7 +780,7 @@ Out of scope:
 
 Dependencies:
 
-- Task 12.11.
+- Task 12.12.
 
 Files likely touched:
 
@@ -684,15 +792,15 @@ README.md или docs/README.md, если нужна ссылка
 
 Acceptance criteria:
 
-- [ ] есть команды запуска dry-run;
-- [ ] есть описание user/chat fixtures;
-- [ ] есть предупреждение о секретах;
-- [ ] `npm test` проходит после документационных изменений.
+- [x] есть команды запуска dry-run;
+- [x] есть описание user/chat fixtures;
+- [x] есть предупреждение о секретах;
+- [x] `npm test` проходит после документационных изменений.
 
 Verification:
 
-- [ ] выполнить команды из документа;
-- [ ] `npm test`.
+- [x] выполнить команды из документа;
+- [x] `npm test`.
 
 Estimated size: S
 
@@ -700,7 +808,26 @@ Risks:
 
 - документация устареет относительно фактических команд.
 
-## Task 12.13: Security review перед реальным API
+Result:
+
+```text
+docs/third-stage-implementation-plan.md
+examples/bot-platform/README.md
+README.md
+```
+
+```text
+npm test: pass
+dry-run command examples: documented
+synthetic fixtures: documented
+secret warning: documented
+```
+
+```text
+Task 12.13 dry-run documentation: pass
+```
+
+## Task 12.14: Security review перед реальным API
 
 Goal:
 
@@ -722,7 +849,7 @@ Out of scope:
 
 Dependencies:
 
-- Task 12.12.
+- Task 12.13.
 
 Files likely touched:
 
@@ -732,16 +859,16 @@ docs/test-runs/task-12-dry-run.md
 
 Acceptance criteria:
 
-- [ ] review note создан;
-- [ ] `npm test` подтвержден;
-- [ ] Zabbix Webhook не изменен;
-- [ ] sensitive values не найдены.
+- [x] review note создан;
+- [x] `npm test` подтвержден;
+- [x] Zabbix Webhook не изменен;
+- [x] sensitive values не найдены.
 
 Verification:
 
-- [ ] grep/review sensitive placeholders;
-- [ ] `npm test`;
-- [ ] git diff по webhook.
+- [x] grep/review sensitive placeholders;
+- [x] `npm test`;
+- [x] git diff по webhook.
 
 Estimated size: S
 
@@ -749,17 +876,34 @@ Risks:
 
 - перейти к реальному API без проверки локального каркаса.
 
+Result:
+
+```text
+docs/test-runs/task-12-dry-run.md
+```
+
+```text
+npm test: pass
+webhook diff: none
+sensitive values: none
+real MAX API / callback URL / tokens / internal IPs: not used
+```
+
+```text
+Task 12.14 security review: pass
+```
+
 ## Рекомендуемый порядок выполнения
 
 ```text
-12.0 -> 12.1 -> 12.2 -> 12.3 -> 12.4 -> 12.5 -> 12.6 -> 12.7 -> 12.8 -> 12.9 -> 12.10 -> 12.11 -> 12.12 -> 12.13
+12.0 -> 12.1 -> 12.2 -> 12.3 -> 12.4 -> 12.5 -> 12.6 -> 12.7 -> 12.8 -> 12.9 -> 12.10 -> 12.11 -> 12.12 -> 12.13 -> 12.14
 ```
 
 Можно выполнять параллельно после Task 12.2:
 
 ```text
 12.3 fixtures
-12.8 config/logger
+12.8 Codex agent workflow
 ```
 
 Но код normalizer, identity handler и router лучше выполнять последовательно.
@@ -772,6 +916,7 @@ Risks:
 - [ ] Есть normalizer.
 - [ ] Есть identity formatter и handler.
 - [ ] Есть event router.
+- [ ] Есть Codex agent workflow.
 - [ ] Есть config/logger.
 - [ ] Есть outbound client dry-run contract.
 - [ ] Есть inbound handler для локального вызова.

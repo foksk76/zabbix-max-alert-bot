@@ -21,6 +21,9 @@ test('dry-run pipeline returns identity response for user fixture', () => {
   assert.equal(result.response.recipient.kind, 'user');
   assert.equal(result.response.zabbix.recipientType, 'user_id');
   assert.equal(result.response.zabbix.to, '<synthetic-user-id>');
+  assert.equal(result.outbound.mode, 'dry-run');
+  assert.equal(result.outbound.networkEnabled, false);
+  assert.equal(result.outbound.request.body.recipientType, 'user_id');
 });
 
 test('dry-run pipeline returns identity response for chat fixture', () => {
@@ -32,6 +35,7 @@ test('dry-run pipeline returns identity response for chat fixture', () => {
   assert.equal(result.response.recipient.kind, 'chat');
   assert.equal(result.response.zabbix.recipientType, 'chat_id');
   assert.equal(result.response.zabbix.to, '<synthetic-chat-id>');
+  assert.equal(result.outbound.request.body.recipientType, 'chat_id');
 });
 
 test('dry-run pipeline does not expose raw event payload in response', () => {
@@ -40,6 +44,7 @@ test('dry-run pipeline does not expose raw event payload in response', () => {
   assert.equal(result.response.raw, undefined);
   assert.doesNotMatch(result.response.text, /<synthetic-message-id>/);
   assert.equal(result.raw, undefined);
+  assert.equal(result.outbound.request.body.raw, undefined);
 });
 
 test('dry-run pipeline rejects invalid MAX payload safely', () => {

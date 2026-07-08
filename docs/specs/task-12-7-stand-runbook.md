@@ -5,7 +5,7 @@
 ## Status
 
 ```text
-Planned / pre-implementation spec
+Done / verified
 ```
 
 ## Goal
@@ -218,10 +218,25 @@ Runbook не должен содержать:
 
 ## Verification
 
-- [ ] Проверить содержание runbook по этому spec.
-- [ ] Проверить отсутствие реальных секретов и URL.
-- [ ] Проверить, что `src/zabbix-media-type/max-webhook.js` не менялся.
-- [ ] Запустить или зафиксировать необходимость запуска `npm test` после изменений документации.
+- [x] Проверить содержание runbook по этому spec.
+- [x] Проверить отсутствие реальных секретов и URL.
+- [x] Проверить, что `src/zabbix-media-type/max-webhook.js` не менялся.
+- [x] Запустить `npm test` после изменений документации.
+
+## Verification result
+
+```text
+Stand type: LXC
+Commit: b8ac4a813b1b2721b707d0e35ca82f41eae5b50f
+Node.js: v24.16.0
+npm: 11.13.0
+npm test: pass
+User fixture dry-run: pass
+Chat fixture dry-run: pass
+networkEnabled: false
+raw payload exposed: no
+src/zabbix-media-type/max-webhook.js: unchanged
+```
 
 ## Files likely touched
 

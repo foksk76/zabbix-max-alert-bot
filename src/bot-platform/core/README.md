@@ -60,3 +60,26 @@ RECIPIENT_KINDS
 isSupportedRecipientKind(kind)
 createInternalEvent(input)
 ```
+
+## Config and logger
+
+`config.js` и `logger.js` добавляют минимальный runtime-контракт для будущих задач третьего этапа.
+
+### `config.js`
+
+```text
+createBotPlatformConfig(environment)
+```
+
+### `logger.js`
+
+```text
+createSafeLogger({ secrets, config, write })
+maskText(value, secrets)
+maskValue(value, secrets)
+```
+
+Logger маскирует:
+
+- явные секреты, переданные в `secrets`;
+- значения чувствительных ключей вроде `token`, `password`, `authorization`, `apiKey`.

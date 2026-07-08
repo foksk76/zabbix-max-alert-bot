@@ -135,9 +135,14 @@ docs/task-12-breakdown.md
 - [x] Task 12.4: Done — реализовать MAX event normalizer без сети; CI подтвержден на commit `abf0d734b421ba6687a8143e84adb6e0031928fb`.
 - [x] Task 12.5: Done — реализовать identity formatter и handler; CI подтвержден на commit `24a0d5137af5b08f6b64ea1f5003bc6d7061dc2c`.
 - [x] Task 12.6: Done — реализовать event router и dry-run pipeline; CI подтвержден на commit `61c3ba6220e7cd6dd3877590756c418728b06ab2`.
-- [ ] Task 12.7: Подготовить взаимозаменяемые WSL/LXC stand runbook и проверить выбранный стенд.
-- [ ] Task 12.8: Описать и применить Codex agent workflow.
-- [ ] Task 12.9: Выполнить интеграционный прогон MVP или зафиксировать отложенный статус.
+- [x] Task 12.7: Подготовить взаимозаменяемые WSL/LXC stand runbook и проверить выбранный стенд.
+- [x] Task 12.8: Описать и применить Codex agent workflow.
+- [x] Task 12.9: Реализовать config и безопасный logger; CI подтвержден в `docs/test-runs/task-12-9-config-logger-run.md`.
+- [x] Task 12.10: Реализовать outbound client contract без реального API; CI подтвержден в `docs/test-runs/task-12-10-outbound-client-run.md`.
+- [x] Task 12.11: Реализовать inbound webhook handler без публикации endpoint; CI подтвержден в `docs/test-runs/task-12-11-inbound-webhook-run.md`.
+- [x] Task 12.12: Собрать app entrypoint для локального dry-run; CI подтвержден в `docs/test-runs/task-12-12-dry-run-cli-run.md`.
+- [x] Task 12.13: Обновить документацию запуска dry-run; CI подтвержден в `docs/test-runs/task-12-13-dry-run-docs-run.md`.
+- [x] Task 12.14: Security review перед реальным API; CI подтвержден в `docs/test-runs/task-12-dry-run.md`.
 
 ### Checkpoint: Перед кодом третьего этапа
 
@@ -188,7 +193,7 @@ docs/task-12-breakdown.md
 - Task 1 -> Task 2 -> Task 3;
 - Task 4 -> Task 5 -> Task 8 -> Task 9 -> Task 10;
 - Task 11 -> Task 11.1 -> ADR -> Task 12.x;
-- Task 12.0 -> Task 12.1 -> Task 12.2 -> Task 12.3 -> Task 12.4 -> Task 12.5 -> Task 12.6 -> Task 12.7 -> Task 12.8 -> Task 12.9.
+- Task 12.0 -> Task 12.1 -> Task 12.2 -> Task 12.3 -> Task 12.4 -> Task 12.5 -> Task 12.6 -> Task 12.7 -> Task 12.8 -> Task 12.9 -> Task 12.10 -> Task 12.11 -> Task 12.12 -> Task 12.13 -> Task 12.14.
 
 ## Definition of Done для плана
 

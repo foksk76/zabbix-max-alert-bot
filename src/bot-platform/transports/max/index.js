@@ -1,6 +1,8 @@
 'use strict';
 
 const { normalizeMaxEvent } = require('./event-normalizer');
+const { createMaxOutboundClient, buildMaxOutboundPayload } = require('./outbound-client');
+const { createMaxInboundWebhookHandler } = require('./inbound-webhook');
 
 const moduleName = 'max-transport';
 
@@ -9,8 +11,8 @@ function createMaxTransport() {
     moduleName,
     status: 'scaffold',
     capabilities: {
-      inboundWebhook: 'pending',
-      outboundClient: 'pending',
+      inboundWebhook: 'available',
+      outboundClient: 'available',
       eventNormalizer: 'available'
     },
     networkEnabled: false
@@ -20,5 +22,8 @@ function createMaxTransport() {
 module.exports = {
   moduleName,
   createMaxTransport,
-  normalizeMaxEvent
+  normalizeMaxEvent,
+  createMaxInboundWebhookHandler,
+  createMaxOutboundClient,
+  buildMaxOutboundPayload
 };

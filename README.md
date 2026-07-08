@@ -60,6 +60,8 @@ docs/zabbix-media-type.md
 
 Критерии завершения первого этапа хранятся только в `docs/project-acceptance.md`.
 
+Для локальной проверки bot-platform без реального MAX API см. `docs/third-stage-implementation-plan.md` и `examples/bot-platform/README.md`.
+
 Перед изменением архитектуры, границ проекта, процесса разработки или внешних зависимостей сначала проверяются ADR в `docs/decisions/`.
 
 ## Задачи

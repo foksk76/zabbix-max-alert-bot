@@ -26,3 +26,14 @@ synthetic MAX event -> event normalizer -> internal event contract
 ```
 
 Task 12.3 only adds fixtures and tests for their presence and safety. The normalizer is implemented in the next task.
+
+## Local dry-run
+
+Use the fixtures with the CLI entrypoint:
+
+```bash
+node src/bot-platform/app.js examples/bot-platform/max-inbound-user.fixture.json
+node src/bot-platform/app.js examples/bot-platform/max-inbound-chat.fixture.json
+```
+
+The output is synthetic and safe for repository storage. Do not add real tokens, callback URLs, recipient identifiers or internal addresses.

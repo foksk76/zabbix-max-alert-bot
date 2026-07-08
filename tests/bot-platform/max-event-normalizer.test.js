@@ -68,3 +68,15 @@ test('normalizeMaxEvent rejects event without recipient value', () => {
     /Missing MAX recipient value/
   );
 });
+
+test('normalizeMaxEvent rejects dialog event without sender id', () => {
+  assert.throws(
+    () => normalizeMaxEvent({
+      source: 'max',
+      chat: { type: 'dialog', id: '<synthetic-user-id>' },
+      sender: { type: 'user' },
+      message: { id: '<synthetic-message-id>', text: 'hello' }
+    }),
+    /Missing MAX recipient value/
+  );
+});
