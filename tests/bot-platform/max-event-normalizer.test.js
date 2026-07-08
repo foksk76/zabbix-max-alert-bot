@@ -57,7 +57,7 @@ test('normalizeMaxEvent rejects unsupported chat type', () => {
   );
 });
 
-test('normalizeMaxEvent rejects event without recipient identifier', () => {
+test('normalizeMaxEvent rejects event without recipient value', () => {
   assert.throws(
     () => normalizeMaxEvent({
       source: 'max',
@@ -65,6 +65,6 @@ test('normalizeMaxEvent rejects event without recipient identifier', () => {
       sender: { type: 'user', id: '<synthetic-user-id>' },
       message: { id: '<synthetic-message-id>', text: 'hello' }
     }),
-    /Missing MAX recipient identifier/
+    /Missing MAX recipient value/
   );
 });
