@@ -134,7 +134,7 @@ docs/task-12-breakdown.md
 - [x] Task 12.3: Done — добавить обезличенные fixtures входящих событий; CI подтвержден на commit `3c7c2494a80b5ad4560a65adf9fda295f69207e3`.
 - [x] Task 12.4: Done — реализовать MAX event normalizer без сети; CI подтвержден на commit `abf0d734b421ba6687a8143e84adb6e0031928fb`.
 - [x] Task 12.5: Done — реализовать identity formatter и handler; CI подтвержден на commit `24a0d5137af5b08f6b64ea1f5003bc6d7061dc2c`.
-- [ ] Task 12.6: Реализовать event router и dry-run pipeline.
+- [x] Task 12.6: Done — реализовать event router и dry-run pipeline; CI подтвержден на commit `61c3ba6220e7cd6dd3877590756c418728b06ab2`.
 - [ ] Task 12.7: Проверить WSL/LXC stand и подготовить runbook.
 - [ ] Task 12.8: Описать и применить Codex agent workflow.
 - [ ] Task 12.9: Выполнить интеграционный прогон MVP или зафиксировать отложенный статус.
@@ -152,6 +152,7 @@ docs/task-12-breakdown.md
 - [x] Synthetic MAX fixtures добавлены и проверены.
 - [x] MAX event normalizer реализован и проверен.
 - [x] Identity formatter и handler реализованы и проверены.
+- [x] Event router и dry-run pipeline реализованы и проверены.
 - [ ] Выбрана первичная среда разработки: WSL или LXC.
 - [ ] Подтверждено, что текущий Zabbix Webhook не меняется.
 
