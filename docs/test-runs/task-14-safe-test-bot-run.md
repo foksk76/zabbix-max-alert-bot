@@ -5,7 +5,7 @@
 ## Статус
 
 ```text
-Implemented locally / LXC manual run pending
+Implemented locally / current operator host smoke pass / LXC manual run pending
 ```
 
 ## Дата
@@ -32,18 +32,19 @@ docs/third-stage-stand-and-agent.md
 
 ```text
 npm test: pass
-node src/bot-platform/app.js: starts safe test service in long_polling mode
+timeout 1s node src/bot-platform/app.js: starts safe test service in long_polling mode with synthetic updates
 long polling loop recovery: pass
 src/zabbix-media-type/max-webhook.js: unchanged
 real secrets: none
 callback URL: none
 chat_id/user_id: none
 systemd unit: documented
-LXC manual run: pending in target outbound-only container
+current operator host: pass
+target outbound-only LXC manual run: pending
 ```
 
 ## Вывод
 
 ```text
-Safe test bot runtime is implemented and covered by local tests. Manual LXC verification remains a follow-up step for the target outbound-only container.
+Safe test bot runtime is implemented and covered by local tests. The current operator host smoke check passed; target outbound-only LXC verification remains pending.
 ```

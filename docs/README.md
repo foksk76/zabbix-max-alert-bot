@@ -11,6 +11,7 @@
 - [`third-stage-implementation-plan.md`](third-stage-implementation-plan.md) — план реализации модульной bot-platform и задач Task 12.x.
 - [`task-12-breakdown.md`](task-12-breakdown.md) — детальная декомпозиция Task 12 по `planning-and-task-breakdown`.
 - [`third-stage-stand-and-agent.md`](third-stage-stand-and-agent.md) — WSL/LXC стенд и правила применения Codex agent или аналога.
+- [`runbooks/INSTALL.md`](runbooks/INSTALL.md) — пошаговая установка safe test bot для текущего operator host и outbound-only LXC.
 - [`zabbix-media-type.md`](zabbix-media-type.md) — параметры и проверка Zabbix Media type `MAX`.
 - [`bot-service-evaluation.md`](bot-service-evaluation.md) — оценка необходимости отдельного bot-service после базовой проверки Zabbix -> МАХ.
 - [`delivery-reliability-options.md`](delivery-reliability-options.md) — будущие варианты повторной отправки, журнала доставки и маршрутизации без немедленной реализации.
