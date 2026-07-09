@@ -112,6 +112,9 @@ npm run verify
 
 ## Статус
 
-Базовая интеграция Zabbix -> МАХ подтверждена: тестовое сообщение, Problem и Recovery доставляются в МАХ; существующий Telegram-канал продолжает работать; МАХ дублирует Telegram; GitHub Actions green.
+Проект принят по `docs/project-acceptance.md`: Zabbix -> МАХ доставка подтверждена, бот МАХ возвращает `user_id` / `chat_id`, существующий Telegram-канал продолжает работать, МАХ дублирует Telegram, GitHub Actions green.
 
-Task 6 и Task 7 остаются future/deferred и не блокируют завершение проекта.
+Post-acceptance follow-up:
+
+- Task 13 остается открытым и не входит в project acceptance gate.
+- Task 6 и Task 7 остаются future/deferred и не блокируют завершение проекта.

@@ -4,7 +4,7 @@
 
 ## Быстрый вход
 
-- [`project-context.md`](project-context.md) — что делает проект, где границы первого этапа, второго этапа и третьего этапа.
+- [`project-context.md`](project-context.md) — что делает проект, где принят scope и где находятся post-acceptance follow-up задачи.
 - [`project-acceptance.md`](project-acceptance.md) — единый источник критериев завершения проекта.
 - [`second-stage-acceptance.md`](second-stage-acceptance.md) — граница, стартовая задача и критерии завершения второго этапа.
 - [`third-stage-acceptance.md`](third-stage-acceptance.md) — граница и критерии завершения третьего этапа.
