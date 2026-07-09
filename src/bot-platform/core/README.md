@@ -69,10 +69,28 @@ createInternalEvent(input)
 
 ```text
 createBotPlatformConfig(environment)
+createLiveRuntimeConfig(environment)
 ```
 
-Конфиг читает `MAX_TRANSPORT_MODE` из environment и по умолчанию использует `long_polling`.
+`createBotPlatformConfig` читает `MAX_TRANSPORT_MODE` из environment и по умолчанию использует `long_polling`.
 Допустимые значения: `long_polling`, `webhook`.
+
+`createLiveRuntimeConfig` строит discriminated live runtime contract:
+
+```text
+{ mode: "long_polling", ...validatedLongPollingConfig }
+{ mode: "webhook", error: { code: "TRANSPORT_NOT_IMPLEMENTED", message: "Не реализовано: transport mode webhook" } }
+```
+
+Для `long_polling` live config требует заполненные `MAX_API_URL` и `MAX_BOT_TOKEN`. Ошибка валидации не раскрывает секреты и использует code `CONFIG_VALIDATION_ERROR`.
+
+### `live-pipeline.js`
+
+```text
+createIdentityUpdateProcessor({ outboundClient, router, outboundClientOptions })
+```
+
+Преобразует нормализованный MAX update в identity response и отправляет его через injectable outbound client boundary. Long polling runtime использует этот helper через опциональный `processUpdate` callback, а synthetic dry-run path остается без изменений.
 
 ### `logger.js`
 

@@ -8,7 +8,13 @@
 Done: Task 1, Task 1.1, Task 2, Task 3, Task 4, Task 5, Task 6.1, Task 8, Task 9, Task 10, Task 14
 Deferred/Future: Task 6, Task 7
 Done: Task 18.1, Task 18.2
-Open: Task 18.3-18.10
+Done: Task 18.3
+Done: Task 18.4
+Done: Task 18.5
+Done: Task 18.6
+Done: Task 18.7
+Done: Task 18.8
+Open: Task 18.9-18.10
 ```
 
 Task 6 и Task 7 относятся к будущей локальной проверке форматирования вне Zabbix runtime. Они не блокируют завершение проекта, потому что ручной сценарий Zabbix -> МАХ уже проверен в Task 2 и Task 3.
@@ -639,7 +645,7 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 ## Task 18.3: Add live runtime config and secret validation
 
-**Status:** Open
+**Status:** Done
 
 **Description:** Добавить конфигурационные границы для live runtime по Task 18.2: `long_polling` как первый supported live mode, `webhook` как явная заглушка `Не реализовано: transport mode webhook`, обязательные переменные, mode-specific validation, безопасные defaults и запрет запуска live mode без токена и API URL.
 
@@ -649,20 +655,22 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 **Acceptance criteria:**
 
-- [ ] Live runtime валидирует обязательные переменные окружения.
-- [ ] `MAX_TRANSPORT_MODE=webhook` завершает runtime ошибкой `Не реализовано: transport mode webhook` без сетевых вызовов.
-- [ ] Ошибки конфигурации не раскрывают секреты.
-- [ ] Existing dry-run/safe-test behavior не ломается.
+- [x] Live runtime валидирует обязательные переменные окружения.
+- [x] `MAX_TRANSPORT_MODE=webhook` завершает runtime ошибкой `Не реализовано: transport mode webhook` без сетевых вызовов.
+- [x] Ошибки конфигурации не раскрывают секреты.
+- [x] Existing dry-run/safe-test behavior не ломается.
 
 **Verification:**
 
-- [ ] Unit tests for valid live config.
-- [ ] Unit tests for missing/invalid live config.
-- [ ] `npm test`.
+- [x] Unit tests for valid live config.
+- [x] Unit tests for missing/invalid live config.
+- [x] `npm test`.
+
+**Result:** В `src/bot-platform/core/config.js` добавлен `createLiveRuntimeConfig(environment)`. Он возвращает discriminated live runtime result для `long_polling`, отдает `TRANSPORT_NOT_IMPLEMENTED` для `webhook` и валидирует наличие `MAX_API_URL` и `MAX_BOT_TOKEN` для live long polling без раскрытия секретов. `src/bot-platform/app.js` теперь завершает `webhook`-запуск точным сообщением `Не реализовано: transport mode webhook`.
 
 **Dependencies:** Task 18.2, ADR-0011
 
-**Files likely touched:** `src/bot-platform/core/config.js`, `tests/bot-platform/config.test.js`, `examples/bot-platform/env.example`, `docs/runbooks/`
+**Files likely touched:** `src/bot-platform/core/config.js`, `src/bot-platform/core/index.js`, `src/bot-platform/app.js`, `tests/bot-platform/config.test.js`, `tests/bot-platform/app-dry-run.test.js`, `examples/bot-platform/env.example`, `examples/bot-platform/README.md`, `src/bot-platform/core/README.md`
 
 **Estimated scope:** Medium
 
@@ -670,7 +678,7 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 ## Task 18.4: Implement live outbound MAX client behind an injectable HTTP boundary
 
-**Status:** Open
+**Status:** Done
 
 **Description:** Реализовать отправку ответа через MAX Bot API за injectable HTTP boundary по outbound contract Task 18.2, чтобы тесты не использовали реальную сеть и реальные секреты.
 
@@ -680,20 +688,22 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 **Acceptance criteria:**
 
-- [ ] Outbound client строит live request по spec Task 18.2.
-- [ ] HTTP transport injectable and fakeable in tests.
-- [ ] Logs and errors redact token, `user_id`, `chat_id`.
+- [x] Outbound client строит live request по spec Task 18.2.
+- [x] HTTP transport injectable and fakeable in tests.
+- [x] Logs and errors redact token, `user_id`, `chat_id`.
 
 **Verification:**
 
-- [ ] Unit tests with fake HTTP success.
-- [ ] Unit tests with fake HTTP error.
-- [ ] Secret redaction tests.
-- [ ] `npm test`.
+- [x] Unit tests with fake HTTP success.
+- [x] Unit tests with fake HTTP error.
+- [x] Secret redaction tests.
+- [x] `npm test`.
+
+**Result:** `createMaxOutboundClient` теперь поддерживает injectable `httpClient.post(request)` boundary, строит live request для `POST /messages?user_id=<id>` и `POST /messages?chat_id=<id>`, добавляет `Authorization` header только в live mode, а dry-run behavior остается прежним. Добавлены `MAX_API_ERROR` и live HTTP error normalization без раскрытия токена и recipient identifiers.
 
 **Dependencies:** Task 18.2, Task 18.3
 
-**Files likely touched:** `src/bot-platform/transports/max/outbound-client.js`, `tests/bot-platform/max-outbound-client.test.js`, `src/bot-platform/core/logger.js`
+**Files likely touched:** `src/bot-platform/transports/max/outbound-client.js`, `src/bot-platform/transports/max/index.js`, `tests/bot-platform/max-outbound-client.test.js`
 
 **Estimated scope:** Medium
 
@@ -701,7 +711,7 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 ## Task 18.5: Implement live inbound MAX updates client for the selected transport
 
-**Status:** Open
+**Status:** Done
 
 **Description:** Реализовать получение live updates через `GET /updates` для выбранного в Task 18.2 режима `long_polling`. `webhook` в рамках этой задачи не реализуется и остается заглушкой из Task 18.3.
 
@@ -711,21 +721,23 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 **Acceptance criteria:**
 
-- [ ] Inbound client получает updates через `GET /updates` по spec Task 18.2.
-- [ ] Inbound client передает `marker` в следующий poll для ack предыдущих событий.
-- [ ] HTTP transport injectable and fakeable in tests.
-- [ ] Invalid API responses fail safely without leaking payload secrets.
+- [x] Inbound client получает updates через `GET /updates` по spec Task 18.2.
+- [x] Inbound client передает `marker` в следующий poll для ack предыдущих событий.
+- [x] HTTP transport injectable and fakeable in tests.
+- [x] Invalid API responses fail safely without leaking payload secrets.
 
 **Verification:**
 
-- [ ] Unit tests with fake update response.
-- [ ] Unit tests with empty response.
-- [ ] Unit tests with API error response.
-- [ ] `npm test`.
+- [x] Unit tests with fake update response.
+- [x] Unit tests with empty response.
+- [x] Unit tests with API error response.
+- [x] `npm test`.
+
+**Result:** Создан `src/bot-platform/transports/max/inbound-updates.js` с `createMaxInboundUpdatesClient` и `buildMaxInboundUpdatesRequest`. Клиент строит `GET /updates` для `long_polling`, поддерживает injectable `httpClient.get(request)`, хранит `marker` в состоянии клиента и валидирует response shape безопасно. Добавлены tests на marker memory, empty response, API error и invalid payload.
 
 **Dependencies:** Task 18.2, Task 18.3
 
-**Files likely touched:** `src/bot-platform/transports/max/`, `src/bot-platform/runtime/`, `tests/bot-platform/`
+**Files likely touched:** `src/bot-platform/transports/max/inbound-updates.js`, `src/bot-platform/transports/max/index.js`, `tests/bot-platform/max-inbound-updates-client.test.js`
 
 **Estimated scope:** Medium
 
@@ -733,7 +745,7 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 ## Task 18.6: Connect live inbound updates to the identity pipeline
 
-**Status:** Open
+**Status:** Done
 
 **Description:** Подключить live inbound updates к существующему flow `normalizeMaxEvent -> event-router -> identity handler -> outbound client`, сохранив synthetic dry-run path.
 
@@ -743,19 +755,21 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 **Acceptance criteria:**
 
-- [ ] Live update проходит через normalizer and identity plugin.
-- [ ] Live response отправляется через outbound client boundary.
-- [ ] Existing `runMaxIdentityDryRun` and synthetic long polling tests continue to pass.
+- [x] Live update проходит через normalizer and identity plugin.
+- [x] Live response отправляется через outbound client boundary.
+- [x] Existing `runMaxIdentityDryRun` and synthetic long polling tests continue to pass.
 
 **Verification:**
 
-- [ ] Integration-style test with fake inbound and fake outbound.
-- [ ] Regression tests for dry-run.
-- [ ] `npm test`.
+- [x] Integration-style test with fake inbound and fake outbound.
+- [x] Regression tests for dry-run.
+- [x] `npm test`.
+
+**Result:** Добавлен `src/bot-platform/core/live-pipeline.js` с `createIdentityUpdateProcessor`, который нормализует live inbound MAX payload, прогоняет его через identity router и отправляет response через injectable outbound client boundary. `createLongPollingService` теперь принимает `processUpdate` и по умолчанию сохраняет dry-run behavior, поэтому synthetic long polling tests остаются зелеными.
 
 **Dependencies:** Task 18.4, Task 18.5
 
-**Files likely touched:** `src/bot-platform/runtime/long-polling.js`, `src/bot-platform/core/`, `src/bot-platform/app.js`, `tests/bot-platform/`
+**Files likely touched:** `src/bot-platform/core/live-pipeline.js`, `src/bot-platform/core/index.js`, `src/bot-platform/runtime/long-polling.js`, `tests/bot-platform/long-polling-runtime.test.js`
 
 **Estimated scope:** Medium
 
@@ -763,7 +777,7 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 ## Task 18.7: Add live service entrypoint and operational runbook
 
-**Status:** Open
+**Status:** Done
 
 **Description:** Добавить документированный способ запуска live bot в operator/LXC среде: foreground command, systemd guidance, log inspection, rollback to dry-run/safe-test.
 
@@ -773,15 +787,15 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 **Acceptance criteria:**
 
-- [ ] Live startup command documented.
-- [ ] systemd guidance separates safe-test and live mode.
-- [ ] Rollback and log inspection documented without exposing secrets.
+- [x] Live startup command documented.
+- [x] systemd guidance separates safe-test and live mode.
+- [x] Rollback and log inspection documented without exposing secrets.
 
 **Verification:**
 
-- [ ] Foreground startup can be tested without real network using fake mode or dry-run guard.
-- [ ] `npm test`.
-- [ ] Documentation contains no real secrets or IDs.
+- [x] Foreground startup can be tested without real network using fake mode or dry-run guard.
+- [x] `npm test`.
+- [x] Documentation contains no real secrets or IDs.
 
 **Dependencies:** Task 18.6
 
@@ -789,11 +803,13 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 **Estimated scope:** Medium
 
+**Result:** Добавлен live entrypoint `node src/bot-platform/app.js --live`, отдельный `systemd/max-identity-bot-live.service` и операционный runbook `docs/runbooks/live-identity-bot.md`. Safe-test путь и synthetic fixtures сохранены без изменений.
+
 ---
 
 ## Task 18.8: Add security review and failure-mode tests for live runtime
 
-**Status:** Open
+**Status:** Done
 
 **Description:** Проверить live runtime на безопасную обработку ошибок: API failures, malformed updates, missing config, redaction, no raw payload leaks.
 
@@ -803,21 +819,23 @@ Task 13 выполнена и подтверждена в `docs/test-runs/task-1
 
 **Acceptance criteria:**
 
-- [ ] Ошибки API классифицированы без раскрытия секретов.
-- [ ] Malformed updates do not crash the long-running service permanently.
-- [ ] Raw live payload is not logged by default.
+- [x] Ошибки API классифицированы без раскрытия секретов.
+- [x] Malformed updates do not crash the long-running service permanently.
+- [x] Raw live payload is not logged by default.
 
 **Verification:**
 
-- [ ] Failure-mode tests pass.
-- [ ] Manual code review notes recorded in `docs/test-runs/`.
-- [ ] `npm test`.
+- [x] Failure-mode tests pass.
+- [x] Manual code review notes recorded in `docs/test-runs/`.
+- [x] `npm test`.
 
 **Dependencies:** Task 18.6
 
 **Files likely touched:** `tests/bot-platform/`, `src/bot-platform/runtime/`, `src/bot-platform/core/logger.js`, `docs/test-runs/`
 
 **Estimated scope:** Medium
+
+**Result:** Добавлены failure-mode tests для malformed inbound updates и outbound API 503, live runtime использует redacting logger boundary по умолчанию, а security review зафиксирован в `docs/test-runs/task-18-8-live-runtime-security-review.md`.
 
 ---
 

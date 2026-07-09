@@ -3,7 +3,14 @@
 const moduleName = 'config';
 const DEFAULT_LOG_LEVEL = 'info';
 const DEFAULT_MAX_TRANSPORT_MODE = 'long_polling';
+const DEFAULT_MAX_POLL_LIMIT = 100;
+const DEFAULT_MAX_POLL_TIMEOUT_SECONDS = 30;
+const DEFAULT_MAX_POLL_TYPES = Object.freeze(['message_created', 'bot_started', 'bot_added']);
 const MAX_TRANSPORT_MODES = new Set(['long_polling', 'webhook']);
+const CONFIG_VALIDATION_ERROR_CODE = 'CONFIG_VALIDATION_ERROR';
+const TRANSPORT_NOT_IMPLEMENTED_ERROR_CODE = 'TRANSPORT_NOT_IMPLEMENTED';
+const WEBHOOK_NOT_IMPLEMENTED_MESSAGE = 'Не реализовано: transport mode webhook';
+const INVALID_LIVE_RUNTIME_MESSAGE = 'Invalid MAX live runtime configuration';
 
 function createBotPlatformConfig(environment = process.env) {
   const maxTransportMode = readTransportMode(environment, 'MAX_TRANSPORT_MODE', DEFAULT_MAX_TRANSPORT_MODE);
@@ -15,7 +22,59 @@ function createBotPlatformConfig(environment = process.env) {
     maxBotToken: readEnvValue(environment, 'MAX_BOT_TOKEN'),
     httpProxy: readEnvValue(environment, 'MAX_HTTP_PROXY'),
     logLevel: readEnvValue(environment, 'MAX_LOG_LEVEL', DEFAULT_LOG_LEVEL),
-    maxTransportMode
+    maxTransportMode,
+    maxPollLimit: readIntegerEnvValue(environment, 'MAX_POLL_LIMIT', DEFAULT_MAX_POLL_LIMIT, 1, 1000),
+    maxPollTimeoutSeconds: readIntegerEnvValue(
+      environment,
+      'MAX_POLL_TIMEOUT_SECONDS',
+      DEFAULT_MAX_POLL_TIMEOUT_SECONDS,
+      0,
+      90
+    ),
+    maxPollTypes: readListEnvValue(environment, 'MAX_POLL_TYPES', DEFAULT_MAX_POLL_TYPES)
+  };
+}
+
+function createLiveRuntimeConfig(environment = process.env) {
+  const config = createBotPlatformConfig(environment);
+
+  if (config.maxTransportMode === 'webhook') {
+    return {
+      moduleName,
+      status: 'available',
+      mode: 'webhook',
+      error: createConfigError(TRANSPORT_NOT_IMPLEMENTED_ERROR_CODE, WEBHOOK_NOT_IMPLEMENTED_MESSAGE)
+    };
+  }
+
+  const missingFields = [];
+
+  if (config.maxApiUrl === '') {
+    missingFields.push('MAX_API_URL');
+  }
+
+  if (config.maxBotToken === '') {
+    missingFields.push('MAX_BOT_TOKEN');
+  }
+
+  if (missingFields.length > 0) {
+    throw createConfigError(CONFIG_VALIDATION_ERROR_CODE, INVALID_LIVE_RUNTIME_MESSAGE, {
+      missing: missingFields
+    });
+  }
+
+  return {
+    moduleName,
+    status: 'available',
+    mode: 'long_polling',
+    maxApiUrl: config.maxApiUrl,
+    maxBotToken: config.maxBotToken,
+    httpProxy: config.httpProxy,
+    logLevel: config.logLevel,
+    maxTransportMode: config.maxTransportMode,
+    maxPollLimit: config.maxPollLimit,
+    maxPollTimeoutSeconds: config.maxPollTimeoutSeconds,
+    maxPollTypes: config.maxPollTypes
   };
 }
 
@@ -37,9 +96,62 @@ function readTransportMode(environment, key, fallback = DEFAULT_MAX_TRANSPORT_MO
   return rawValue;
 }
 
+function readIntegerEnvValue(environment, key, fallback, min, max) {
+  const rawValue = readEnvValue(environment, key);
+
+  if (!rawValue) {
+    return fallback;
+  }
+
+  const value = Number(rawValue);
+
+  if (!Number.isInteger(value) || value < min || value > max) {
+    throw new Error(`Invalid ${key} value: ${rawValue}`);
+  }
+
+  return value;
+}
+
+function readListEnvValue(environment, key, fallback) {
+  const rawValue = readEnvValue(environment, key);
+
+  if (!rawValue) {
+    return [...fallback];
+  }
+
+  const values = rawValue
+    .split(',')
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+
+  if (values.length === 0) {
+    return [...fallback];
+  }
+
+  return values;
+}
+
+function createConfigError(code, message, details = {}) {
+  const error = new Error(message);
+  error.code = code;
+
+  if (details && Object.keys(details).length > 0) {
+    error.details = details;
+  }
+
+  return error;
+}
+
 module.exports = {
   moduleName,
   createBotPlatformConfig,
+  createLiveRuntimeConfig,
   DEFAULT_MAX_TRANSPORT_MODE,
-  MAX_TRANSPORT_MODES
+  DEFAULT_MAX_POLL_LIMIT,
+  DEFAULT_MAX_POLL_TIMEOUT_SECONDS,
+  DEFAULT_MAX_POLL_TYPES,
+  MAX_TRANSPORT_MODES,
+  CONFIG_VALIDATION_ERROR_CODE,
+  TRANSPORT_NOT_IMPLEMENTED_ERROR_CODE,
+  WEBHOOK_NOT_IMPLEMENTED_MESSAGE
 };

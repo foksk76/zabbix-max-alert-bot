@@ -2,7 +2,8 @@
 
 const { createEventRouter } = require('./event-router');
 const { runMaxIdentityDryRun } = require('./dry-run-pipeline');
-const { createBotPlatformConfig } = require('./config');
+const { createIdentityUpdateProcessor } = require('./live-pipeline');
+const { createBotPlatformConfig, createLiveRuntimeConfig } = require('./config');
 const { createSafeLogger } = require('./logger');
 
 const moduleName = 'core';
@@ -26,6 +27,8 @@ module.exports = {
   moduleName,
   createCore,
   createBotPlatformConfig,
+  createLiveRuntimeConfig,
+  createIdentityUpdateProcessor,
   createSafeLogger,
   createEventRouter,
   runMaxIdentityDryRun

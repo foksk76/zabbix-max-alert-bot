@@ -10,7 +10,9 @@ const { createIdentityPlugin } = require('./plugins/identity');
 const {
   createSyntheticLongPollingSource,
   createLongPollingService,
-  runLongPollingCycle
+  runLongPollingCycle,
+  createLiveBotPlatformService,
+  createLiveServiceShutdownHandlers
 } = require('./runtime');
 
 function createBotPlatformApp(environment = process.env) {
@@ -48,6 +50,18 @@ function startBotPlatformService(environment = process.env, options = {}) {
   });
 }
 
+function startLiveBotPlatformService(environment = process.env, options = {}) {
+  const liveService = createLiveBotPlatformService(environment, options);
+
+  if (options.installSignalHandlers !== false) {
+    createLiveServiceShutdownHandlers(liveService, options.io);
+  }
+
+  liveService.start();
+
+  return liveService;
+}
+
 function runBotPlatformDryRun(fixturePath) {
   if (typeof fixturePath !== 'string' || fixturePath.length === 0) {
     throw new Error('Fixture path is required');
@@ -73,8 +87,8 @@ function runBotPlatformLongPollingOnce(environment = process.env, options = {}) 
   });
 }
 
-function main(argv = process.argv.slice(2), io = { stdout: process.stdout, stderr: process.stderr }) {
-  const environment = process.env;
+function main(argv = process.argv.slice(2), io = { stdout: process.stdout, stderr: process.stderr }, options = {}) {
+  const environment = options.environment || process.env;
   const app = createBotPlatformApp(environment);
 
   if (argv.length === 0) {
@@ -84,8 +98,26 @@ function main(argv = process.argv.slice(2), io = { stdout: process.stdout, stder
       return 0;
     }
 
-    io.stderr.write('Webhook runtime is not implemented in this repository\n');
+    io.stderr.write('Не реализовано: transport mode webhook\n');
     return 1;
+  }
+
+  if (isLiveCommand(argv)) {
+    try {
+      const startLiveService = typeof options.startLiveBotPlatformService === 'function'
+        ? options.startLiveBotPlatformService
+        : startLiveBotPlatformService;
+
+      startLiveService(environment, {
+        ...options.liveOptions,
+        io
+      });
+      io.stdout.write('MAX bot-platform live service started in long_polling mode\n');
+      return 0;
+    } catch (error) {
+      io.stderr.write(`${error.message}\n`);
+      return 1;
+    }
   }
 
   if (argv.length !== 1) {
@@ -107,10 +139,15 @@ if (require.main === module) {
   process.exitCode = main();
 }
 
+function isLiveCommand(argv) {
+  return argv.length === 1 && (argv[0] === '--live' || argv[0] === 'live');
+}
+
 module.exports = {
   createBotPlatformApp,
   runBotPlatformLongPollingOnce,
   startBotPlatformService,
+  startLiveBotPlatformService,
   runMaxIdentityDryRun,
   runBotPlatformDryRun,
   main

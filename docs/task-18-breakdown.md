@@ -69,40 +69,40 @@ Checkpoint:
 
 Outcome: code has safe live config boundaries and a tested outbound client interface.
 
-- Task 18.3: Add live runtime config and secret validation.
-- Task 18.4: Implement live outbound MAX client behind an injectable HTTP boundary.
+- Task 18.3: Add live runtime config and secret validation. Done: config boundary rejects invalid long polling live env and returns webhook not-implemented stub.
+- Task 18.4: Implement live outbound MAX client behind an injectable HTTP boundary. Done: live request builder uses injectable HTTP transport and safe error normalization.
 
 Checkpoint:
 
-- [ ] `npm test` passes.
-- [ ] Tests prove secrets are not logged.
-- [ ] Outbound client tests use fake HTTP only.
+- [x] `npm test` passes.
+- [x] Tests prove secrets are not logged.
+- [x] Outbound client tests use fake HTTP only.
 
 ### Sprint 2: Live Inbound
 
 Outcome: bot can fetch or receive real MAX updates through the selected live transport boundary.
 
-- Task 18.5: Implement live inbound MAX updates client for `long_polling`.
-- Task 18.6: Connect live inbound updates to the identity pipeline.
+- Task 18.5: Implement live inbound MAX updates client for `long_polling`. Done: stateful polling client stores `marker` and validates API responses.
+- Task 18.6: Connect live inbound updates to the identity pipeline. Done: live inbound update processor routes normalized MAX events to identity handler and outbound client boundary.
 
 Checkpoint:
 
-- [ ] `npm test` passes.
-- [ ] Existing synthetic dry-run still works.
-- [ ] Live runtime can be exercised with fake MAX API responses.
+- [x] `npm test` passes.
+- [x] Existing synthetic dry-run still works.
+- [x] Live runtime can be exercised with fake MAX API responses.
 
 ### Sprint 3: Runtime And Operations
 
 Outcome: operator can run the live bot safely with local secrets.
 
-- Task 18.7: Add live service entrypoint and operational runbook.
-- Task 18.8: Add security review and failure-mode tests for live runtime.
+- Task 18.7: Add live service entrypoint and operational runbook. Done: `node src/bot-platform/app.js --live` starts live long polling, and `docs/runbooks/live-identity-bot.md` documents start/stop/logs/rollback.
+- Task 18.8: Add security review and failure-mode tests for live runtime. Done: malformed inbound and outbound 503 failure modes are covered, and live runtime uses redacting logger boundary by default.
 
 Checkpoint:
 
-- [ ] `npm test` passes.
-- [ ] Runbook explains start, stop, logs and rollback.
-- [ ] `.env` and service docs do not contain real secrets.
+- [x] `npm test` passes.
+- [x] Runbook explains start, stop, logs and rollback.
+- [x] `.env` and service docs do not contain real secrets.
 
 ### Sprint 4: Live Acceptance
 

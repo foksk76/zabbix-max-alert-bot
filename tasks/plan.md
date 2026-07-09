@@ -237,36 +237,36 @@ Checkpoint:
 
 #### Sprint 1: Live Boundaries
 
-- [ ] Task 18.3: Add live runtime config and secret validation.
-- [ ] Task 18.4: Implement live outbound MAX client behind an injectable HTTP boundary.
+- [x] Task 18.3: Add live runtime config and secret validation.
+- [x] Task 18.4: Implement live outbound MAX client behind an injectable HTTP boundary.
 
 Checkpoint:
 
-- [ ] `npm test` passes.
-- [ ] Tests prove secrets are not logged.
-- [ ] Outbound client tests use fake HTTP only.
+- [x] `npm test` passes.
+- [x] Tests prove secrets are not logged.
+- [x] Outbound client tests use fake HTTP only.
 
 #### Sprint 2: Live Inbound
 
-- [ ] Task 18.5: Implement live inbound MAX updates client for the selected transport.
-- [ ] Task 18.6: Connect live inbound updates to the identity pipeline.
+- [x] Task 18.5: Implement live inbound MAX updates client for the selected transport.
+- [x] Task 18.6: Connect live inbound updates to the identity pipeline.
 
 Checkpoint:
 
-- [ ] `npm test` passes.
-- [ ] Existing synthetic dry-run still works.
-- [ ] Live runtime can be exercised with fake MAX API responses.
+- [x] `npm test` passes.
+- [x] Existing synthetic dry-run still works.
+- [x] Live runtime can be exercised with fake MAX API responses.
 
 #### Sprint 3: Runtime And Operations
 
-- [ ] Task 18.7: Add live service entrypoint and operational runbook.
-- [ ] Task 18.8: Add security review and failure-mode tests for live runtime.
+- [x] Task 18.7: Add live service entrypoint and operational runbook.
+- [x] Task 18.8: Add security review and failure-mode tests for live runtime.
 
 Checkpoint:
 
-- [ ] `npm test` passes.
-- [ ] Runbook explains start, stop, logs and rollback.
-- [ ] `.env` and service docs do not contain real secrets.
+- [x] `npm test` passes.
+- [x] Runbook explains start, stop, logs and rollback.
+- [x] `.env` and service docs do not contain real secrets.
 
 #### Sprint 4: Live Acceptance
 

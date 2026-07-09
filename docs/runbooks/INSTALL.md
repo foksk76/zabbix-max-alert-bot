@@ -2,6 +2,12 @@
 
 Этот документ описывает пошаговую установку safe test bot для текущего оператора без inbound traffic и отдельно отмечает шаги для LXC со `systemd`.
 
+Для live mode используйте отдельный runbook:
+
+```text
+docs/runbooks/live-identity-bot.md
+```
+
 ## Назначение
 
 ```text

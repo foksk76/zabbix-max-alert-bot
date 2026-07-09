@@ -38,6 +38,82 @@ test('normalizeMaxEvent maps chat fixture to internal chat recipient event', () 
   assert.equal(event.raw.value, '<synthetic-message-id>');
 });
 
+test('normalizeMaxEvent maps official personal message_created shape to sender user', () => {
+  const event = normalizeMaxEvent({
+    update_type: 'message_created',
+    message: {
+      id: '<synthetic-message-id>',
+      sender: {
+        user_id: 1001
+      },
+      recipient: {
+        chat_id: 2002
+      },
+      body: {
+        text: 'show my recipient id'
+      }
+    }
+  });
+
+  assert.equal(event.recipient.kind, 'user');
+  assert.equal(event.recipient.value, '1001');
+  assert.equal(event.message.text, 'show my recipient id');
+  assert.equal(event.raw.value, '<synthetic-message-id>');
+});
+
+test('normalizeMaxEvent maps official chat message_created shape to chat recipient', () => {
+  const event = normalizeMaxEvent({
+    update_type: 'message_created',
+    chat_id: 2002,
+    message: {
+      id: '<synthetic-message-id>',
+      sender: {
+        user_id: 1001
+      },
+      recipient: {
+        chat_id: 2002
+      },
+      body: {
+        text: 'show this chat recipient id'
+      }
+    }
+  });
+
+  assert.equal(event.recipient.kind, 'chat');
+  assert.equal(event.recipient.value, '2002');
+  assert.equal(event.message.text, 'show this chat recipient id');
+});
+
+test('normalizeMaxEvent maps official bot_started shape to user recipient', () => {
+  const event = normalizeMaxEvent({
+    update_type: 'bot_started',
+    timestamp: 1,
+    user: {
+      user_id: 1001
+    }
+  });
+
+  assert.equal(event.recipient.kind, 'user');
+  assert.equal(event.recipient.value, '1001');
+  assert.equal(event.message.text, '');
+});
+
+test('normalizeMaxEvent maps official bot_added shape to chat recipient', () => {
+  const event = normalizeMaxEvent({
+    update_type: 'bot_added',
+    timestamp: 1,
+    chat_id: 2002,
+    user: {
+      user_id: 1001
+    },
+    is_channel: false
+  });
+
+  assert.equal(event.recipient.kind, 'chat');
+  assert.equal(event.recipient.value, '2002');
+  assert.equal(event.message.text, '');
+});
+
 test('normalizeMaxEvent rejects missing payload', () => {
   assert.throws(
     () => normalizeMaxEvent(),

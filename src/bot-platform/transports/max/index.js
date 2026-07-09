@@ -1,7 +1,17 @@
 'use strict';
 
 const { normalizeMaxEvent } = require('./event-normalizer');
-const { createMaxOutboundClient, buildMaxOutboundPayload } = require('./outbound-client');
+const {
+  createMaxOutboundClient,
+  buildMaxOutboundPayload,
+  buildMaxOutboundRequest,
+  MAX_API_ERROR_CODE
+} = require('./outbound-client');
+const {
+  createMaxInboundUpdatesClient,
+  buildMaxInboundUpdatesRequest,
+  normalizeUpdatesResponse
+} = require('./inbound-updates');
 const { createMaxInboundWebhookHandler } = require('./inbound-webhook');
 
 const moduleName = 'max-transport';
@@ -30,5 +40,10 @@ module.exports = {
   normalizeMaxEvent,
   createMaxInboundWebhookHandler,
   createMaxOutboundClient,
-  buildMaxOutboundPayload
+  buildMaxOutboundPayload,
+  buildMaxOutboundRequest,
+  createMaxInboundUpdatesClient,
+  buildMaxInboundUpdatesRequest,
+  normalizeUpdatesResponse,
+  MAX_API_ERROR_CODE
 };

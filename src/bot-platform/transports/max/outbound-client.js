@@ -1,20 +1,30 @@
 'use strict';
 
+const { buildSafeTransportErrorDetails } = require('./error-details');
+
 const moduleName = 'max-outbound-client';
+const MAX_API_ERROR_CODE = 'MAX_API_ERROR';
+const DEFAULT_NOTIFY = true;
+const DEFAULT_FORMAT = 'markdown';
 
 function createMaxOutboundClient(options = {}) {
   const logger = createLogger(options.logger);
   const apiUrl = typeof options.apiUrl === 'string' && options.apiUrl.trim()
     ? options.apiUrl.trim()
     : '<synthetic-max-api-url>';
+  const token = typeof options.token === 'string' && options.token.trim()
+    ? options.token.trim()
+    : '';
+  const httpClient = createHttpClient(options.httpClient);
+  const networkEnabled = options.networkEnabled === true && httpClient !== null;
 
   return {
     moduleName,
     status: 'available',
-    networkEnabled: false,
+    networkEnabled,
     send(response) {
       const payload = buildMaxOutboundPayload(response);
-      const request = {
+      const dryRunRequest = {
         method: 'POST',
         url: apiUrl,
         headers: {
@@ -23,20 +33,159 @@ function createMaxOutboundClient(options = {}) {
         body: payload
       };
 
-      logger.info('prepared MAX outbound dry-run request', {
-        apiUrl,
+      logger.info('prepared MAX outbound request', {
         recipientType: payload.recipientType,
-        to: payload.to
+        networkEnabled
       });
 
-      return {
-        mode: 'dry-run',
-        networkEnabled: false,
-        request,
-        payload
-      };
+      if (!networkEnabled) {
+        return {
+          mode: 'dry-run',
+          networkEnabled: false,
+          request: dryRunRequest,
+          payload
+        };
+      }
+
+      try {
+        const request = buildMaxOutboundRequest(response, {
+          apiUrl,
+          token
+        });
+        const httpResponse = httpClient.post(request);
+        const normalizedResponse = normalizeHttpResponse(httpResponse);
+
+        if (normalizedResponse.statusCode < 200 || normalizedResponse.statusCode >= 300) {
+          throw createMaxApiError(normalizedResponse.statusCode);
+        }
+
+        logger.info('sent MAX outbound response', {
+          statusCode: normalizedResponse.statusCode,
+          recipientType: payload.recipientType,
+          networkEnabled: true
+        });
+
+        return {
+          mode: 'live',
+          networkEnabled: true,
+          request,
+          response: normalizedResponse,
+          payload
+        };
+      } catch (error) {
+        throw normalizeMaxApiError(error);
+      }
     }
   };
+}
+
+function buildMaxOutboundRequest(response, options = {}) {
+  const payload = buildMaxOutboundPayload(response);
+
+  const apiUrl = typeof options.apiUrl === 'string' && options.apiUrl.trim()
+    ? options.apiUrl.trim()
+    : '<synthetic-max-api-url>';
+  const token = typeof options.token === 'string' && options.token.trim()
+    ? options.token.trim()
+    : '';
+  const recipientType = payload.recipientType;
+  const to = payload.to;
+  const requestUrl = buildRecipientUrl(apiUrl, recipientType, to);
+  const body = buildLiveOutboundBody(response);
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  if (token) {
+    headers.Authorization = token;
+  }
+
+  return {
+    method: 'POST',
+    url: requestUrl,
+    headers,
+    body
+  };
+}
+
+function buildLiveOutboundBody(identityResponse) {
+  return {
+    text: typeof identityResponse.text === 'string' ? identityResponse.text : '',
+    notify: typeof identityResponse.notify === 'boolean' ? identityResponse.notify : DEFAULT_NOTIFY,
+    format: typeof identityResponse.format === 'string' && identityResponse.format.trim()
+      ? identityResponse.format.trim().toLowerCase()
+      : DEFAULT_FORMAT
+  };
+}
+
+function buildRecipientUrl(apiUrl, recipientType, to) {
+  const url = new URL(apiUrl);
+
+  url.searchParams.set(recipientType, to);
+
+  return url.toString();
+}
+
+function normalizeHttpResponse(response) {
+  if (response && typeof response === 'object' && !Array.isArray(response)) {
+    return {
+      statusCode: Number.isInteger(response.statusCode) ? response.statusCode : 200,
+      body: Object.prototype.hasOwnProperty.call(response, 'body') ? response.body : response
+    };
+  }
+
+  return {
+    statusCode: 200,
+    body: response
+  };
+}
+
+function createMaxApiError(statusCode, extraDetails = {}) {
+  const error = new Error('MAX API request failed');
+  error.code = MAX_API_ERROR_CODE;
+  error.details = { ...extraDetails };
+
+  if (Number.isInteger(statusCode) && statusCode > 0) {
+    error.details.statusCode = statusCode;
+  }
+
+  return error;
+}
+
+function normalizeMaxApiError(error) {
+  if (error && typeof error === 'object' && error.code === MAX_API_ERROR_CODE) {
+    return error;
+  }
+
+  if (error && typeof error === 'object' && Number.isInteger(error.statusCode)) {
+    return createMaxApiError(error.statusCode);
+  }
+
+  if (error && typeof error === 'object' && error.message) {
+    const normalized = new Error('MAX API request failed');
+    normalized.code = MAX_API_ERROR_CODE;
+    normalized.details = buildSafeTransportErrorDetails(error, {
+      reason: 'transport failure'
+    });
+
+    return normalized;
+  }
+
+  return createMaxApiError(0);
+}
+
+function createHttpClient(httpClient) {
+  if (httpClient && typeof httpClient.post === 'function') {
+    return httpClient;
+  }
+
+  if (typeof httpClient === 'function') {
+    return {
+      post: httpClient
+    };
+  }
+
+  return null;
 }
 
 function buildMaxOutboundPayload(response) {
@@ -73,5 +222,7 @@ function createLogger(logger) {
 module.exports = {
   moduleName,
   createMaxOutboundClient,
-  buildMaxOutboundPayload
+  buildMaxOutboundPayload,
+  buildMaxOutboundRequest,
+  MAX_API_ERROR_CODE
 };

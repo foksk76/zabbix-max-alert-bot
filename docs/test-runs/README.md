@@ -14,6 +14,8 @@
 
 Live test-run для Task 18 пока отсутствует.
 
+- [`task-18-8-live-runtime-security-review.md`](task-18-8-live-runtime-security-review.md) — security review и failure-mode coverage для live runtime до live acceptance.
+
 Для приемки нужен отдельный обезличенный документ, который подтвердит:
 
 - реальное входящее сообщение МАХ;

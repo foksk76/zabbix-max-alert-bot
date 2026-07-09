@@ -43,7 +43,7 @@ The output is synthetic and safe for repository storage. Do not add real tokens,
 The bot-platform uses `MAX_TRANSPORT_MODE` to choose the runtime transport mode:
 
 - `long_polling` — default for development and testing in the current LXC;
-- `webhook` — production ingress mode when the endpoint is reachable from MAX.
+- `webhook` — reserved live mode and current not-implemented stub: `Не реализовано: transport mode webhook`.
 
 Keep the value in the local `.env` file and out of version control.
 

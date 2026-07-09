@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const { runMaxIdentityDryRun } = require('../core/dry-run-pipeline');
+const { createConsoleRuntimeLogger } = require('./log-format');
 
 const DEFAULT_INTERVAL_MS = 1000;
 const DEFAULT_FIXTURE_FILES = [
@@ -37,7 +38,11 @@ function createLongPollingService(options = {}) {
   const logger = createLogger(options.logger);
   const onUpdate = typeof options.onUpdate === 'function' ? options.onUpdate : null;
   const onError = typeof options.onError === 'function' ? options.onError : null;
+  const onCycleSuccess = typeof options.onCycleSuccess === 'function' ? options.onCycleSuccess : null;
   const maxCycles = normalizeMaxCycles(options.maxCycles);
+  const processUpdate = typeof options.processUpdate === 'function'
+    ? options.processUpdate
+    : runMaxIdentityDryRun;
 
   const state = {
     mode: 'long_polling',
@@ -54,11 +59,16 @@ function createLongPollingService(options = {}) {
 
   async function tick() {
     if (stopped || running) {
+      logger.warn('long polling tick skipped', {
+        stopped,
+        running,
+        polls: state.polls,
+        updates: state.updates
+      });
       return state;
     }
 
     running = true;
-
     try {
       const updates = await pollUpdates();
 
@@ -69,19 +79,28 @@ function createLongPollingService(options = {}) {
       state.polls += 1;
 
       for (const update of updates) {
-        const result = runMaxIdentityDryRun(update);
+        const result = await processUpdate(update);
 
         state.updates += 1;
         state.results.push(result);
+        logger.info('long polling update processed', {
+          mode: result && result.mode,
+          networkEnabled: Boolean(result && result.networkEnabled),
+          updates: state.updates
+        });
 
         if (onUpdate) {
           onUpdate(result);
         }
       }
 
+      if (onCycleSuccess) {
+        onCycleSuccess(state);
+      }
+
       return state;
     } catch (error) {
-      logger.error('long polling cycle failed', { error: error.message });
+      logger.error('long polling cycle failed', buildErrorLogContext(error));
 
       if (onError) {
         onError(error);
@@ -100,9 +119,7 @@ function createLongPollingService(options = {}) {
       try {
         await tick();
       } catch (error) {
-        logger.error('long polling loop recovered from error', {
-          error: error.message
-        });
+        logger.error('long polling loop recovered from error', buildErrorLogContext(error));
       }
 
       if (stopped || (maxCycles !== null && cycles >= maxCycles)) {
@@ -115,6 +132,11 @@ function createLongPollingService(options = {}) {
 
   function start() {
     if (!loopPromise) {
+      logger.info('long polling service started', {
+        intervalMs,
+        maxCycles,
+        networkEnabled: state.networkEnabled
+      });
       loopPromise = loop();
     }
 
@@ -123,6 +145,11 @@ function createLongPollingService(options = {}) {
 
   function stop() {
     stopped = true;
+    logger.info('long polling service stopped', {
+      polls: state.polls,
+      updates: state.updates,
+      results: state.results.length
+    });
     return state;
   }
 
@@ -197,14 +224,34 @@ function defaultSleep(intervalMs) {
 }
 
 function createLogger(logger) {
-  if (logger && typeof logger.error === 'function') {
-    return logger;
+  if (logger === console) {
+    return createConsoleRuntimeLogger(console);
   }
 
   return {
-    error() {}
+    info: logger && typeof logger.info === 'function' ? logger.info.bind(logger) : noop,
+    warn: logger && typeof logger.warn === 'function' ? logger.warn.bind(logger) : noop,
+    error: logger && typeof logger.error === 'function' ? logger.error.bind(logger) : noop
   };
 }
+
+function buildErrorLogContext(error) {
+  const context = {
+    error: error && error.message ? error.message : 'unknown error'
+  };
+
+  if (error && typeof error === 'object' && typeof error.code === 'string') {
+    context.code = error.code;
+  }
+
+  if (error && typeof error === 'object' && error.details && typeof error.details === 'object') {
+    context.details = error.details;
+  }
+
+  return context;
+}
+
+function noop() {}
 
 module.exports = {
   DEFAULT_INTERVAL_MS,

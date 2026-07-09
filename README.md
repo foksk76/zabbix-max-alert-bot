@@ -125,4 +125,7 @@ Post-acceptance follow-up:
 - Task 6 и Task 7 остаются future/deferred и не блокируют завершение проекта.
 - Task 18.1 закрыта: официальный MAX Bot API source подтвержден.
 - Task 18.2 закрыта: первым live transport mode выбран `long_polling`, `webhook` оставлен как `Не реализовано`.
-- Task 18.3-18.10 остаются открытыми для live MAX Identity Bot.
+- Task 18.3-18.4 закрыты.
+- Task 18.5 закрыта.
+- Task 18.6 закрыта.
+- Task 18.9-18.10 остаются открытыми для live MAX Identity Bot.

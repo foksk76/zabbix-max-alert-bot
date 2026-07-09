@@ -12,8 +12,12 @@ const {
   createMaxTransport,
   normalizeMaxEvent,
   createMaxInboundWebhookHandler,
-  createMaxOutboundClient
+  createMaxOutboundClient,
+  createMaxInboundUpdatesClient
 } = require('../../src/bot-platform/transports/max');
+const {
+  createIdentityUpdateProcessor
+} = require('../../src/bot-platform/core');
 const {
   createIdentityPlugin,
   formatIdentityResponse,
@@ -31,9 +35,11 @@ test('bot platform scaffold modules can be imported', () => {
   assert.equal(typeof normalizeMaxEvent, 'function');
   assert.equal(typeof createMaxInboundWebhookHandler, 'function');
   assert.equal(typeof createMaxOutboundClient, 'function');
+  assert.equal(typeof createMaxInboundUpdatesClient, 'function');
   assert.equal(typeof createIdentityPlugin, 'function');
   assert.equal(typeof formatIdentityResponse, 'function');
   assert.equal(typeof handleIdentityEvent, 'function');
+  assert.equal(typeof createIdentityUpdateProcessor, 'function');
 });
 
 test('bot platform app scaffold wires placeholder modules', () => {

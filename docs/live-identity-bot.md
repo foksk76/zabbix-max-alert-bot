@@ -54,8 +54,9 @@ Live-реализация ведется отдельной задачей:
 
 ```text
 docs/task-18-breakdown.md -> sprint breakdown
-tasks/todo.md -> Task 18.3-18.10
+tasks/todo.md -> Task 18.9-18.10
 tasks/plan.md -> Phase 6: Live MAX Identity Bot
+docs/runbooks/live-identity-bot.md -> operational runbook
 ```
 
 Перед кодом нужно подтвердить официальный способ MAX Bot API для:
@@ -93,6 +94,16 @@ MAX_TRANSPORT_MODE=long_polling
 3. Проверить, что outbound client делает сетевой вызов MAX Bot API.
 4. Проверить, что `MAX_BOT_TOKEN` и другие секреты заданы только локально.
 5. Проверить логи без раскрытия токенов, `user_id`, `chat_id`, внутренних URL и организационных названий.
+
+Для диагностики live runtime пишет `info` события о старте сервиса, polling cycle, полученных updates и отправленном outbound response. Ошибки polling и MAX API пишутся как `error` и должны сопровождаться последующим `long polling loop recovered from error`.
+
+Error logs выводятся одной строкой в формате `key=value` и содержат безопасные поля `code`, `reason`, `causeCode`, `causeMessage`, `causeHost`. Для сетевых сбоев ожидаются технические причины вроде `causeCode=UNABLE_TO_GET_ISSUER_CERT_LOCALLY`, `causeMessage=unable to get local issuer certificate` или `causeCode=EAI_AGAIN`. Эти поля нужны для диагностики TLS/CA, DNS и доступности MAX API без вывода токена, `Authorization`, URL запроса и реальных `user_id` / `chat_id`.
+
+Полный список ожидаемых log markers описан в:
+
+```text
+docs/runbooks/live-identity-bot.md
+```
 
 ## Документы по теме
 
