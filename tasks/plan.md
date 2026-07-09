@@ -4,7 +4,7 @@
 
 План описывает развитие проекта в формате `planning-and-task-breakdown`. Задачи выполняются маленькими проверяемыми шагами, чтобы человек и AI-агент одинаково понимали порядок работ, проверки и границы текущего этапа.
 
-Project-level критерии завершения первого этапа не дублируются в этом файле. Единый источник приемки первого этапа:
+Project-level критерии завершения проекта не дублируются в этом файле. Единый источник приемки проекта:
 
 ```text
 docs/project-acceptance.md
@@ -96,13 +96,26 @@ docs/task-12-breakdown.md
 - [x] Будущие варианты повторной отправки, журнала доставки и маршрутизации описаны без немедленной реализации.
 - [x] `npm test` подтвержден после изменений Task 10.
 
-### First-stage acceptance
+### Project acceptance
 
 - [x] Финальный приемочный прогон зафиксирован в `docs/test-runs/final-acceptance-run.md`.
-- [x] Первый этап принят по `docs/project-acceptance.md`.
+- [x] Проект принят по `docs/project-acceptance.md`.
 - [x] Telegram-канал продолжает работать.
 - [x] МАХ дублирует Telegram.
 - [x] GitHub Actions green.
+
+### Phase 5: Финальная приемка и закрытие
+
+- [x] Task 15: Reconcile the project-acceptance checklist with existing evidence.
+- [ ] Task 16: Refresh and freeze the final acceptance run record.
+- [ ] Task 17: Separate post-acceptance follow-up from the accepted project scope.
+
+### Checkpoint: После Phase 5
+
+- [ ] Every criterion in `docs/project-acceptance.md` has matching evidence or a documented status note.
+- [ ] `docs/test-runs/final-acceptance-run.md` matches the accepted project state.
+- [ ] Project status documents clearly separate accepted scope from post-acceptance follow-up.
+- [ ] `npm test` is confirmed after closeout edits.
 
 ### Second stage: Исследование и выбор платформы
 
@@ -113,7 +126,7 @@ docs/task-12-breakdown.md
 
 ### Checkpoint: Перед реализацией второго этапа
 
-- [x] Первый этап принят и не меняется.
+- [x] Проект принят и критерии не меняются без отдельного решения.
 - [x] Старт второго этапа и критерии завершения описаны в `docs/second-stage-acceptance.md`.
 - [x] Исследовательская постановка Task 11 описана в `docs/modular-bot-platform-research.md`.
 - [x] Поиск и сравнение кандидатов Task 11.1 описаны в `docs/modular-bot-platform-candidates.md`.
@@ -171,6 +184,8 @@ docs/task-13-breakdown.md
 
 - [ ] Task 13: Добавить `MAX_TRANSPORT_MODE` с default `long_polling` для LXC dev/test и `webhook` для production ingress.
 
+Этот follow-up находится вне gate приемки проекта и не требуется для выполнения `docs/project-acceptance.md`.
+
 ### Checkpoint: Before Task 13
 
 - [x] ADR-0007 принят.
@@ -187,6 +202,8 @@ docs/task-14-breakdown.md
 ```
 
 - [ ] Task 14: Реализовать safe test bot в outbound-only LXC и зафиксировать prerequisites для webhook ingress.
+
+Этот follow-up находится вне gate приемки проекта и не требуется для выполнения `docs/project-acceptance.md`.
 
 ### Checkpoint: Before Task 14
 

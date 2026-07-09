@@ -58,7 +58,7 @@ docs/agent-skills-integration.md
 docs/zabbix-media-type.md
 ```
 
-Критерии завершения первого этапа хранятся только в `docs/project-acceptance.md`.
+Критерии завершения проекта хранятся только в `docs/project-acceptance.md`.
 
 Для локальной проверки bot-platform без реального MAX API см. `docs/third-stage-implementation-plan.md` и `examples/bot-platform/README.md`.
 
@@ -102,7 +102,7 @@ tasks/todo.md
 npm test
 ```
 
-То же через алиас:
+Алиас команды:
 
 ```bash
 npm run verify
@@ -112,6 +112,6 @@ npm run verify
 
 ## Статус
 
-Первый этап принят по `docs/project-acceptance.md`. Базовая интеграция Zabbix -> МАХ подтверждена: тестовое сообщение, Problem и Recovery доставляются в МАХ, существующий Telegram-канал продолжает работать, МАХ дублирует Telegram, GitHub Actions green.
+Базовая интеграция Zabbix -> МАХ подтверждена: тестовое сообщение, Problem и Recovery доставляются в МАХ; существующий Telegram-канал продолжает работать; МАХ дублирует Telegram; GitHub Actions green.
 
-Task 6 и Task 7 остаются future/deferred и не блокируют завершение первого этапа.
+Task 6 и Task 7 остаются future/deferred и не блокируют завершение проекта.

@@ -28,6 +28,15 @@ docs/test-runs/final-acceptance-run.md
 - GitHub Actions green;
 - текущая архитектура не расширена за границы первого этапа.
 
+## Критерии завершения проекта
+
+Проект в целом считается завершенным, когда выполнены критерии из `docs/project-acceptance.md`.
+
+В них входят два пользовательских сценария:
+
+- Zabbix отправляет уведомления в МАХ через Zabbix Media type `Webhook`;
+- бот МАХ возвращает `user_id` / `chat_id` для настройки получателя в Zabbix.
+
 ## Второй этап
 
 Второй этап принят по `docs/second-stage-acceptance.md`.
