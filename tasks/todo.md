@@ -5,8 +5,7 @@
 ## Status summary
 
 ```text
-Done: Task 1, Task 1.1, Task 2, Task 3, Task 4, Task 5, Task 6.1, Task 8, Task 9, Task 10
-In progress: Task 14
+Done: Task 1, Task 1.1, Task 2, Task 3, Task 4, Task 5, Task 6.1, Task 8, Task 9, Task 10, Task 14
 Deferred/Future: Task 6, Task 7
 ```
 
@@ -409,7 +408,7 @@ Task 6 и Task 7 относятся к будущей локальной про�
 
 ## Task 14: Реализовать safe test bot в outbound-only LXC и зафиксировать prerequisites для webhook ingress
 
-**Status:** In Progress
+**Status:** Done
 
 **Description:** Реализовать safe test bot для outbound-only LXC в `long_polling` режиме, добавить `systemd` unit и зафиксировать prerequisites для перехода к webhook ingress.
 
@@ -424,8 +423,8 @@ Task 6 и Task 7 относятся к будущей локальной про�
 - [x] service lifecycle описан через `systemd`;
 - [x] webhook ingress prerequisites задокументированы;
 - [x] `npm test` проходит;
-- [ ] safe test bot manually verified in the target outbound-only LXC;
-- [ ] task status updated to Done after target LXC verification.
+- [x] safe test bot manually verified in the target outbound-only LXC;
+- [x] task status updated to Done after target LXC verification.
 
 **Verification:**
 
@@ -433,11 +432,11 @@ Task 6 и Task 7 относятся к будущей локальной про�
 - [x] local service-start check via `timeout 1s node src/bot-platform/app.js`;
 - [x] verification that `src/zabbix-media-type/max-webhook.js` is unchanged;
 - [x] `npm test`.
-- [ ] manual run in target outbound-only LXC.
+- [x] manual run in target outbound-only LXC.
 
-**Blocking status:** Not blocked. Local implementation and tests are complete; target LXC manual verification is pending.
+**Blocking status:** Not blocked. Local implementation and tests are complete; target LXC manual verification passed.
 
-**Result:** Safe test bot long polling runtime, `systemd` unit, and webhook ingress prerequisite docs are added. Local verification passes. The final manual LXC run remains a follow-up step.
+**Result:** Safe test bot long polling runtime, `systemd` unit, and webhook ingress prerequisite docs are added. Local verification passes. The manual LXC run passed and the task is complete.
 
 **Dependencies:** ADR-0007, ADR-0008, ADR-0009, Task 13
 

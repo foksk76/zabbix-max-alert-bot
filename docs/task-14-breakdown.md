@@ -74,17 +74,17 @@ agent-skills:source-driven-development
 
 Acceptance criteria:
 
-- [ ] safe test bot запускается in target outbound-only LXC;
+- [x] safe test bot запускается in target outbound-only LXC;
 - [x] safe test bot использует `long_polling`;
 - [x] secrets остаются в local `.env`;
-- [ ] service lifecycle управляется `systemd`;
+- [x] service lifecycle управляется `systemd`;
 - [x] `npm test` проходит.
 
 Verification:
 
 - [x] unit-test for long polling mode;
 - [x] smoke check on current operator host;
-- [ ] manual run in target outbound-only LXC;
+- [x] manual run in target outbound-only LXC;
 - [x] verification that `.env` is not committed;
 - [x] `npm test`.
 
@@ -170,10 +170,10 @@ Estimated scope: S
 
 ## Checkpoint: After Task 14.1
 
-- [ ] safe test bot runs in target outbound-only LXC;
+- [x] safe test bot runs in target outbound-only LXC;
 - [x] long polling mode is default;
 - [x] `.env` remains local-only;
-- [ ] `systemd` service works in target LXC.
+- [x] `systemd` service works in target LXC.
 
 ## Checkpoint: After Task 14.2
 

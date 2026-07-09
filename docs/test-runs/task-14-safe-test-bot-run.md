@@ -5,13 +5,13 @@
 ## Статус
 
 ```text
-Implemented locally / current operator host smoke pass / LXC manual run pending
+Implemented locally / outbound-only LXC manual run pass
 ```
 
 ## Дата
 
 ```text
-2026-07-08
+2026-07-09
 ```
 
 ## Изменения
@@ -40,11 +40,12 @@ callback URL: none
 chat_id/user_id: none
 systemd unit: documented
 current operator host: pass with /root checkout and nvm node path
-target outbound-only LXC manual run: pending
+target outbound-only LXC manual run: pass
+systemd service: active
 ```
 
 ## Вывод
 
 ```text
-Safe test bot runtime is implemented and covered by local tests. The current operator host smoke check passed with /root checkout and the service is active; target outbound-only LXC verification remains pending.
+Safe test bot runtime is implemented and covered by local tests. The outbound-only LXC manual verification passed and the service is active under systemd.
 ```
