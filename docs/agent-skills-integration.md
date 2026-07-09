@@ -50,6 +50,16 @@ documentation-and-adrs
 
 ## Правила для Codex CLI / IDE
 
+Для работы Codex CLI на хосте нужны `bubblewrap`, `ripgrep` и `gh`.
+
+Перед тем как агент начнет проверять GitHub Actions через `gh`, человек один раз выполняет:
+
+```bash
+gh auth login --hostname github.com --git-protocol ssh --web
+```
+
+Ожидается, что SSH key уже доступен через `ssh-agent`.
+
 Рекомендуемый вариант — установка в профиль пользователя через CLI:
 
 ```bash

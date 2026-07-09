@@ -108,6 +108,7 @@ outbound-only LXC => suitable for long_polling dev/test, not suitable for webhoo
 - Доступ по SSH.
 - Node.js LTS.
 - Git.
+- Для работы Codex CLI на хосте должны быть установлены `bubblewrap`, `ripgrep` и `gh`.
 - systemd service для длительного запуска, если требуется.
 - Сетевой доступ к тестовому endpoint.
 - Отдельная локальная конфигурация секретов вне репозитория.
@@ -124,6 +125,7 @@ Codex agent или аналог используется как исполнит
 - вносить минимальный diff;
 - писать или обновлять unit-тесты, если задача затрагивает поведение;
 - запускать `npm test`;
+- проверять GitHub Actions через `gh` после однократной авторизации человека на хосте;
 - проверять `git diff -- src/zabbix-media-type/max-webhook.js`;
 - обновлять documentation и task status после фактической проверки;
 - предлагать follow-up задачи только как отдельные записи в планах.
@@ -160,6 +162,18 @@ Codex agent или аналог используется как исполнит
 - не добавлены реальные секреты, tokens, callback URL, `chat_id` / `user_id`, внутренние IPs/domains;
 - текущий Zabbix Webhook не изменен;
 - результат записан в документацию, если task предусматривает прогон или verification note.
+
+### GitHub Actions access for Codex CLI
+
+Проверку GitHub Actions агент выполняет через `gh`.
+
+Перед первым использованием на хосте человек должен один раз выполнить:
+
+```bash
+gh auth login --hostname github.com --git-protocol ssh --web
+```
+
+Предполагается, что SSH key уже загружен в `ssh-agent`; `gh` использует GitHub account, связанный с этим ключом и токеном авторизации.
 
 ## Рекомендуемый workflow агента
 
