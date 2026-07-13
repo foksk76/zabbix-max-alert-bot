@@ -4,9 +4,8 @@
 
 ## Быстрый Вход
 
+- [`live-identity-bot.md`](live-identity-bot.md) — текущий статус проекта и Task 18.
 - [`project-context.md`](project-context.md) — текущий scope, принятые части и открытые follow-up.
-- [`project-acceptance.md`](project-acceptance.md) — единый источник project-level критериев завершения.
-- [`live-identity-bot.md`](live-identity-bot.md) — текущий статус live MAX Identity Bot и Task 18.
 - [`zabbix-media-type.md`](zabbix-media-type.md) — настройка Zabbix Media type `MAX`.
 - [`test-runs/README.md`](test-runs/README.md) — карта обезличенных прогонов.
 - [`decisions/README.md`](decisions/README.md) — индекс ADR.

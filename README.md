@@ -52,13 +52,13 @@ tests/            Node.js policy tests и unit tests
 
 ```text
 INSTALL.md
-docs/zabbix-media-type.md
 docs/live-identity-bot.md
-docs/project-acceptance.md
+docs/zabbix-media-type.md
 docs/runbooks/live-identity-bot.md
 docs/decisions/README.md
 tasks/plan.md
 tasks/todo.md
+CHANGELOG.md
 ```
 
 Если нужно менять архитектуру, границы проекта, процесс разработки или внешние зависимости, сначала проверьте ADR в `docs/decisions/`.
