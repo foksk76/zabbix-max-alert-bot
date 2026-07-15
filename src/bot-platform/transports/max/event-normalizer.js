@@ -59,6 +59,30 @@ function getRecipientFromPayload(payload, updateType) {
     return null;
   }
 
+  // For message_created, the authoritative "user or chat" indicator is
+  // message.recipient.chat_type: "dialog" means personal (use sender.user_id),
+  // "chat"/"group"/"channel" means group chat (use recipient.chat_id).
+  // The MAX API sends recipient.chat_id for BOTH personal and group messages,
+  // so recipient.chat_id alone is not enough — we must check chat_type first.
+  // message.sender must NOT take precedence for group messages — replying to
+  // the sender of a group message would send a direct message to that user
+  // instead of the chat.
+  const message = getMessageFromPayload(payload);
+
+  const recipientChatType = message && message.recipient && typeof message.recipient === 'object'
+    ? message.recipient.chat_type
+    : undefined;
+
+  if (recipientChatType === 'dialog') {
+    return getUserRecipient(message.sender || payload.sender || {});
+  }
+
+  const recipientFromMessage = getRecipientFromOfficialMessage(message);
+
+  if (recipientFromMessage) {
+    return recipientFromMessage;
+  }
+
   if (payload.chat && typeof payload.chat === 'object' && !Array.isArray(payload.chat)) {
     return getRecipientFromChat(payload.chat, payload.sender || {});
   }
@@ -71,17 +95,12 @@ function getRecipientFromPayload(payload, updateType) {
     };
   }
 
-  const message = getMessageFromPayload(payload);
+  // Only fall back to the sender when there is no recipient of any kind — i.e.
+  // a personal dialog where the recipient object is absent.
   const senderRecipient = getUserRecipient(message.sender || payload.sender || {});
 
   if (senderRecipient.value) {
     return senderRecipient;
-  }
-
-  const recipient = getRecipientFromOfficialMessage(message);
-
-  if (recipient) {
-    return recipient;
   }
 
   return getRecipientFromChat(payload.chat || {}, payload.sender || {});

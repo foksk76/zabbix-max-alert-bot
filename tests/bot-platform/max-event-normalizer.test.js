@@ -38,7 +38,7 @@ test('normalizeMaxEvent maps chat fixture to internal chat recipient event', () 
   assert.equal(event.raw.value, '<synthetic-message-id>');
 });
 
-test('normalizeMaxEvent maps official personal message_created shape to sender user', () => {
+test('normalizeMaxEvent maps official personal dialog message_created shape to user recipient', () => {
   const event = normalizeMaxEvent({
     update_type: 'message_created',
     message: {
@@ -47,7 +47,7 @@ test('normalizeMaxEvent maps official personal message_created shape to sender u
         user_id: 1001
       },
       recipient: {
-        chat_id: 2002
+        user_id: 1001
       },
       body: {
         text: 'show my recipient id'
@@ -75,6 +75,63 @@ test('normalizeMaxEvent maps official chat message_created shape to chat recipie
       },
       body: {
         text: 'show this chat recipient id'
+      }
+    }
+  });
+
+  assert.equal(event.recipient.kind, 'chat');
+  assert.equal(event.recipient.value, '2002');
+  assert.equal(event.message.text, 'show this chat recipient id');
+});
+
+test('normalizeMaxEvent maps personal dialog message_created to user sender when recipient has chat_type dialog', () => {
+  // Regression for the personal-dialog reply bug: the real MAX API sends
+  // message.recipient with { chat_id, chat_type: "dialog", user_id } for
+  // personal messages. chat_type === "dialog" is the authoritative indicator
+  // and must route to sender.user_id, not recipient.chat_id.
+  const event = normalizeMaxEvent({
+    update_type: 'message_created',
+    timestamp: 1,
+    message: {
+      id: '<synthetic-message-id>',
+      recipient: {
+        chat_id: 476343869,
+        chat_type: 'dialog',
+        user_id: 292993971
+      },
+      body: {
+        text: 'show my recipient id'
+      },
+      sender: {
+        user_id: 219338126
+      }
+    }
+  });
+
+  assert.equal(event.recipient.kind, 'user');
+  assert.equal(event.recipient.value, '219338126');
+  assert.equal(event.message.text, 'show my recipient id');
+});
+
+test('normalizeMaxEvent maps group message_created to chat recipient even when sender user_id is present', () => {
+  // Regression for the group-chat reply bug: a real MAX group message_created
+  // carries message.recipient.{chat_id, chat_type} and a sender.user_id. The
+  // recipient (chat) must win over the sender (user), otherwise the bot replies
+  // to the sender in a direct message instead of the group chat.
+  const event = normalizeMaxEvent({
+    update_type: 'message_created',
+    timestamp: 1,
+    message: {
+      recipient: {
+        chat_id: 2002,
+        chat_type: 'chat'
+      },
+      timestamp: 1,
+      body: {
+        text: 'show this chat recipient id'
+      },
+      sender: {
+        user_id: 1001
       }
     }
   });
