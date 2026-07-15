@@ -92,9 +92,10 @@ test('old task-18 files are removed', () => {
   assert.equal(exists('docs/specs/task-18-2-live-transport-spec.md'), false, 'old specs must be removed');
 });
 
-test('old tasks files are removed', () => {
-  assert.equal(exists('tasks/plan.md'), false, 'tasks/plan.md must be removed after sprint reorganization');
-  assert.equal(exists('tasks/todo.md'), false, 'tasks/todo.md must be removed after sprint reorganization');
+test('tasks files are in correct location', () => {
+  assert.equal(exists('tasks/plan.md'), true, 'tasks/plan.md should exist for implementation plans');
+  assert.equal(exists('tasks/todo.md'), true, 'tasks/todo.md should exist for task checklists');
+  assert.equal(exists('tasks/sprints'), true, 'tasks/sprints/ should exist for sprint plans');
 });
 
 test('legacy docs/specs and docs/test-runs task-18 files are removed', () => {
