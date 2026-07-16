@@ -8,7 +8,7 @@
 
 ### Task 1: stderr JSON парсинг
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что `runFetchRequest` парсит JSON из stderr при ненулевом коде выхода и извлекает `cause.code`, `cause.message`, `cause.hostname`.
 
@@ -29,7 +29,7 @@
 
 ### Task 2: Пустой stderr
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить generic ошибку при пустом stderr.
 
@@ -48,7 +48,7 @@
 
 ### Task 3: Невалидный JSON в stderr
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что сырой текст stderr становится сообщением ошибки.
 
@@ -67,7 +67,7 @@
 
 ### Task 4: Пустой stdout при успешном выходе
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить rejection при пустом stdout.
 
@@ -86,7 +86,7 @@
 
 ### Task 5: Невалидный JSON в stdout
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить rejection при невалидном JSON в stdout.
 
@@ -105,7 +105,7 @@
 
 ### Task 6: Happy path
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить успешный fetch — child записывает JSON в stdout, parent резолвит parsed object.
 

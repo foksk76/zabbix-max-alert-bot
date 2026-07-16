@@ -8,7 +8,7 @@
 
 ### Task 1: Policy test — нет runtime dependencies
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Прочитать `package.json`, проверить что `dependencies` отсутствует или пуст.
 
@@ -27,7 +27,7 @@
 
 ### Task 2: Policy test — нет devDependencies
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить отсутствие `devDependencies`.
 

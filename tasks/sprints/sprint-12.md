@@ -8,7 +8,7 @@
 
 ### Task 1: channel chat_type
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что `chat_type: 'channel'` маршрутизируется как `RECIPIENT_KIND_CHAT`.
 
@@ -28,7 +28,7 @@
 
 ### Task 2: createInternalEvent с пустым input
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что `createInternalEvent({})` выбрасывает `Unsupported recipient kind`.
 
@@ -47,7 +47,7 @@
 
 ### Task 3: Строгая проверка output shape
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что `createInternalEvent` и `normalizeMaxEvent` возвращают объект ровно с `{source, recipient, message, raw}` — без лишних полей.
 

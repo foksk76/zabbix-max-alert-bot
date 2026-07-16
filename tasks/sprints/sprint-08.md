@@ -8,7 +8,7 @@
 
 ### Task 1: Циклические ссылки (WeakSet guard)
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что объект с циклической ссылкой не вызывает бесконечный цикл и замаскирован как `[redacted]`.
 
@@ -29,7 +29,7 @@
 
 ### Task 2: Глубоко вложенные объекты (3+ уровней)
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить маскировку секретов в объектах глубиной 4 уровня.
 
@@ -49,7 +49,7 @@
 
 ### Task 3: Все CONFIG_SECRET_KEYS
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что все 7 ключей конфигурации (`maxBotToken`, `token`, `secret`, `password`, `authorization`, `apiKey`, `apiToken`) извлекаются и маскируются.
 
@@ -69,7 +69,7 @@
 
 ### Task 4: Нестроковые примитивы в context
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что `null`, `undefined`, числа, булевы проходят через context без маскировки.
 
@@ -90,7 +90,7 @@
 
 ### Task 5: Множественные секреты в одном сообщении
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что два разных секрета в одном message оба заменяются на `[redacted]`.
 
@@ -109,7 +109,7 @@
 
 ### Task 6: debug и log методы
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что `debug()` и `log()` работают корректно.
 
@@ -129,7 +129,7 @@
 
 ### Task 7: Отсутствующий context
 
-**Status:** Done
+**Status:** Closed
 
 **Description:** Проверить, что `logger.info('msg')` без context не падает.
 
