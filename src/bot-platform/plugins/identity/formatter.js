@@ -32,7 +32,7 @@ function formatIdentityResponse(event) {
 
 function formatText(recipientType, to) {
   return [
-    'Use these Zabbix recipient parameters:',
+    'Identity parameters:',
     `RecipientType: ${recipientType}`,
     `To: ${to}`
   ].join('\n');
