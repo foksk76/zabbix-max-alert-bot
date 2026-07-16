@@ -100,3 +100,21 @@ test('legacy docs/specs and docs/test-runs task-18 files are removed', () => {
   assert.equal(exists('docs/specs'), false, 'docs/specs must be removed after reorganization to identity-plugin');
   assert.equal(exists('docs/test-runs/task-18-8-live-runtime-security-review.md'), false, 'old test-run must be moved to identity-plugin');
 });
+
+test('package.json has no runtime dependencies (ADR-0015)', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  assert.equal(
+    pkg.dependencies === undefined || Object.keys(pkg.dependencies).length === 0,
+    true,
+    'package.json must not have runtime dependencies — bot-platform uses only Node.js stdlib'
+  );
+});
+
+test('package.json has no devDependencies (ADR-0015)', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  assert.equal(
+    pkg.devDependencies === undefined || Object.keys(pkg.devDependencies).length === 0,
+    true,
+    'package.json must not have devDependencies — tests use built-in node:test'
+  );
+});
