@@ -112,6 +112,7 @@ async function main(argv = process.argv.slice(2), io = { stdout: process.stdout,
       startLiveService(environment, {
         ...options.liveOptions,
         routeHandlers: options.liveOptions && options.liveOptions.routeHandlers || app.routes,
+        identityHandler: options.liveOptions && options.liveOptions.identityHandler || app.routes.identity,
         io
       });
       io.stdout.write('MAX bot-platform live service started in long_polling mode\n');
