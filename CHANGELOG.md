@@ -39,6 +39,7 @@
 ### Added
 - Convention-based plugin loader for bot-platform (ADR-0012)
 - Auto-discovery of plugins from `src/bot-platform/plugins/{name}/`
+- Welcome message on `bot_started` events (ADR-0021)
 
 ### Completed
 - Task 18.9: Live personal-dialog `user_id` verification (2026-07-15 10:50 UTC)

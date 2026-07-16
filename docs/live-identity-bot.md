@@ -52,16 +52,16 @@ Live identity bot не принимает события Zabbix, не маршр
 
 ## На какие события бот отвечает
 
-Identity-бот отвечает только на update типа `message_created`. Другие типы update игнорируются без отправки ответа:
+Identity-бот отвечает на update типа `message_created`, `bot_added` и `bot_started`. Другие типы update игнорируются без отправки ответа:
 
 ```text
 message_created -> бот отвечает с RecipientType и To
-bot_started     -> игнорируется
-bot_added       -> игнорируется
+bot_started     -> бот отправляет приветствие
+bot_added       -> бот отправляет приветствие
 любой другой    -> игнорируется
 ```
 
-Правило живет в `src/bot-platform/core/live-pipeline.js` (`REPLY_UPDATE_TYPES`). Раннее поведение отвечало и на `bot_added` (добавление бота в чат), что засоряло чат — теперь это исправлено.
+Правило живет в `src/bot-platform/core/live-pipeline.js` и `src/bot-platform/core/dry-run-pipeline.js` (`REPLY_UPDATE_TYPES`).
 
 ## Доставка updates в групповых чатах MAX
 

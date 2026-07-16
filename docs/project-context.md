@@ -50,9 +50,10 @@ Bot-platform отделена от Zabbix Webhook и используется д
 message_created -> command dispatch -> /help | /id | /status | unknown command reply
 message_created (no command) -> unknown command reply
 bot_added -> welcome message
+bot_started -> welcome message
 ```
 
-По ADR-0018 pipeline ветвится до `router.route()`: если текст начинается с `/`, обрабатывается через command registry; иначе — «Unknown command». По ADR-0019 outbound client поддерживает `kind: 'text'` ответы. По ADR-0020 `bot_added` события обрабатываются pipeline и отправляют приветствие.
+По ADR-0018 pipeline ветвится до `router.route()`: если текст начинается с `/`, обрабатывается через command registry; иначе — «Unknown command». По ADR-0019 outbound client поддерживает `kind: 'text'` ответы. По ADR-0020 `bot_added` и ADR-0021 `bot_started` события обрабатываются pipeline и отправляют приветствие.
 
 Live-сценарий с реальным входящим сообщением МАХ и реальным ответом через MAX Bot API вынесен в Task 18.
 

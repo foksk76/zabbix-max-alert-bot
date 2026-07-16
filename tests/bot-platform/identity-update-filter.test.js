@@ -97,9 +97,13 @@ test('identity processor sends welcome on bot_added', async () => {
   assert.equal(outbound.calls.length, 1);
 });
 
-test('identity processor ignores bot_started without sending an outbound response', async () => {
+test('identity processor sends welcome on bot_started', async () => {
   const outbound = createRecordingOutbound();
-  const processUpdate = createIdentityUpdateProcessor({ routeHandlers, outboundClient: outbound });
+  const processUpdate = createIdentityUpdateProcessor({
+    routeHandlers,
+    outboundClient: outbound,
+    identityHandler: handleIdentityEvent
+  });
 
   const result = await processUpdate({
     update_type: 'bot_started',
@@ -107,11 +111,11 @@ test('identity processor ignores bot_started without sending an outbound respons
     user: { user_id: 1001 }
   });
 
-  assert.equal(result.mode, 'ignored');
-  assert.equal(result.updateType, 'bot_started');
-  assert.equal(result.networkEnabled, false);
-  assert.equal(result.response, undefined);
-  assert.equal(outbound.calls.length, 0);
+  assert.equal(result.mode, 'live');
+  assert.equal(result.response.kind, 'text');
+  assert.equal(result.response.text, 'Ready to help.');
+  assert.equal(result.response.recipient.kind, 'user');
+  assert.equal(outbound.calls.length, 1);
 });
 
 test('identity processor ignores updates of unknown type without throwing', async () => {

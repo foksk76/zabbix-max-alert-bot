@@ -135,7 +135,7 @@ test('live pipeline: bot_added returns welcome message', async () => {
   assert.equal(result.response.recipient.kind, 'chat');
 });
 
-test('live pipeline: bot_started is ignored', async () => {
+test('live pipeline: bot_started returns welcome message', async () => {
   const outbound = createRecordingOutbound();
   const processUpdate = createIdentityUpdateProcessor({
     routeHandlers,
@@ -149,7 +149,10 @@ test('live pipeline: bot_started is ignored', async () => {
     user: { user_id: 1001 }
   });
 
-  assert.equal(result.mode, 'ignored');
+  assert.equal(result.mode, 'live');
+  assert.equal(result.response.kind, 'text');
+  assert.equal(result.response.text, 'Ready to help.');
+  assert.equal(result.response.recipient.kind, 'user');
 });
 
 test('dry-run pipeline: /help returns command list', async () => {
@@ -194,6 +197,18 @@ test('dry-run pipeline: bot_added returns welcome message', async () => {
     chat_id: 2002,
     user: { user_id: 1001 },
     is_channel: false
+  }, routeHandlers);
+
+  assert.equal(result.mode, 'dry-run');
+  assert.equal(result.response.kind, 'text');
+  assert.equal(result.response.text, 'Ready to help.');
+});
+
+test('dry-run pipeline: bot_started returns welcome message', async () => {
+  const result = await runMaxIdentityDryRun({
+    update_type: 'bot_started',
+    timestamp: 1,
+    user: { user_id: 1001 }
   }, routeHandlers);
 
   assert.equal(result.mode, 'dry-run');
