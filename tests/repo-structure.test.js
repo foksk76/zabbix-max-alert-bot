@@ -48,7 +48,7 @@ test('required project files exist', () => {
     'docs/project-context.md',
     'docs/live-identity-bot.md',
     'docs/identity-plugin/README.md',
-    'docs/identity-plugin/live-sprint-plan.md',
+    'tasks/sprints/sprint-07.md',
     'docs/identity-plugin/max-api-source.md',
     'docs/identity-plugin/live-transport-spec.md',
     'docs/decisions/README.md',
@@ -93,9 +93,7 @@ test('old task-18 files are removed', () => {
 });
 
 test('tasks files are in correct location', () => {
-  assert.equal(exists('tasks/plan.md'), true, 'tasks/plan.md should exist for implementation plans');
-  assert.equal(exists('tasks/todo.md'), true, 'tasks/todo.md should exist for task checklists');
-  assert.equal(exists('tasks/sprints'), true, 'tasks/sprints/ should exist for sprint plans');
+  assert.equal(exists('tasks/sprints'), true, 'tasks/sprints/ should exist for task breakdown');
 });
 
 test('legacy docs/specs and docs/test-runs task-18 files are removed', () => {

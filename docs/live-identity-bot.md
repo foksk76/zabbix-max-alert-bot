@@ -86,8 +86,7 @@ Live-реализация ведется отдельной задачей:
 
 ```text
 docs/task-18-breakdown.md -> sprint breakdown
-tasks/todo.md -> Task 18.9-18.10
-tasks/plan.md -> Phase 6: Live MAX Identity Bot
+tasks/sprints/ -> Task 18.9-18.10
 docs/runbooks/live-identity-bot.md -> operational runbook
 ```
 

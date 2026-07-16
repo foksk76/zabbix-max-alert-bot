@@ -13,6 +13,7 @@ Identity Plugin Live MAX Identity Bot реализуется через спри
 - `sprint-04.md` — Live Acceptance
 - `sprint-05.md` — Follow-up after live diagnosis
 - `sprint-06.md` — Convention-Based Plugin Loader
+- `sprint-07.md` — Identity Plugin Live Plan (master plan for sprints 0-4)
 
 ## Status
 
@@ -23,4 +24,4 @@ Sprint 5: Complete (Task 5.1 docs research done; Task 5.2 async HTTP boundary do
 Sprint 6: Open (Convention-based plugin loader)
 ```
 
-Детальная информация в `docs/identity-plugin/live-sprint-plan.md`.
+Детальная информация в `tasks/sprints/sprint-07.md`.
