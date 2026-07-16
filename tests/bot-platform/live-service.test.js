@@ -373,7 +373,6 @@ test('live service wires identityHandler through to command registry for /id', a
     MAX_API_URL: 'https://synthetic.example',
     MAX_BOT_TOKEN: 'synthetic-bot-token'
   }, {
-    environment: 'test',
     inboundClient: {
       async poll() {
         return {
