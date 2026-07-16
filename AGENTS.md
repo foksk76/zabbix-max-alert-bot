@@ -46,6 +46,17 @@ docs/runbooks/live-identity-bot.md
 docs/identity-plugin/
 ```
 
+Если меняется bot-platform (архитектура):
+
+```text
+ADR-0013  safe logger / secret redaction
+ADR-0014  async HTTP через child_process.spawn
+ADR-0015  нулевые внешние зависимости
+ADR-0016  инъекция зависимостей через options
+ADR-0017  внутренний контракт событий
+ADR-0012  convention-based plugin loader
+```
+
 ## Каноничные источники
 
 ```text
