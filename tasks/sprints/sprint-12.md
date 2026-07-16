@@ -13,11 +13,11 @@
 **Description:** Проверить, что `chat_type: 'channel'` маршрутизируется как `RECIPIENT_KIND_CHAT`.
 
 **Acceptance criteria:**
-- [ ] `event.recipient.kind === 'chat'`
-- [ ] `event.recipient.value === '3003'`
+- [x] `event.recipient.kind === 'chat'`
+- [x] `event.recipient.value === '3003'`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -33,10 +33,10 @@
 **Description:** Проверить, что `createInternalEvent({})` выбрасывает `Unsupported recipient kind`.
 
 **Acceptance criteria:**
-- [ ] `assert.throws(..., /Unsupported recipient kind/)`
+- [x] `assert.throws(..., /Unsupported recipient kind/)`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -52,10 +52,10 @@
 **Description:** Проверить, что `createInternalEvent` и `normalizeMaxEvent` возвращают объект ровно с `{source, recipient, message, raw}` — без лишних полей.
 
 **Acceptance criteria:**
-- [ ] `Object.keys(event).sort()` === `['message', 'raw', 'recipient', 'source']`
+- [x] `Object.keys(event).sort()` === `['message', 'raw', 'recipient', 'source']`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 

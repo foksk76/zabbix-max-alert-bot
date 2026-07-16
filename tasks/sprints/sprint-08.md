@@ -13,12 +13,12 @@
 **Description:** Проверить, что объект с циклической ссылкой не вызывает бесконечный цикл и замаскирован как `[redacted]`.
 
 **Acceptance criteria:**
-- [ ] Объект с `circular.self = circular` не вызывает stack overflow
-- [ ] `circular.self` заменён на `[redacted]`
-- [ ] `circular.nested.ref` заменён на `[redacted]`
+- [x] Объект с `circular.self = circular` не вызывает stack overflow
+- [x] `circular.self` заменён на `[redacted]`
+- [x] `circular.nested.ref` заменён на `[redacted]`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -34,11 +34,11 @@
 **Description:** Проверить маскировку секретов в объектах глубиной 4 уровня.
 
 **Acceptance criteria:**
-- [ ] `level1.level2.level3.level4.token` заменён на `[redacted]`
-- [ ] `level1.level2.level3.level4.safe` остался видимым
+- [x] `level1.level2.level3.level4.token` заменён на `[redacted]`
+- [x] `level1.level2.level3.level4.safe` остался видимым
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -54,11 +54,11 @@
 **Description:** Проверить, что все 7 ключей конфигурации (`maxBotToken`, `token`, `secret`, `password`, `authorization`, `apiKey`, `apiToken`) извлекаются и маскируются.
 
 **Acceptance criteria:**
-- [ ] Каждый ключ тестируется индивидуально
-- [ ] Значение заменяется на `[redacted]` в message
+- [x] Каждый ключ тестируется индивидуально
+- [x] Значение заменяется на `[redacted]` в message
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -74,12 +74,12 @@
 **Description:** Проверить, что `null`, `undefined`, числа, булевы проходят через context без маскировки.
 
 **Acceptance criteria:**
-- [ ] `num: 42` остаётся `42`
-- [ ] `bool: true` остаётся `true`
-- [ ] `nil: null` остаётся `null`
+- [x] `num: 42` остаётся `42`
+- [x] `bool: true` остаётся `true`
+- [x] `nil: null` остаётся `null`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -95,10 +95,10 @@
 **Description:** Проверить, что два разных секрета в одном message оба заменяются на `[redacted]`.
 
 **Acceptance criteria:**
-- [ ] `alpha-secret` и `beta-secret` оба заменены
+- [x] `alpha-secret` и `beta-secret` оба заменены
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -114,11 +114,11 @@
 **Description:** Проверить, что `debug()` и `log()` работают корректно.
 
 **Acceptance criteria:**
-- [ ] `debug()` создаёт entry с level `debug`
-- [ ] `log()` создаёт entry с level `info`
+- [x] `debug()` создаёт entry с level `debug`
+- [x] `log()` создаёт entry с level `info`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -134,10 +134,10 @@
 **Description:** Проверить, что `logger.info('msg')` без context не падает.
 
 **Acceptance criteria:**
-- [ ] Entry создан с `context: undefined`
+- [x] Entry создан с `context: undefined`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 

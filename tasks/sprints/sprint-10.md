@@ -13,10 +13,10 @@
 **Description:** Прочитать `package.json`, проверить что `dependencies` отсутствует или пуст.
 
 **Acceptance criteria:**
-- [ ] `pkg.dependencies === undefined || Object.keys(pkg.dependencies).length === 0`
+- [x] `pkg.dependencies === undefined || Object.keys(pkg.dependencies).length === 0`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -32,10 +32,10 @@
 **Description:** Проверить отсутствие `devDependencies`.
 
 **Acceptance criteria:**
-- [ ] `pkg.devDependencies === undefined || Object.keys(pkg.devDependencies).length === 0`
+- [x] `pkg.devDependencies === undefined || Object.keys(pkg.devDependencies).length === 0`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 

@@ -13,11 +13,11 @@
 **Description:** Импортировать все 6 модулей из ADR-0016, проверить что каждый `create*` — функция с ≤2 аргументами.
 
 **Acceptance criteria:**
-- [ ] Все 6 функций — `typeof fn === 'function'`
-- [ ] `fn.length <= 2`
+- [x] Все 6 функций — `typeof fn === 'function'`
+- [x] `fn.length <= 2`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -33,14 +33,14 @@
 **Description:** Конструировать каждый модуль с mock-зависимостями и проверить что ключевые методы доступны.
 
 **Acceptance criteria:**
-- [ ] `outbound.send` — функция
-- [ ] `inbound.poll` — функция
-- [ ] `longPolling.start` и `.stop` — функции
-- [ ] `liveService.start` — функция
-- [ ] `app.plugins` — массив, `app.routes` — объект
+- [x] `outbound.send` — функция
+- [x] `inbound.poll` — функция
+- [x] `longPolling.start` и `.stop` — функции
+- [x] `liveService.start` — функция
+- [x] `app.plugins` — массив, `app.routes` — объект
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 1
 
