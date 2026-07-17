@@ -67,13 +67,10 @@ function createCommandRegistry(options = {}) {
     };
   }
 
-  return {
-    lookup,
-    getCommandList,
-    handleHelp,
-    handleId,
-    handleStatus
-  };
+    return {
+        lookup,
+        getCommandList
+    };
 }
 
 module.exports = {
