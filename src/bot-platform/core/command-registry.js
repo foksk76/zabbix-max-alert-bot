@@ -69,10 +69,7 @@ function createCommandRegistry(options = {}) {
 
   return {
     lookup,
-    getCommandList,
-    handleHelp,
-    handleId,
-    handleStatus
+    getCommandList
   };
 }
 
