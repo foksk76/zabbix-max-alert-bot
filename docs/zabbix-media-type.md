@@ -143,3 +143,52 @@ Trigger_status: PROBLEM
 ⛔ TEST Zabbix -> MAX
 Тестовое уведомление из Zabbix
 ```
+
+## Planned changes (multi-source ingest)
+
+ADR-0022 расширяет scope проекта на multi-source HTTP-ingress. ADR-0027 определяет интеграцию `max-webhook.js` с Okta IdP. ADR-0028 вводит очередь доставки сообщений для at-least-once guarantee. Ниже — Planned изменения, которые войдут при реализации multi-source ingest:
+
+### Новый путь доставки
+
+Текущий прямой путь (`max-webhook.js → MAX Bot API`) объявляется **deprecated** (ADR-0022). Новый путь:
+
+```text
+max-webhook.js → bot-platform POST /ingest → queue (ADR-0028) → outbound → MAX Bot API
+```
+
+### Изменения параметров Media type
+
+| Параметр | Было | Стало | Описание |
+|---|---|---|---|
+| `Token` | Токен бота MAX | `ClientSecret` (Okta) | Okta client-credentials secret |
+| `APIUrl` | `https://platform-api2.max.ru/messages` | `https://<bot-platform>/ingest` | Endpoint bot-platform |
+| — | — | `ClientId` (новый) | Okta client ID |
+
+Тело запроса меняется на контракт inbound-API (ADR-0022):
+
+```json
+{
+  "recipient": { "kind": "user|chat", "value": "<id>" },
+  "message": "{ALERT.MESSAGE}"
+}
+```
+
+### OAuth client-credentials flow
+
+Перед каждым alert `max-webhook.js` выполняет:
+
+1. `POST <okta-token-endpoint>` с `grant_type=client_credentials`, `client_id`, `client_secret`, `audience=bot-platform`;
+2. Получает `access_token` (JWT) с TTL;
+3. Кэширует токен до `expires_in`;
+4. Отправляет `POST /ingest` с `Authorization: Bearer <jwt>`.
+
+### Deprecation прямого пути
+
+Прямой путь (`max-webhook.js → MAX Bot API`) удаляется после live-evidence нового ingest-пути (по образцу ADR-0010). Между доказательством и удалением — controlled deprecation period.
+
+### Статус
+
+```text
+Planned — не реализовано. Данный раздел описывает Planned изменения.
+Текущий Media type работает по прямому пути без изменений.
+```

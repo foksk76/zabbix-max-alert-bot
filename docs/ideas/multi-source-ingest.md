@@ -10,6 +10,10 @@
 > **Ревизия 3** — прямой путь `max-webhook.js → MAX` объявляется deprecated
 > (не fallback), client_secret источника хранится в env Media type. См.
 > раздел «Изменения ревизии 3» в конце.
+>
+> **Ревизия 4** — принято ADR-0028: очередь доставки сообщений (delivery queue)
+> в SQLite для at-least-once guarantee. Очередь — transport-level guarantee
+> для всех источников, входит в MVP.
 
 ## Problem Statement
 

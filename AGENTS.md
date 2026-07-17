@@ -55,6 +55,13 @@ ADR-0015  нулевые внешние зависимости
 ADR-0016  инъекция зависимостей через options
 ADR-0017  внутренний контракт событий
 ADR-0012  convention-based plugin loader
+ADR-0022  расширение scope под multi-source ingress + журналы
+ADR-0023  входящие HTTP в bot-platform (изменение посылки ADR-0015)
+ADR-0024  @okta/jwt-verifier как исключение из ADR-0015
+ADR-0025  better-sqlite3 как исключение из ADR-0015
+ADR-0026  расширение scope стенда под multi-source ingress
+ADR-0027  установка и настройка Okta IdP на MVP стенде
+ADR-0028  очередь доставки сообщений (delivery queue)
 ```
 
 ## Каноничные источники
