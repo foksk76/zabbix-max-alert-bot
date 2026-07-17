@@ -60,7 +60,6 @@ The `live-pipeline.js` event filter expands to include `bot_added` and `bot_star
 - **Plugin loader picking up `commands.js` files** — Convention-based discovery is elegant but adds loader complexity. Not worth it until multiple independent plugin authors need to add commands without coordinating.
 - **Command arguments/parameters** — Scope creep. MVP validates whether users use `/` at all. Arguments are a Phase 2 feature.
 - **Permission/ACL system** — The project serves a small team. Authorization can be added later if the bot is exposed to untrusted users.
-- **Auto-response on `bot_started`** — `bot_started` fires when a user DMs the bot for the first time. Both `bot_added` and `bot_started` trigger the same welcome message (ADR-0021). This is now implemented.
 
 ## Open Questions (Resolved)
 

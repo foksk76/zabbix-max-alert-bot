@@ -16,7 +16,6 @@ function createCore(environment = process.env) {
     components: {
       config: 'available',
       logger: 'available',
-      eventRouter: 'available',
       pluginLoader: 'available',
       dryRunPipeline: 'available'
     }

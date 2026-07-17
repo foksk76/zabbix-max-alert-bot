@@ -79,7 +79,7 @@ Pipeline формирует text-ответ (ADR-0019) с `event.recipient`:
 
 ## Последствия
 
-- `REPLY_UPDATE_TYPES` расширяется с 1 на 2 элемента
+- `REPLY_UPDATE_TYPES` расширяется с 1 на 2 элемента (позже ADR-0021 расширил до 3)
 - Pipeline получает дополнительную проверку `updateType === 'bot_added'` перед command dispatch
 - Outbound client поддерживает text-ответы (ADR-0019)
 - Существующие тесты `identity-update-filter.test.js` требуют обновления (маппинг `bot_added` с `mode: 'ignored'` → `mode: 'live'`/`mode: 'dry-run'`)

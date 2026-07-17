@@ -49,7 +49,6 @@ test('bot platform app scaffold wires placeholder modules', () => {
   assert.equal(app.core.moduleName, 'core');
   assert.equal(app.core.components.config, 'available');
   assert.equal(app.core.components.logger, 'available');
-  assert.equal(app.core.components.eventRouter, 'available');
   assert.equal(app.core.components.pluginLoader, 'available');
   assert.equal(app.core.components.dryRunPipeline, 'available');
   assert.equal(app.transports.max.moduleName, 'max-transport');
