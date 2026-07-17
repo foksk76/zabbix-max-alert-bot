@@ -55,7 +55,7 @@ Live identity bot не принимает события Zabbix, не маршр
 Identity-бот отвечает на update типа `message_created`, `bot_added` и `bot_started`. Другие типы update игнорируются без отправки ответа:
 
 ```text
-message_created -> бот отвечает с RecipientType и To
+message_created -> бот обрабатывает команды (/help, /id, /status) или отвечает "Unknown command"
 bot_started     -> бот отправляет приветствие
 bot_added       -> бот отправляет приветствие
 любой другой    -> игнорируется

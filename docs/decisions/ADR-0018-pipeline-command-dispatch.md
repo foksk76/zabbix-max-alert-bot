@@ -1,4 +1,4 @@
-# ADR-0018: Ввести pipeline command dispatch (ветвление до router.route)
+# ADR-0018: Ввести pipeline command dispatch (замена router.route)
 
 ## Статус
 
@@ -12,11 +12,11 @@
 
 Pipeline (`live-pipeline.js`) сейчас линеен: нормализация → `router.route(event, { route: 'identity' })` → отправка. Все входящие события попадают в единый обработчик. Нет механизма для выбора действия на основе содержимого сообщения.
 
-Для системы команд (`/help`, `/id`, `/status`) нужен этап диспатча **до** `router.route()`: если текст начинается с `/`, обработать команду и ответить, минуя плагиновый маршрутизатор. Если текст не команда — вернуть «Unknown command».
+Для системы команд (`/help`, `/id`, `/status`) нужен этап диспатча, который заменяет `router.route()`: если текст начинается с `/`, обработать команду и ответить. Если текст не команда — вернуть «Unknown command».
 
 ## Решение
 
-Добавить ветвление в pipeline перед `router.route()`:
+Заменить `router.route()` command dispatch в pipeline:
 
 ```text
 normalize → isCommand(text)?
@@ -37,6 +37,8 @@ normalize → isCommand(text)?
          → команда: commandRegistry.lookup(name).handler(event) → send
          → не команда: text-ответ «Unknown command» → send
 ```
+
+`router.route()` больше не вызывается — command dispatch заменил плагиновую маршрутизацию для всех входящих событий.
 
 ### Изменения в `dry-run-pipeline.js`
 

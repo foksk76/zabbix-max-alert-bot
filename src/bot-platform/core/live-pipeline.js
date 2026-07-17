@@ -79,8 +79,5 @@ function createIdentityUpdateProcessor(options = {}) {
 }
 
 module.exports = {
-  createIdentityUpdateProcessor,
-  REPLY_UPDATE_TYPES,
-  WELCOME_TEXT,
-  UNKNOWN_COMMAND_TEXT
+  createIdentityUpdateProcessor
 };

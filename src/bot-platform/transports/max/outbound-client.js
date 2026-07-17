@@ -2,15 +2,12 @@
 
 const { buildSafeTransportErrorDetails } = require('./error-details');
 const { normalizeHttpResponse, createLogger } = require('./shared-helpers');
+const { RECIPIENT_TYPE_MAP } = require('../../core/pipeline-constants');
 
 const moduleName = 'max-outbound-client';
 const MAX_API_ERROR_CODE = 'MAX_API_ERROR';
 const DEFAULT_NOTIFY = true;
 const DEFAULT_FORMAT = 'markdown';
-const RECIPIENT_TYPE_MAP = Object.freeze({
-  user: 'user_id',
-  chat: 'chat_id'
-});
 
 function createMaxOutboundClient(options = {}) {
   const logger = createLogger(options.logger);
@@ -53,7 +50,7 @@ function createMaxOutboundClient(options = {}) {
       }
 
       try {
-        const request = buildMaxOutboundRequest(response, {
+        const request = buildMaxOutboundRequest(response, payload, {
           apiUrl,
           token
         });
@@ -84,18 +81,14 @@ function createMaxOutboundClient(options = {}) {
   };
 }
 
-function buildMaxOutboundRequest(response, options = {}) {
-  const payload = buildMaxOutboundPayload(response);
-
+function buildMaxOutboundRequest(response, payload, options = {}) {
   const apiUrl = typeof options.apiUrl === 'string' && options.apiUrl.trim()
     ? options.apiUrl.trim()
     : '<synthetic-max-api-url>';
   const token = typeof options.token === 'string' && options.token.trim()
     ? options.token.trim()
     : '';
-  const recipientType = payload.recipientType;
-  const to = payload.to;
-  const requestUrl = buildRecipientUrl(apiUrl, recipientType, to);
+  const requestUrl = buildRecipientUrl(apiUrl, payload.recipientType, payload.to);
   const body = buildLiveOutboundBody(response);
   const headers = {
     'Content-Type': 'application/json'

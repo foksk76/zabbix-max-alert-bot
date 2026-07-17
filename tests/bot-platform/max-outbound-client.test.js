@@ -90,7 +90,9 @@ test('createMaxOutboundClient does not log raw token values', async () => {
 });
 
 test('buildMaxOutboundRequest creates a live MAX request with injected auth header', () => {
-  const request = buildMaxOutboundRequest(createIdentityResponse(), {
+  const response = createIdentityResponse();
+  const payload = buildMaxOutboundPayload(response);
+  const request = buildMaxOutboundRequest(response, payload, {
     apiUrl: 'https://synthetic.example/messages',
     token: 'synthetic-secret-token'
   });

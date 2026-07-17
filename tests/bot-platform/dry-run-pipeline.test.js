@@ -13,14 +13,12 @@ function readFixture(fileName) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
-const routeHandlers = { identity: handleIdentityEvent };
-
 test('dry-run pipeline returns identity response for /id command in user context', async () => {
   const payload = readFixture('max-inbound-user.fixture.json');
 
   payload.message.text = '/id';
 
-  const result = await runMaxIdentityDryRun(payload, routeHandlers, {
+  const result = await runMaxIdentityDryRun(payload, {
     identityHandler: handleIdentityEvent
   });
 
@@ -40,7 +38,7 @@ test('dry-run pipeline returns identity response for /id command in chat context
 
   payload.message.text = '/id';
 
-  const result = await runMaxIdentityDryRun(payload, routeHandlers, {
+  const result = await runMaxIdentityDryRun(payload, {
     identityHandler: handleIdentityEvent
   });
 
@@ -54,7 +52,7 @@ test('dry-run pipeline returns identity response for /id command in chat context
 });
 
 test('dry-run pipeline returns unknown command for non-command text', async () => {
-  const result = await runMaxIdentityDryRun(readFixture('max-inbound-user.fixture.json'), routeHandlers);
+  const result = await runMaxIdentityDryRun(readFixture('max-inbound-user.fixture.json'));
 
   assert.equal(result.mode, 'dry-run');
   assert.equal(result.response.kind, 'text');
@@ -62,7 +60,7 @@ test('dry-run pipeline returns unknown command for non-command text', async () =
 });
 
 test('dry-run pipeline does not expose raw event payload in response', async () => {
-  const result = await runMaxIdentityDryRun(readFixture('max-inbound-user.fixture.json'), routeHandlers);
+  const result = await runMaxIdentityDryRun(readFixture('max-inbound-user.fixture.json'));
 
   assert.equal(result.response.raw, undefined);
   assert.doesNotMatch(result.response.text, /<synthetic-message-id>/);
@@ -72,7 +70,7 @@ test('dry-run pipeline does not expose raw event payload in response', async () 
 
 test('dry-run pipeline rejects invalid MAX payload safely', async () => {
   await assert.rejects(
-    runMaxIdentityDryRun({ update_type: 'message_created' }, routeHandlers),
+    runMaxIdentityDryRun({ update_type: 'message_created' }),
     /Unsupported MAX chat type/
   );
 });

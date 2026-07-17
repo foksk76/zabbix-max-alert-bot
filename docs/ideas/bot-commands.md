@@ -10,7 +10,7 @@ How might we let users in MAX chats self-discover bot capabilities via interacti
 
 **Pipeline Branch + Static Command Registry in `core/`.**
 
-A single `core/command-registry.js` file holds all available commands as a plain object. A command-parsing function checks `event.message.text` for a `/` prefix, extracts the command name, looks it up in the registry, and calls its handler. This check happens in `live-pipeline.js` before the existing `router.route()` call — if a command matches, the pipeline short-circuits; otherwise it falls through to the existing identity route unchanged.
+A single `core/command-registry.js` file holds all available commands as a plain object. A command-parsing function checks `event.message.text` for a `/` prefix, extracts the command name, looks it up in the registry, and calls its handler. This check happens in `live-pipeline.js` — if a command matches, the pipeline short-circuits; otherwise it returns "Unknown command" (non-command text no longer flows through the identity route).
 
 Built-in commands (`/help`, `/status`) are defined in the registry with handlers in `core/`. The identity plugin gets an `/id` command registered in the same file. The outbound client gains support for text-only responses (no `zabbix` field required) so command replies don't need the identity response shape.
 
@@ -60,7 +60,7 @@ The `live-pipeline.js` event filter expands to include `bot_added` and `bot_star
 - **Plugin loader picking up `commands.js` files** — Convention-based discovery is elegant but adds loader complexity. Not worth it until multiple independent plugin authors need to add commands without coordinating.
 - **Command arguments/parameters** — Scope creep. MVP validates whether users use `/` at all. Arguments are a Phase 2 feature.
 - **Permission/ACL system** — The project serves a small team. Authorization can be added later if the bot is exposed to untrusted users.
-- **Auto-response on `bot_started`** — `bot_started` fires when a user DMs the bot for the first time. Both `bot_added` and `bot_started` trigger the same welcome message (ADR-0021).
+- **Auto-response on `bot_started`** — `bot_started` fires when a user DMs the bot for the first time. Both `bot_added` and `bot_started` trigger the same welcome message (ADR-0021). This is now implemented.
 
 ## Open Questions (Resolved)
 

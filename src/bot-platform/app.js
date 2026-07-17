@@ -62,7 +62,7 @@ function startLiveBotPlatformService(environment = process.env, options = {}) {
   return liveService;
 }
 
-async function runBotPlatformDryRun(fixturePath, routeHandlers = {}) {
+async function runBotPlatformDryRun(fixturePath) {
   if (typeof fixturePath !== 'string' || fixturePath.length === 0) {
     throw new Error('Fixture path is required');
   }
@@ -70,7 +70,7 @@ async function runBotPlatformDryRun(fixturePath, routeHandlers = {}) {
   const resolvedPath = path.resolve(process.cwd(), fixturePath);
   const payload = JSON.parse(fs.readFileSync(resolvedPath, 'utf8'));
 
-  return runMaxIdentityDryRun(payload, routeHandlers);
+  return runMaxIdentityDryRun(payload);
 }
 
 function runBotPlatformLongPollingOnce(environment = process.env, options = {}) {
@@ -129,7 +129,7 @@ async function main(argv = process.argv.slice(2), io = { stdout: process.stdout,
   }
 
   try {
-    const result = await runBotPlatformDryRun(argv[0], app.routes);
+    const result = await runBotPlatformDryRun(argv[0]);
     io.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     return 0;
   } catch (error) {

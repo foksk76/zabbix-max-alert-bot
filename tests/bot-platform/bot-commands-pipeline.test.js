@@ -5,8 +5,6 @@ const { createIdentityUpdateProcessor } = require('../../src/bot-platform/core/l
 const { runMaxIdentityDryRun } = require('../../src/bot-platform/core/dry-run-pipeline');
 const { handleIdentityEvent } = require('../../src/bot-platform/plugins/identity');
 
-const routeHandlers = { identity: handleIdentityEvent };
-
 function createRecordingOutbound() {
   const calls = [];
 
@@ -54,7 +52,6 @@ function createUserPayload(text) {
 test('live pipeline: /help returns command list', async () => {
   const outbound = createRecordingOutbound();
   const processUpdate = createIdentityUpdateProcessor({
-    routeHandlers,
     outboundClient: outbound,
     identityHandler: handleIdentityEvent
   });
@@ -71,7 +68,6 @@ test('live pipeline: /help returns command list', async () => {
 test('live pipeline: /id returns identity response', async () => {
   const outbound = createRecordingOutbound();
   const processUpdate = createIdentityUpdateProcessor({
-    routeHandlers,
     outboundClient: outbound,
     identityHandler: handleIdentityEvent
   });
@@ -86,7 +82,6 @@ test('live pipeline: /id returns identity response', async () => {
 test('live pipeline: /unknown command returns unknown command reply', async () => {
   const outbound = createRecordingOutbound();
   const processUpdate = createIdentityUpdateProcessor({
-    routeHandlers,
     outboundClient: outbound,
     identityHandler: handleIdentityEvent
   });
@@ -101,7 +96,6 @@ test('live pipeline: /unknown command returns unknown command reply', async () =
 test('live pipeline: non-command text returns unknown command reply', async () => {
   const outbound = createRecordingOutbound();
   const processUpdate = createIdentityUpdateProcessor({
-    routeHandlers,
     outboundClient: outbound,
     identityHandler: handleIdentityEvent
   });
@@ -116,7 +110,6 @@ test('live pipeline: non-command text returns unknown command reply', async () =
 test('live pipeline: bot_added returns welcome message', async () => {
   const outbound = createRecordingOutbound();
   const processUpdate = createIdentityUpdateProcessor({
-    routeHandlers,
     outboundClient: outbound,
     identityHandler: handleIdentityEvent
   });
@@ -138,7 +131,6 @@ test('live pipeline: bot_added returns welcome message', async () => {
 test('live pipeline: bot_started returns welcome message', async () => {
   const outbound = createRecordingOutbound();
   const processUpdate = createIdentityUpdateProcessor({
-    routeHandlers,
     outboundClient: outbound,
     identityHandler: handleIdentityEvent
   });
@@ -158,7 +150,6 @@ test('live pipeline: bot_started returns welcome message', async () => {
 test('dry-run pipeline: /help returns command list', async () => {
   const result = await runMaxIdentityDryRun(
     createChatPayload('/help'),
-    routeHandlers,
     { identityHandler: handleIdentityEvent }
   );
 
@@ -170,7 +161,6 @@ test('dry-run pipeline: /help returns command list', async () => {
 test('dry-run pipeline: /id returns identity response', async () => {
   const result = await runMaxIdentityDryRun(
     createChatPayload('/id'),
-    routeHandlers,
     { identityHandler: handleIdentityEvent }
   );
 
@@ -181,8 +171,7 @@ test('dry-run pipeline: /id returns identity response', async () => {
 
 test('dry-run pipeline: non-command text returns unknown command reply', async () => {
   const result = await runMaxIdentityDryRun(
-    createChatPayload('hello'),
-    routeHandlers
+    createChatPayload('hello')
   );
 
   assert.equal(result.mode, 'dry-run');
@@ -197,7 +186,7 @@ test('dry-run pipeline: bot_added returns welcome message', async () => {
     chat_id: 2002,
     user: { user_id: 1001 },
     is_channel: false
-  }, routeHandlers);
+  });
 
   assert.equal(result.mode, 'dry-run');
   assert.equal(result.response.kind, 'text');
@@ -209,7 +198,7 @@ test('dry-run pipeline: bot_started returns welcome message', async () => {
     update_type: 'bot_started',
     timestamp: 1,
     user: { user_id: 1001 }
-  }, routeHandlers);
+  });
 
   assert.equal(result.mode, 'dry-run');
   assert.equal(result.response.kind, 'text');

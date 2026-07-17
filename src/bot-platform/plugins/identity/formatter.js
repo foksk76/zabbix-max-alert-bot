@@ -1,13 +1,10 @@
 'use strict';
 
-const RECIPIENT_TYPE_BY_KIND = Object.freeze({
-  user: 'user_id',
-  chat: 'chat_id'
-});
+const { RECIPIENT_TYPE_MAP } = require('../../core/pipeline-constants');
 
 function formatIdentityResponse(event) {
   const recipient = event && event.recipient ? event.recipient : {};
-  const recipientType = RECIPIENT_TYPE_BY_KIND[recipient.kind];
+  const recipientType = RECIPIENT_TYPE_MAP[recipient.kind];
 
   if (!recipientType) {
     throw new Error('Unsupported identity recipient kind');

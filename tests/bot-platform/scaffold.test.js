@@ -6,7 +6,6 @@ const {
   createCore,
   createBotPlatformConfig,
   createSafeLogger,
-  createEventRouter,
   createPluginLoader
 } = require('../../src/bot-platform/core');
 const {
@@ -30,7 +29,6 @@ test('bot platform scaffold modules can be imported', () => {
   assert.equal(typeof createCore, 'function');
   assert.equal(typeof createBotPlatformConfig, 'function');
   assert.equal(typeof createSafeLogger, 'function');
-  assert.equal(typeof createEventRouter, 'function');
   assert.equal(typeof createPluginLoader, 'function');
   assert.equal(typeof createMaxTransport, 'function');
   assert.equal(typeof normalizeMaxEvent, 'function');
