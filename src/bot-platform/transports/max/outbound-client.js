@@ -71,7 +71,9 @@ function createMaxOutboundClient(options = {}) {
         const normalizedResponse = normalizeHttpResponse(httpResponse);
 
         if (normalizedResponse.statusCode < 200 || normalizedResponse.statusCode >= 300) {
-          throw createMaxApiError(normalizedResponse.statusCode);
+          throw createMaxApiError(normalizedResponse.statusCode, {
+            responseBody: normalizedResponse.body
+          });
         }
 
         if (reqId) {
@@ -165,14 +167,17 @@ function normalizeMaxApiError(error) {
   }
 
   if (error && typeof error === 'object' && Number.isInteger(error.statusCode)) {
-    return createMaxApiError(error.statusCode);
+    return createMaxApiError(error.statusCode, {
+      responseBody: error.responseBody || error.body || null
+    });
   }
 
   if (error && typeof error === 'object' && error.message) {
     const normalized = new Error('MAX API request failed');
     normalized.code = MAX_API_ERROR_CODE;
     normalized.details = buildSafeTransportErrorDetails(error, {
-      reason: 'transport failure'
+      reason: 'transport failure',
+      responseBody: error.responseBody || error.body || null
     });
 
     return normalized;

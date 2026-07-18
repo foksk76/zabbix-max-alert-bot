@@ -144,6 +144,46 @@ Trigger_status: PROBLEM
 Тестовое уведомление из Zabbix
 ```
 
+## Ограничения MAX Bot API
+
+### Лимит длины сообщения
+
+MAХ Bot API жёстко ограничивает длину поля `text` в теле запроса: **не более 4000 байт**.
+
+Ошибка при превышении:
+
+```json
+{"code":"proto.payload","message":"Field 'text' size (4001) must be at most 4000"}
+```
+
+**Валидация в bot-platform:**
+
+- HTTP-ingress (`POST /ingest`) отклоняет сообщения > 4000 символов с HTTP 413 до постановки в очередь.
+- HTTP-ingress не возвращает тело ошибки MAX API в ответ клиенту — Reject происходит до обращения к MAX API.
+
+**Валидация в max-webhook.js:**
+
+- Прямой путь `max-webhook.js → MAX Bot API` не имеет валидации длины — ошибка возвращается от MAX API напрямую.
+
+### Рекомендации
+
+| Сценарий | Рекомендация |
+|---|---|
+| Длинные уведомления Zabbix | Обрезать `{ALERT.MESSAGE}` на стороне Zabbix (Macro `{ALERT.MESSAGE:0,3900}`) или в Media type параметрах |
+| Кастомные ingest-сообщения | Контролировать длину `message` перед отправкой в `POST /ingest` |
+| Диагностика ошибок MAX API | `outbound-client` логирует `responseBody` из ответа MAX API для диагностики |
+
+### Другие ограничения
+
+| Параметр | Значение | Описание |
+|---|---|---|
+| `text` (MAX API) | ≤ 4000 байт | Жёсткое ограничение protobuf-валидации |
+| Request body (ingress) | ≤ 1 МБ | Лимит `maxBodyBytes` в `http-server.js` |
+| Retry attempts (queue) | 5 попыток | Настраивается через `QUEUE_MAX_ATTEMPTS` |
+| Retry interval | 5 сек (base) | Настраивается через `QUEUE_INTERVAL_MS` |
+
+---
+
 ## Planned changes (multi-source ingest)
 
 ADR-0022 расширяет scope проекта на multi-source HTTP-ingress. ADR-0027 определяет интеграцию `max-webhook.js` с IdP (NanoIDP для MVP, Keycloak/Authentik для продакшна). ADR-0028 вводит очередь доставки сообщений для at-least-once guarantee. Ниже — Planned изменения, которые войдут при реализации multi-source ingest:

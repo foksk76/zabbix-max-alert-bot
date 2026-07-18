@@ -6,6 +6,7 @@ const { formatLogLine } = require('../core/logger');
 
 const MODULE_NAME = 'ingress-http-server';
 const DEFAULT_MAX_BODY_BYTES = 1024 * 1024;
+const MAX_API_TEXT_LIMIT = 4000;
 
 function createIngressHttpServer(options = {}) {
   const port = options.port || 8443;
@@ -126,12 +127,21 @@ function createIngressHttpServer(options = {}) {
       }));
     }
 
+    const text = typeof event.message === 'string' ? event.message : (event.message && event.message.text || '');
+
+    if (text.length > MAX_API_TEXT_LIMIT) {
+      sendResponse(res, 413, {
+        error: `Message text exceeds MAX API limit of ${MAX_API_TEXT_LIMIT} characters (got ${text.length})`
+      });
+      return;
+    }
+
     try {
       if (queueStore) {
         const outboundResponse = {
           kind: 'text',
           recipient: event.recipient,
-          text: typeof event.message === 'string' ? event.message : (event.message.text || '')
+          text
         };
         const { id } = queueStore.enqueue({ payload: outboundResponse, source, reqId });
 
@@ -186,5 +196,6 @@ function createIngressHttpServer(options = {}) {
 
 module.exports = {
   MODULE_NAME,
+  MAX_API_TEXT_LIMIT,
   createIngressHttpServer
 };

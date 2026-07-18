@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
 
-const { createIngressHttpServer } = require('../../src/bot-platform/ingress/http-server');
+const { createIngressHttpServer, MAX_API_TEXT_LIMIT } = require('../../src/bot-platform/ingress/http-server');
 
 function createMockJwtAuth(shouldFail = false) {
   return {
@@ -306,6 +306,56 @@ test('POST /ingest with reqId is passed to queue payload', async () => {
     assert.equal(enqueued.length, 1);
     assert.equal(typeof enqueued[0].reqId, 'string');
     assert.ok(enqueued[0].reqId.length > 0, 'reqId should not be empty');
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest with text at MAX_API_TEXT_LIMIT is accepted', async () => {
+  const queueStore = createMockQueueStore();
+  const { server, port } = await createAndStartServer({ queueStore });
+  try {
+    const text = 'x'.repeat(MAX_API_TEXT_LIMIT);
+    const res = await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: text },
+      headers: { authorization: 'Bearer token' }
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.body.status, 'queued');
+    assert.equal(queueStore.getEnqueued().length, 1);
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest with text exceeding MAX_API_TEXT_LIMIT returns 413', async () => {
+  const queueStore = createMockQueueStore();
+  const { server, port } = await createAndStartServer({ queueStore });
+  try {
+    const text = 'x'.repeat(MAX_API_TEXT_LIMIT + 1);
+    const res = await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: text },
+      headers: { authorization: 'Bearer token' }
+    });
+    assert.equal(res.status, 413);
+    assert.ok(res.body.error.includes('exceeds MAX API limit'));
+    assert.ok(res.body.error.includes(String(MAX_API_TEXT_LIMIT + 1)));
+    assert.equal(queueStore.getEnqueued().length, 0);
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest with oversized text does not enqueue', async () => {
+  const queueStore = createMockQueueStore();
+  const { server, port } = await createAndStartServer({ queueStore });
+  try {
+    const text = 'x'.repeat(5000);
+    await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: text },
+      headers: { authorization: 'Bearer token' }
+    });
+    assert.equal(queueStore.getEnqueued().length, 0, 'should not enqueue oversized message');
   } finally {
     await server.stop();
   }

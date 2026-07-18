@@ -324,6 +324,30 @@
 - [ ] Документация обновлена
 - [ ] Готово к ревью
 
+## Post-sprint: MAX API Stress Test + Fixes (2026-07-18)
+
+Стресс-тест выявил жёсткое ограничение MAX Bot API: **text field ≤ 4000 байт**. Ошибка: `{"code":"proto.payload","message":"Field 'text' size (N) must be at most 4000"}`.
+
+### Исправления (в том же спринте)
+
+| Что | Файл | Описание |
+|-----|------|----------|
+| Валидация длины text | `http-server.js` | Reject с HTTP 413 до enqueue если `text.length > 4000` |
+| Логирование ошибок MAX API | `outbound-client.js` | `responseBody` из ответа MAX API прокидывается в error.details |
+| Тесты | `ingress-http-server.test.js` | 3 новых теста: at-limit, over-limit, oversized-no-enqueue |
+| Тесты | `max-outbound-client.test.js` | 1 новый тест: response body in validation error |
+| Документация | `docs/zabbix-media-type.md` | Секция "Ограничения MAX Bot API" |
+
+### Результат стресс-теста
+
+| Размер text | ingress | MAX API |
+|---|---|---|
+| ≤ 4000 байт | ✅ queued | ✅ delivered |
+| 4001 байт | ✅ queued | ❌ `proto.payload` (rejected) |
+| 10KB+ | ✅ queued | ❌ `proto.payload` (rejected) |
+
+297 тестов, 0 падений.
+
 ## Risks and Mitigations
 
 | Risk | Impact | Mitigation |
