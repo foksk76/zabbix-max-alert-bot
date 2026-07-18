@@ -1,81 +1,91 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { normalizeZabbixEvent, getNormalizer } = require('../../src/bot-platform/ingress/normalizers');
+const { normalizeIngestEvent, getNormalizer } = require('../../src/bot-platform/ingress/normalizers');
 
-test('normalizeZabbixEvent normalizes user event', () => {
-  const event = normalizeZabbixEvent({
+test('normalizeIngestEvent normalizes user event with source', () => {
+  const event = normalizeIngestEvent({
     recipient: { kind: 'user', value: '12345' },
-    message: 'Test alert from Zabbix'
-  });
+    message: 'Test alert'
+  }, 'zabbix');
 
   assert.equal(event.source, 'zabbix');
   assert.equal(event.recipient.kind, 'user');
   assert.equal(event.recipient.value, '12345');
-  assert.equal(event.message.text, 'Test alert from Zabbix');
+  assert.equal(event.message.text, 'Test alert');
 });
 
-test('normalizeZabbixEvent normalizes chat event', () => {
-  const event = normalizeZabbixEvent({
+test('normalizeIngestEvent normalizes chat event with source', () => {
+  const event = normalizeIngestEvent({
     recipient: { kind: 'chat', value: '67890' },
-    message: 'Test alert from Zabbix'
-  });
+    message: 'Test alert'
+  }, 'siem');
 
-  assert.equal(event.source, 'zabbix');
+  assert.equal(event.source, 'siem');
   assert.equal(event.recipient.kind, 'chat');
   assert.equal(event.recipient.value, '67890');
 });
 
-test('normalizeZabbixEvent throws on missing recipient', () => {
+test('normalizeIngestEvent uses default source when not provided', () => {
+  const event = normalizeIngestEvent({
+    recipient: { kind: 'user', value: '123' },
+    message: 'test'
+  });
+
+  assert.equal(event.source, 'ingest');
+});
+
+test('normalizeIngestEvent throws on missing recipient', () => {
   assert.throws(
-    () => normalizeZabbixEvent({ message: 'test' }),
-    /Missing recipient in Zabbix event/
+    () => normalizeIngestEvent({ message: 'test' }, 'zabbix'),
+    /Missing recipient/
   );
 });
 
-test('normalizeZabbixEvent throws on missing recipient.kind', () => {
+test('normalizeIngestEvent throws on missing recipient.kind', () => {
   assert.throws(
-    () => normalizeZabbixEvent({ recipient: { value: '123' } }),
-    /Missing recipient.kind in Zabbix event/
+    () => normalizeIngestEvent({ recipient: { value: '123' } }, 'zabbix'),
+    /Missing recipient.kind/
   );
 });
 
-test('normalizeZabbixEvent throws on unsupported recipient kind', () => {
+test('normalizeIngestEvent throws on unsupported recipient kind', () => {
   assert.throws(
-    () => normalizeZabbixEvent({ recipient: { kind: 'unknown', value: '123' } }),
+    () => normalizeIngestEvent({ recipient: { kind: 'unknown', value: '123' } }, 'zabbix'),
     /Unsupported recipient kind: unknown/
   );
 });
 
-test('normalizeZabbixEvent throws on missing recipient.value', () => {
+test('normalizeIngestEvent throws on missing recipient.value', () => {
   assert.throws(
-    () => normalizeZabbixEvent({ recipient: { kind: 'user' } }),
-    /Missing recipient.value in Zabbix event/
+    () => normalizeIngestEvent({ recipient: { kind: 'user' } }, 'zabbix'),
+    /Missing recipient.value/
   );
 });
 
-test('normalizeZabbixEvent throws on invalid body', () => {
+test('normalizeIngestEvent throws on invalid body', () => {
   assert.throws(
-    () => normalizeZabbixEvent(null),
-    /Invalid Zabbix event body/
+    () => normalizeIngestEvent(null, 'zabbix'),
+    /Invalid event body/
   );
 });
 
-test('normalizeZabbixEvent handles object message', () => {
-  const event = normalizeZabbixEvent({
+test('normalizeIngestEvent handles object message', () => {
+  const event = normalizeIngestEvent({
     recipient: { kind: 'user', value: '123' },
     message: { text: 'nested message' }
-  });
+  }, 'zabbix');
 
   assert.equal(event.message.text, '{"text":"nested message"}');
 });
 
-test('getNormalizer returns zabbix normalizer', () => {
+test('getNormalizer returns ingest normalizer for any source', () => {
   const normalizer = getNormalizer('zabbix');
   assert.equal(typeof normalizer, 'function');
-});
 
-test('getNormalizer returns null for unknown source', () => {
-  const normalizer = getNormalizer('unknown');
-  assert.equal(normalizer, null);
+  const normalizer2 = getNormalizer('siem');
+  assert.equal(typeof normalizer2, 'function');
+
+  const normalizer3 = getNormalizer('unknown');
+  assert.equal(typeof normalizer3, 'function');
 });

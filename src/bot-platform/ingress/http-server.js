@@ -98,7 +98,7 @@ function createIngressHttpServer(options = {}) {
     let event;
 
     try {
-      event = normalizer(body);
+      event = normalizer(body, source);
     } catch (error) {
       sendResponse(res, 400, { error: error.message });
       return;

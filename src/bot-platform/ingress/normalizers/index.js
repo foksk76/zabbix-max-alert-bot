@@ -1,16 +1,12 @@
 'use strict';
 
-const { normalizeZabbixEvent } = require('./zabbix');
-
-const normalizers = {
-  zabbix: normalizeZabbixEvent
-};
+const { normalizeIngestEvent } = require('./ingest');
 
 function getNormalizer(sourceName) {
-  return normalizers[sourceName] || null;
+  return normalizeIngestEvent;
 }
 
 module.exports = {
-  normalizeZabbixEvent,
+  normalizeIngestEvent,
   getNormalizer
 };
