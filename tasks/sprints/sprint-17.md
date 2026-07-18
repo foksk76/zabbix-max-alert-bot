@@ -1,6 +1,21 @@
-# Task List: ADR-0029 Lifecycle Audit Trail
+# Sprint 17: Lifecycle Audit Trail (ADR-0029)
 
-## Task 1: Config — add `LOG_AUDIT`, `LOG_TRACE` env vars
+## Outcome
+
+Внедрить двуслойное журналирование (audit trail + lifecycle trace) в bot-platform pipeline. Каждое входящее HTTP-запрос получает `reqId` (crypto.randomUUID()), который прокидывается через auth → normalize → queue → outbound. Audit-записи — для быстрого grep, trace-записи — для полной трассировки по reqId.
+
+Контекст: ADR-0029 принят (2026-07-18). Live run подтвердил доставку, но промежуточные этапы не логируются. Текущий pipeline: 8 log calls на 1126 строк кода в 5 модулях.
+
+## Architecture Decisions
+
+- **Формат через helper, не через рефакторинг logger**: добавить `formatLogLine()` в `logger.js`, модули вызывают его для stdout-строки. Внутренний API `createSafeLogger` не меняется — минимум disruption.
+- **reqId в payload + столбце**: dual storage — payload для передачи между компонентами, `req_id` столбец для SQL-запросов.
+- **Nullable req_id**: обратная совместимость с существующими записями в queue.
+- **Флаги LOG_AUDIT / LOG_TRACE**: управление на уровне вызова, не на уровне logger. Если флаг выключен — соответствующие log-вызовы пропускаются.
+
+## Tasks
+
+### Task 1: Config — add `LOG_AUDIT`, `LOG_TRACE` env vars
 
 **Status:** Planned
 
@@ -22,9 +37,7 @@
 
 **Estimated scope:** S (1 file + 1 test file)
 
----
-
-## Task 2: Logger — add `formatLogLine()` helper
+### Task 2: Logger — add `formatLogLine()` helper
 
 **Status:** Planned
 
@@ -46,9 +59,7 @@
 
 **Estimated scope:** S (1 file)
 
----
-
-## Task 3: Schema — add `req_id` column + index
+### Task 3: Schema — add `req_id` column + index
 
 **Status:** Planned
 
@@ -72,9 +83,7 @@
 
 **Estimated scope:** M (1 file, schema + queries)
 
----
-
-## Task 4: http-server.js — generate reqId + trace/audit logs
+### Task 4: http-server.js — generate reqId + trace/audit logs
 
 **Status:** Planned
 
@@ -100,9 +109,7 @@
 
 **Estimated scope:** M (1 file + tests)
 
----
-
-## Task 5: jwt-source-auth.js — add audit log
+### Task 5: jwt-source-auth.js — add audit log
 
 **Status:** Planned
 
@@ -125,9 +132,7 @@
 
 **Estimated scope:** S (1 file + tests)
 
----
-
-## Task 6: Tests for ingress audit/trace
+### Task 6: Tests for ingress audit/trace
 
 **Status:** Planned
 
@@ -151,9 +156,7 @@
 
 **Estimated scope:** M (2 test files)
 
----
-
-## Task 7: store.js — trace log for enqueue
+### Task 7: store.js — trace log for enqueue
 
 **Status:** Planned
 
@@ -175,9 +178,7 @@
 
 **Estimated scope:** S (1 file + tests)
 
----
-
-## Task 8: worker.js — trace/audit logs
+### Task 8: worker.js — trace/audit logs
 
 **Status:** Planned
 
@@ -201,9 +202,7 @@
 
 **Estimated scope:** M (1 file + tests)
 
----
-
-## Task 9: outbound-client.js — trace log
+### Task 9: outbound-client.js — trace log
 
 **Status:** Planned
 
@@ -225,9 +224,7 @@
 
 **Estimated scope:** S (1 file + tests)
 
----
-
-## Task 10: Tests for queue + outbound audit/trace
+### Task 10: Tests for queue + outbound audit/trace
 
 **Status:** Planned
 
@@ -251,11 +248,9 @@
 
 **Estimated scope:** M (3 test files)
 
----
+### Task 11: End-to-end integration test
 
-## Task 11: End-to-end integration test
-
-**Status:** Planned**
+**Status:** Planned
 
 **Description:** Полный end-to-end тест lifecycle trace: POST /ingest → auth → normalize → queue → dequeue → outbound → ack. Mock outboundClient. Проверить: (1) reqId генерируется и прокидывается через все этапы; (2) audit-логи вызываются на auth, queue, delivery; (3) trace-логи вызываются на ingress, jwt, normalize, enqueue, dequeue, outbound, delivered.
 
@@ -276,9 +271,7 @@
 
 **Estimated scope:** M (1 test file)
 
----
-
-## Task 12: Documentation
+### Task 12: Documentation
 
 **Status:** Planned
 
@@ -301,3 +294,41 @@
 - `docs/decisions/ADR-0029-lifecycle-audit-trail.md`
 
 **Estimated scope:** XS (3 files, docs only)
+
+## Checkpoint: After Tasks 1-3 (Foundation)
+
+- [ ] `npm test` passes
+- [ ] Config возвращает `logAudit: true`, `logTrace: true`
+- [ ] `formatLogLine()` produces correct ADR-0029 format
+- [ ] `delivery_queue` таблица имеет `req_id` столбец
+
+## Checkpoint: After Tasks 4-6 (Ingress)
+
+- [ ] `POST /ingest` генерирует `reqId` и логирует ingress/jwt/normalize/enqueue
+- [ ] Audit-логи: auth success/fail
+- [ ] Trace-логи: ingress, jwt verified, normalized, enqueued
+- [ ] Тесты проходят
+
+## Checkpoint: After Tasks 7-10 (Queue + Outbound)
+
+- [ ] `reqId` прокидывается через queue payload и `req_id` столбец
+- [ ] Audit-логи: message queued/delivered/failed
+- [ ] Trace-логи: dequeued/outbound/delivered/failed
+- [ ] Тесты проходят
+
+## Checkpoint: After Tasks 11-12 (Complete)
+
+- [ ] Полный lifecycle trace от ingress до delivery
+- [ ] `journalctl -u max-identity-bot-live | grep '\[audit\]'` работает
+- [ ] `npm test` — все тесты проходят
+- [ ] Документация обновлена
+- [ ] Готово к ревью
+
+## Risks and Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Logger format change breaks existing log consumers | Medium | formatLogLine is additive; existing emit() unchanged |
+| req_id migration fails on existing DB | Low | ALTER TABLE ADD COLUMN is safe; column is nullable |
+| Performance impact of randomUUID + 2 log calls per request | Low | randomUUID is ~microseconds; log writes are async |
+| outbound-client.js shared-helpers createLogger only checks `info` | Low | Audit/trace use info level; error paths use logger.error directly |
