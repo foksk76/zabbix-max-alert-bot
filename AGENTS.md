@@ -64,6 +64,7 @@ ADR-0025  better-sqlite3 как исключение из ADR-0015
 ADR-0026  расширение scope стенда под multi-source ingress
 ADR-0027  установка и настройка Okta IdP на MVP стенде
 ADR-0028  очередь доставки сообщений (delivery queue)
+ADR-0029  lifecycle audit trail (audit + trace)
 ```
 
 ## Каноничные источники

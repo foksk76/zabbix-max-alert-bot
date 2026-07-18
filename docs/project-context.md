@@ -120,6 +120,7 @@ Live-сценарий с реальным входящим сообщением 
 - по ADR-0026 расширить границу стенда под multi-source ingress (outbound-only → inbound-capable);
 - по ADR-0027 установить и настроить IdP на MVP стенде (NanoIDP для quickstart);
 - по ADR-0028 ввести очередь доставки сообщений (delivery queue) для at-least-once guarantee;
+- по ADR-0029 ввести lifecycle audit trail (audit + trace) для расследования инцидентов;
 - не реализовывать автоматическую повторную отправку, маршрутизацию на боте или управление Zabbix из МАХ без отдельного ADR.
 
 ## Основной артефакт первого этапа
@@ -146,11 +147,15 @@ src/bot-platform/queue/worker.js       — Queue worker с retry + backoff (ADR-
 src/bot-platform/ingress/              — Ingress pipeline:
   ├── jwt-source-auth.js               — JWT-аутентификация (ADR-0024)
   ├── http-server.js                   — HTTP-сервер POST /ingest (ADR-0023)
+  ├── oidc-verifier.js                 — OIDC-верификатор для HTTP-issuer
   ├── normalizers/                     — Per-source нормализаторы
-  │   ├── zabbix.js                    — Zabbix normalizer
+  │   ├── ingest.js                    — Generic ingest normalizer
+  │   ├── zabbix.js                    — Zabbix normalizer (legacy, не используется)
   │   └── index.js                     — Normalizer registry
   └── index.js                         — Ingress facade
+src/bot-platform/bot-platform-ingest.js — Standalone Zabbix скрипт (替代 max-webhook.js на production)
 src/bot-platform/app.js                — Wiring: ingress + queue в одном процессе
+src/shared/zabbix-message.js           — Shared buildAlertMessage (DRY)
 ```
 
 Конфигурация (переменные окружения):
@@ -166,14 +171,16 @@ IDP_ISSUER=                 — URL Identity Provider (NanoIDP/Keycloak)
 IDP_AUDIENCE=               — аудиенция для JWT verification
 JWT_CLAIM_NAME=             — имя claim для source identification
 JWT_CLAIM_VALUE=            — значение claim для source identification
+LOG_AUDIT=true              — включить audit trail (ADR-0029)
+LOG_TRACE=true              — включить lifecycle trace (ADR-0029)
 ```
 
-Ожидается (live test-run):
+Реализовано:
 
 ```text
-- NanoIDP на MVP стенде для quickstart
-- Keycloak/Authentik для продакшн
-- Live test-run ingest path с реальным JWT
+- NanoIDP на MVP стенде (docker compose, порт 8000)
+- Live test-run ingest path: zabbix → /ingest → queue → outbound → MAX API 200 → user 219338126
+- Keycloak/Authentik для продакшн (документация: docs/nanoidp-setup.md)
 ```
 
 ## Правило для агентов
