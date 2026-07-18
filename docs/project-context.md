@@ -82,12 +82,12 @@ Live-сценарий с реальным входящим сообщением 
 Входит (ADR-0022):
 
 - HTTP-ingress (`POST /ingest`) для входящих запросов от внешних источников;
-- аутентификация источников через Okta JWT (`@okta/jwt-verifier` — ADR-0024);
+- аутентификация источников через JWT (`@okta/jwt-verifier` — ADR-0024, совместим с OIDC-провайдерами);
 - delivery-log в SQLite (`better-sqlite3` — ADR-0025) за абстракцией `LogStore`;
 - connection-log и audit-trail в syslog;
 - deprecation прямого пути `max-webhook.js → MAX Bot API`;
 - расширение стенда outbound-only → inbound-capable (ADR-0026);
-- Okta IdP на MVP стенде (ADR-0027);
+- IdP на MVP стенде (NanoIDP для quickstart, Keycloak/Authentik для продакшна);
 - очередь доставки сообщений для at-least-once guarantee (ADR-0028).
 
 Не входит без отдельного ADR (без изменений):
@@ -115,10 +115,10 @@ Live-сценарий с реальным входящим сообщением 
 - по ADR-0010 требовать live evidence для приемки MAX Identity Bot;
 - по ADR-0022 расширить scope на multi-source ingress + журналы;
 - по ADR-0023 принять входящие HTTP в bot-platform (stdlib only);
-- по ADR-0024 принять `@okta/jwt-verifier` как исключение из ADR-0015;
+- по ADR-0024 принять `@okta/jwt-verifier` как исключение из ADR-0015 (совместим с OIDC-провайдерами);
 - по ADR-0025 принять `better-sqlite3` как исключение из ADR-0015;
 - по ADR-0026 расширить границу стенда под multi-source ingress (outbound-only → inbound-capable);
-- по ADR-0027 установить и настроить Okta IdP на MVP стенде;
+- по ADR-0027 установить и настроить IdP на MVP стенде (NanoIDP для quickstart);
 - по ADR-0028 ввести очередь доставки сообщений (delivery queue) для at-least-once guarantee;
 - не реализовывать автоматическую повторную отправку, маршрутизацию на боте или управление Zabbix из МАХ без отдельного ADR.
 
@@ -162,16 +162,18 @@ QUEUE_INTERVAL_MS=5000      — интервал polling очереди
 QUEUE_BATCH_SIZE=10         — размер батча для dequeue
 INGRESS_ENABLED=false       — включение HTTP-ingress (по умолчанию false)
 INGRESS_PORT=8443           — порт HTTP-ingress сервера
-OKTA_ISSUER=                — Okta issuer URL
-OKTA_AUDIENCE=              — Okta audience
+IDP_ISSUER=                 — URL Identity Provider (NanoIDP/Keycloak)
+IDP_AUDIENCE=               — аудиенция для JWT verification
+JWT_CLAIM_NAME=             — имя claim для source identification
+JWT_CLAIM_VALUE=            — значение claim для source identification
 ```
 
 Ожидается (live test-run):
 
 ```text
-- Okta IdP на MVP стенде (ADR-0027)
+- NanoIDP на MVP стенде для quickstart
+- Keycloak/Authentik для продакшн
 - Live test-run ingest path с реальным JWT
-- Deprecation прямого пути после live-evidence
 ```
 
 ## Правило для агентов

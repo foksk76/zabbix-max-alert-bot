@@ -15,21 +15,21 @@ test('config has ingress defaults when env is empty', () => {
   const app = createBotPlatformApp({});
   assert.equal(app.core.config.ingressEnabled, false);
   assert.equal(app.core.config.ingressPort, 8443);
-  assert.equal(app.core.config.oktaIssuer, '');
-  assert.equal(app.core.config.oktaAudience, '');
+  assert.equal(app.core.config.idpIssuer, '');
+  assert.equal(app.core.config.idpAudience, '');
 });
 
 test('config reads ingress env overrides', () => {
   const app = createBotPlatformApp({
     INGRESS_ENABLED: 'true',
     INGRESS_PORT: '9443',
-    OKTA_ISSUER: 'https://synthetic.okta.com',
-    OKTA_AUDIENCE: 'synthetic-audience'
+    IDP_ISSUER: 'https://synthetic.idp.com',
+    IDP_AUDIENCE: 'synthetic-audience'
   });
   assert.equal(app.core.config.ingressEnabled, true);
   assert.equal(app.core.config.ingressPort, 9443);
-  assert.equal(app.core.config.oktaIssuer, 'https://synthetic.okta.com');
-  assert.equal(app.core.config.oktaAudience, 'synthetic-audience');
+  assert.equal(app.core.config.idpIssuer, 'https://synthetic.idp.com');
+  assert.equal(app.core.config.idpAudience, 'synthetic-audience');
 });
 
 test('config has queue defaults when env is empty', () => {

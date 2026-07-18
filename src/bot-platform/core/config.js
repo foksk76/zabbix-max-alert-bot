@@ -46,8 +46,10 @@ function createBotPlatformConfig(environment = process.env) {
     queueBackoffMax: readIntegerEnvValue(environment, 'QUEUE_BACKOFF_MAX', DEFAULT_QUEUE_BACKOFF_MAX, 10, 3600),
     ingressEnabled: readBoolEnvValue(environment, 'INGRESS_ENABLED', false),
     ingressPort: readIntegerEnvValue(environment, 'INGRESS_PORT', DEFAULT_INGRESS_PORT, 1, 65535),
-    oktaIssuer: readEnvValue(environment, 'OKTA_ISSUER'),
-    oktaAudience: readEnvValue(environment, 'OKTA_AUDIENCE')
+    idpIssuer: readEnvValue(environment, 'IDP_ISSUER'),
+    idpAudience: readEnvValue(environment, 'IDP_AUDIENCE'),
+    jwtClaimName: readEnvValue(environment, 'JWT_CLAIM_NAME'),
+    jwtClaimValue: readEnvValue(environment, 'JWT_CLAIM_VALUE')
   };
 }
 

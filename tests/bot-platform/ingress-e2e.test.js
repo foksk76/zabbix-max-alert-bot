@@ -61,7 +61,7 @@ test('e2e: POST /ingest → auth → normalize → outbound.send', async () => {
 
   const pipeline = createIngressPipeline({
     port,
-    issuer: 'https://synthetic.okta.com',
+    issuer: 'https://synthetic.idp.example.com',
     audience: 'synthetic-audience',
     outboundClient: outbound,
     logger: { info: () => {}, error: () => {} },
@@ -95,7 +95,7 @@ test('e2e: POST /ingest with invalid JWT → 401', async () => {
 
   const pipeline = createIngressPipeline({
     port,
-    issuer: 'https://synthetic.okta.com',
+    issuer: 'https://synthetic.idp.example.com',
     audience: 'synthetic-audience',
     outboundClient: outbound,
     logger: { info: () => {}, error: () => {} },
@@ -130,7 +130,7 @@ test('e2e: POST /ingest with queue enabled → queued', async () => {
 
   const pipeline = createIngressPipeline({
     port,
-    issuer: 'https://synthetic.okta.com',
+    issuer: 'https://synthetic.idp.example.com',
     audience: 'synthetic-audience',
     outboundClient: outbound,
     queueStore: mockQueueStore,
@@ -160,7 +160,7 @@ test('e2e: dry-run mode works without queue', async () => {
 
   const pipeline = createIngressPipeline({
     port,
-    issuer: 'https://synthetic.okta.com',
+    issuer: 'https://synthetic.idp.example.com',
     audience: 'synthetic-audience',
     outboundClient: outbound,
     logger: { info: () => {}, error: () => {} },

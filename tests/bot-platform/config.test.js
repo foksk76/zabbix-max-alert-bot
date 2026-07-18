@@ -177,22 +177,22 @@ test('createBotPlatformConfig returns ingress defaults when env is empty', () =>
 
   assert.equal(config.ingressEnabled, false);
   assert.equal(config.ingressPort, 8443);
-  assert.equal(config.oktaIssuer, '');
-  assert.equal(config.oktaAudience, '');
+  assert.equal(config.idpIssuer, '');
+  assert.equal(config.idpAudience, '');
 });
 
 test('createBotPlatformConfig reads ingress environment overrides', () => {
   const config = createBotPlatformConfig({
     INGRESS_ENABLED: 'true',
     INGRESS_PORT: '9443',
-    OKTA_ISSUER: 'https://synthetic.okta.com',
-    OKTA_AUDIENCE: 'synthetic-audience'
+    IDP_ISSUER: 'https://synthetic.idp.com',
+    IDP_AUDIENCE: 'synthetic-audience'
   });
 
   assert.equal(config.ingressEnabled, true);
   assert.equal(config.ingressPort, 9443);
-  assert.equal(config.oktaIssuer, 'https://synthetic.okta.com');
-  assert.equal(config.oktaAudience, 'synthetic-audience');
+  assert.equal(config.idpIssuer, 'https://synthetic.idp.com');
+  assert.equal(config.idpAudience, 'synthetic-audience');
 });
 
 test('createBotPlatformConfig rejects invalid ingress values', () => {

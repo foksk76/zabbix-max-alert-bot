@@ -2,7 +2,7 @@
 
 ## Outcome
 
-Построить ingress pipeline: JWT-аутентификация через Okta, per-source нормализаторы, HTTP-сервер с маршрутом `POST /ingest`. По ADR-0023 (http.createServer), ADR-0024 (@okta/jwt-verifier), ADR-0022 (multi-source ingest scope).
+Построить ingress pipeline: JWT-аутентификация через IdP (NanoIDP/Okta), per-source нормализаторы, HTTP-сервер с маршрутом `POST /ingest`. По ADR-0023 (http.createServer), ADR-0024 (@okta/jwt-verifier), ADR-0022 (multi-source ingest scope).
 
 Контекст: bot-platform не принимает входящий HTTP. Источники (Zabbix, SIEM) не могут доставлять уведомления. Текущий прямой путь `max-webhook.js → MAX Bot API` не аутентифицируется.
 
@@ -29,16 +29,16 @@
 
 **Estimated scope:** XS (1 file)
 
-### Task 2: Add Okta env vars to `src/bot-platform/core/config.js`
+### Task 2: Add IdP env vars to `src/bot-platform/core/config.js`
 
 **Status:** Planned
 
-**Description:** Расширить `createBotPlatformConfig()` переменными для Okta: `OKTA_ISSUER`, `OKTA_AUDIENCE`. Добавить валидацию: если ingress включён, `OKTA_ISSUER` обязателен.
+**Description:** Расширить `createBotPlatformConfig()` переменными для IdP: `IDP_ISSUER`, `IDP_AUDIENCE`. Добавить валидацию: если ingress включён, `IDP_ISSUER` обязателен.
 
 **Acceptance criteria:**
-- [ ] `createBotPlatformConfig({ OKTA_ISSUER: 'https://example.okta.com' })` возвращает `oktaIssuer`
-- [ ] `createBotPlatformConfig({})` возвращает `oktaIssuer: ''` (default)
-- [ ] Валидация: `OKTA_ISSUER` обязателен при `INGRESS_ENABLED=true`
+- [ ] `createBotPlatformConfig({ IDP_ISSUER: 'https://example.idp.com' })` возвращает `idpIssuer`
+- [ ] `createBotPlatformConfig({})` возвращает `idpIssuer: ''` (default)
+- [ ] Валидация: `IDP_ISSUER` обязателен при `INGRESS_ENABLED=true`
 
 **Verification:**
 - [ ] `npm test` passes
@@ -54,7 +54,7 @@
 
 **Status:** Planned
 
-**Description:** JWT-аутентификация через `@okta/jwt-verifier`. Фабрика `createJwtSourceAuth(options = {})` принимает `{ issuer, audience, logger }`. Метод `authenticate(authorizationHeader)` извлекает Bearer token, верифицирует через Okta JWKS, возвращает `{ source }` из custom claim `bot_source`. Fail-closed: любая ошибка → исключение.
+**Description:** JWT-аутентификация через `@okta/jwt-verifier` (совместим с OIDC-провайдерами). Фабрика `createJwtSourceAuth(options = {})` принимает `{ issuer, audience, claimName, claimValue, logger }`. Метод `authenticate(authorizationHeader)` извлекает Bearer token, верифицирует через IdP JWKS, возвращает `{ source }` из claim. Fail-closed: любая ошибка → исключение.
 
 **Acceptance criteria:**
 - [ ] `createJwtSourceAuth({ issuer, audience })` создаёт auth-модуль
@@ -242,14 +242,14 @@
 ## Checkpoint: After Tasks 1-2 (Foundation)
 
 - [ ] `@okta/jwt-verifier` установлен
-- [ ] Okta env vars добавлены в config
+- [ ] IdP env vars добавлены в config
 - [ ] `npm test` passes
 
 ## Checkpoint: After Tasks 3-4 (JWT Auth)
 
 - [ ] `jwt-source-auth.js` создан и работает
 - [ ] `jwt-source-auth.test.js` — все тесты проходят
-- [ ] Mock-JWT тесты работают без реального Okta
+- [ ] Mock-JWT тесты работают без реального IdP
 
 ## Checkpoint: After Tasks 5-8 (Normalizers)
 

@@ -10,6 +10,8 @@ function createIngressPipeline(options = {}) {
   const port = options.port || 8443;
   const issuer = options.issuer || '';
   const audience = options.audience || '';
+  const claimName = options.claimName || '';
+  const claimValue = options.claimValue || '';
   const queueStore = options.queueStore || null;
   const outboundClient = options.outboundClient;
   const logger = options.logger || console;
@@ -17,6 +19,8 @@ function createIngressPipeline(options = {}) {
   const jwtAuth = createJwtSourceAuth({
     issuer,
     audience,
+    claimName: claimName || undefined,
+    claimValue: claimValue || undefined,
     logger,
     verifierFactory: options.verifierFactory || null
   });

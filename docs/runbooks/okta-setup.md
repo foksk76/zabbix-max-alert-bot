@@ -1,6 +1,9 @@
 # Okta IdP setup for bot-platform live runs
 
-Документ описывает установку и настройку Okta IdP на MVP стенде для live runs multi-source ingest (ADR-0027).
+> **Внимание:** Для MVP стенда рекомендуется использовать NanoIDP вместо Okta.
+> См. `docs/nanoidp-setup.md` для быстрой установки.
+
+Документ описывает установку и настройку Okta IdP для live runs multi-source ingest (ADR-0027).
 
 ## Назначение
 
@@ -152,9 +155,9 @@ MAX_BOT_TOKEN=<your-max-bot-token>
 MAX_LOG_LEVEL=info
 MAX_TRANSPORT_MODE=long_polling
 
-# Okta IdP
-OKTA_ISSUER=https://<okta-domain>/oauth2/default
-OKTA_AUDIENCE=bot-platform
+# IdP (Okta)
+IDP_ISSUER=https://<okta-domain>/oauth2/default
+IDP_AUDIENCE=bot-platform
 
 # Ingress
 INGRESS_ENABLED=true

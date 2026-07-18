@@ -7,6 +7,7 @@ const path = require('node:path');
 const { createCore, createPluginLoader, runMaxIdentityDryRun } = require('./core');
 const { createMaxTransport } = require('./transports/max');
 const { createIngressPipeline } = require('./ingress');
+const { createOidcVerifierFactory } = require('./ingress/oidc-verifier');
 const { createQueueStore } = require('./queue/store');
 const { createQueueWorker } = require('./queue/worker');
 const {
@@ -16,6 +17,18 @@ const {
   createLiveBotPlatformService,
   createLiveServiceShutdownHandlers
 } = require('./runtime');
+
+function resolveVerifierFactory(issuer) {
+  if (!issuer || issuer.startsWith('https://')) {
+    return null;
+  }
+
+  if (issuer.startsWith('http://')) {
+    return createOidcVerifierFactory();
+  }
+
+  return null;
+}
 
 function createBotPlatformApp(environment = process.env) {
   const core = createCore(environment);
@@ -113,8 +126,11 @@ async function main(argv = process.argv.slice(2), io = { stdout: process.stdout,
       if (config.ingressEnabled) {
         const ingress = createIngressPipeline({
           port: config.ingressPort,
-          issuer: config.oktaIssuer,
-          audience: config.oktaAudience,
+          issuer: config.idpIssuer,
+          audience: config.idpAudience,
+          claimName: config.jwtClaimName,
+          claimValue: config.jwtClaimValue,
+          verifierFactory: resolveVerifierFactory(config.idpIssuer),
           outboundClient,
           queueStore,
           logger: options.logger || console
@@ -163,8 +179,11 @@ async function main(argv = process.argv.slice(2), io = { stdout: process.stdout,
       if (config.ingressEnabled) {
         const ingress = createIngressPipeline({
           port: config.ingressPort,
-          issuer: config.oktaIssuer,
-          audience: config.oktaAudience,
+          issuer: config.idpIssuer,
+          audience: config.idpAudience,
+          claimName: config.jwtClaimName,
+          claimValue: config.jwtClaimValue,
+          verifierFactory: resolveVerifierFactory(config.idpIssuer),
           outboundClient,
           queueStore,
           logger: options.logger || console
