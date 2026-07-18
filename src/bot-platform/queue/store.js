@@ -1,5 +1,7 @@
 'use strict';
 
+const { formatLogLine } = require('../core/logger');
+
 const MODULE_NAME = 'queue-store';
 const DEFAULT_DB_PATH = 'delivery-queue.db';
 
@@ -16,23 +18,37 @@ CREATE TABLE IF NOT EXISTS delivery_queue (
 )
 `;
 
+const MIGRATION_SQL = [
+  'ALTER TABLE delivery_queue ADD COLUMN req_id TEXT',
+  'CREATE INDEX IF NOT EXISTS idx_queue_req_id ON delivery_queue(req_id)'
+];
+
 function createQueueStore(options = {}) {
   const dbPath = options.dbPath || DEFAULT_DB_PATH;
   const backoffBase = options.backoffBase || 2;
   const backoffMax = options.backoffMax || 300;
+  const logger = options.logger || null;
   const Database = require('better-sqlite3');
   const db = new Database(dbPath);
 
   db.pragma('journal_mode = WAL');
   db.exec(SCHEMA_SQL);
 
+  for (const sql of MIGRATION_SQL) {
+    try {
+      db.exec(sql);
+    } catch (_) {
+      // column/index already exists
+    }
+  }
+
   const stmts = {
     insert: db.prepare(`
-        INSERT INTO delivery_queue (payload, source, status, created_at, updated_at)
-        VALUES (?, ?, 'pending', ?, ?)
+        INSERT INTO delivery_queue (payload, source, status, req_id, created_at, updated_at)
+        VALUES (?, ?, 'pending', ?, ?, ?)
     `),
     selectPending: db.prepare(`
-        SELECT id, payload, source, status, attempts, next_retry_at, created_at, updated_at
+        SELECT id, payload, source, status, attempts, next_retry_at, req_id, created_at, updated_at
         FROM delivery_queue
         WHERE status = 'pending' AND next_retry_at <= ?
         ORDER BY id ASC
@@ -65,10 +81,22 @@ function createQueueStore(options = {}) {
       ? entry.payload
       : JSON.stringify(entry.payload);
     const source = entry.source || '';
+    const reqId = entry.reqId || null;
 
-    const result = stmts.insert.run(payload, source, now, now);
+    const result = stmts.insert.run(payload, source, reqId, now, now);
+    const id = result.lastInsertRowid;
 
-    return { id: result.lastInsertRowid };
+    if (logger && reqId) {
+      logger.info(formatLogLine({
+        level: 'info',
+        module: MODULE_NAME,
+        reqId,
+        action: 'enqueued',
+        context: { id }
+      }));
+    }
+
+    return { id };
   }
 
   function dequeue(batchSize) {
@@ -86,6 +114,7 @@ function createQueueStore(options = {}) {
       status: 'processing',
       attempts: row.attempts,
       nextRetryAt: row.next_retry_at,
+      reqId: row.req_id || null,
       createdAt: row.created_at,
       updatedAt: row.updated_at
     }));

@@ -154,3 +154,48 @@ test('dequeue returns empty array when queue is empty', () => {
   assert.deepEqual(batch, []);
   store.close();
 });
+
+test('enqueue stores req_id and dequeue returns it', () => {
+  const store = createStore();
+  const { id } = store.enqueue({ payload: { text: 'test' }, source: 'zabbix', reqId: 'req-abc-123' });
+  const batch = store.dequeue(10);
+
+  assert.equal(batch.length, 1);
+  assert.equal(batch[0].reqId, 'req-abc-123');
+  store.close();
+});
+
+test('enqueue without reqId stores null', () => {
+  const store = createStore();
+  store.enqueue({ payload: { text: 'test' }, source: 'zabbix' });
+  const batch = store.dequeue(10);
+
+  assert.equal(batch.length, 1);
+  assert.equal(batch[0].reqId, null);
+  store.close();
+});
+
+test('enqueue with reqId logs trace enqueued', () => {
+  const logEntries = [];
+  const logger = { info: (msg) => logEntries.push(msg) };
+  const store = createQueueStore({ dbPath: ':memory:', logger });
+
+  store.enqueue({ payload: { text: 'test' }, source: 'zabbix', reqId: 'req-xyz' });
+
+  const enqueuedLog = logEntries.find((e) => typeof e === 'string' && e.includes('enqueued'));
+  assert.ok(enqueuedLog, 'should have enqueued trace log');
+  assert.ok(enqueuedLog.includes('req-xyz'), 'should include reqId');
+  store.close();
+});
+
+test('enqueue without reqId skips trace log', () => {
+  const logEntries = [];
+  const logger = { info: (msg) => logEntries.push(msg) };
+  const store = createQueueStore({ dbPath: ':memory:', logger });
+
+  store.enqueue({ payload: { text: 'test' }, source: 'zabbix' });
+
+  const enqueuedLog = logEntries.find((e) => typeof e === 'string' && e.includes('enqueued'));
+  assert.equal(enqueuedLog, undefined, 'should not have trace log without reqId');
+  store.close();
+});

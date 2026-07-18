@@ -35,7 +35,9 @@ function createIngressPipeline(options = {}) {
     normalizerRegistry,
     queueStore,
     outboundClient,
-    logger
+    logger,
+    logAudit: options.logAudit,
+    logTrace: options.logTrace
   });
 
   function start() {

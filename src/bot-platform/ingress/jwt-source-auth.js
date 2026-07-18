@@ -1,5 +1,7 @@
 'use strict';
 
+const { formatLogLine } = require('../core/logger');
+
 const MODULE_NAME = 'jwt-source-auth';
 
 function createJwtSourceAuth(options = {}) {
@@ -41,26 +43,64 @@ function createJwtSourceAuth(options = {}) {
     return claim;
   }
 
-  async function authenticate(authorizationHeader) {
+  async function authenticate(authorizationHeader, options = {}) {
+    const { reqId, ip } = options;
+
     if (!authorizationHeader || typeof authorizationHeader !== 'string') {
+      if (reqId) {
+        logger.info(formatLogLine({
+          level: 'info',
+          module: MODULE_NAME,
+          reqId,
+          action: 'auth failed',
+          context: { reason: 'Missing Authorization header', ip }
+        }));
+      }
       throw new Error('Missing Authorization header');
     }
 
     const parts = authorizationHeader.split(' ');
 
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      if (reqId) {
+        logger.info(formatLogLine({
+          level: 'info',
+          module: MODULE_NAME,
+          reqId,
+          action: 'auth failed',
+          context: { reason: 'Invalid Authorization header format', ip }
+        }));
+      }
       throw new Error('Invalid Authorization header format');
     }
 
     const token = parts[1];
 
     if (!token) {
+      if (reqId) {
+        logger.info(formatLogLine({
+          level: 'info',
+          module: MODULE_NAME,
+          reqId,
+          action: 'auth failed',
+          context: { reason: 'Missing Bearer token', ip }
+        }));
+      }
       throw new Error('Missing Bearer token');
     }
 
     const tokenVerifier = getVerifier();
 
     if (!tokenVerifier) {
+      if (reqId) {
+        logger.info(formatLogLine({
+          level: 'info',
+          module: MODULE_NAME,
+          reqId,
+          action: 'auth failed',
+          context: { reason: 'JWT verifier not configured', ip }
+        }));
+      }
       throw new Error('JWT verifier not configured');
     }
 
@@ -70,7 +110,26 @@ function createJwtSourceAuth(options = {}) {
       const source = resolveSource(jwt.claims);
 
       if (!source) {
+        if (reqId) {
+          logger.info(formatLogLine({
+            level: 'info',
+            module: MODULE_NAME,
+            reqId,
+            action: 'auth failed',
+            context: { reason: `Missing ${claimName} claim`, ip }
+          }));
+        }
         throw new Error(`Missing ${claimName} claim`);
+      }
+
+      if (reqId) {
+        logger.info(formatLogLine({
+          level: 'info',
+          module: MODULE_NAME,
+          reqId,
+          action: 'auth success',
+          context: { sub: jwt.claims && jwt.claims.sub, source, ip }
+        }));
       }
 
       return { source };
@@ -79,6 +138,15 @@ function createJwtSourceAuth(options = {}) {
         throw error;
       }
       logger.error(`[${MODULE_NAME}] JWT verification failed: ${error.message}`);
+      if (reqId) {
+        logger.info(formatLogLine({
+          level: 'info',
+          module: MODULE_NAME,
+          reqId,
+          action: 'auth failed',
+          context: { reason: error.message, ip }
+        }));
+      }
       throw new Error('JWT verification failed');
     }
   }

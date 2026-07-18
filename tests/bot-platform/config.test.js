@@ -205,3 +205,20 @@ test('createBotPlatformConfig rejects invalid ingress values', () => {
     /Invalid INGRESS_PORT value: 99999/
   );
 });
+
+test('createBotPlatformConfig returns audit/trace defaults when env is empty', () => {
+  const config = createBotPlatformConfig({});
+
+  assert.equal(config.logAudit, true);
+  assert.equal(config.logTrace, true);
+});
+
+test('createBotPlatformConfig reads audit/trace environment overrides', () => {
+  const config = createBotPlatformConfig({
+    LOG_AUDIT: 'false',
+    LOG_TRACE: 'false'
+  });
+
+  assert.equal(config.logAudit, false);
+  assert.equal(config.logTrace, false);
+});

@@ -6,7 +6,7 @@ const { createIngressHttpServer } = require('../../src/bot-platform/ingress/http
 
 function createMockJwtAuth(shouldFail = false) {
   return {
-    authenticate: async (header) => {
+    authenticate: async (header, options = {}) => {
       if (shouldFail || !header || header === '') throw new Error('auth failed');
       return { source: 'zabbix' };
     }
@@ -80,7 +80,9 @@ async function createAndStartServer(overrides = {}) {
     normalizerRegistry: overrides.normalizerRegistry || createMockNormalizerRegistry(),
     outboundClient: overrides.outboundClient || createMockOutboundClient(),
     queueStore: overrides.queueStore || null,
-    logger: { info: () => {}, error: () => {} }
+    logger: overrides.logger || { info: () => {}, error: () => {} },
+    logAudit: overrides.logAudit,
+    logTrace: overrides.logTrace
   });
   await server.start();
   return { server, port };
@@ -190,6 +192,120 @@ test('POST /ingest with queue enabled queues message', async () => {
     assert.equal(res.status, 200);
     assert.equal(res.body.status, 'queued');
     assert.equal(queueStore.getEnqueued().length, 1);
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest generates reqId and logs trace ingress', async () => {
+  const logEntries = [];
+  const mockLogger = { info: (msg) => logEntries.push(msg), error: () => {} };
+  const queueStore = createMockQueueStore();
+  const { server, port } = await createAndStartServer({ queueStore, logger: mockLogger });
+  try {
+    const res = await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: 'test' },
+      headers: { authorization: 'Bearer token' }
+    });
+    assert.equal(res.status, 200);
+    const ingressLog = logEntries.find((e) => typeof e === 'string' && e.includes('ingress-http-server:') && e.includes('ingress'));
+    assert.ok(ingressLog, 'should have ingress trace log');
+    assert.ok(ingressLog.includes('[ingress-http-server:'), 'should include reqId in module field');
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest with queue logs audit message queued', async () => {
+  const logEntries = [];
+  const mockLogger = { info: (msg) => logEntries.push(msg), error: () => {} };
+  const queueStore = createMockQueueStore();
+  const { server, port } = await createAndStartServer({ queueStore, logger: mockLogger });
+  try {
+    await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: 'test' },
+      headers: { authorization: 'Bearer token' }
+    });
+    const queuedLog = logEntries.find((e) => typeof e === 'string' && e.includes('message queued'));
+    assert.ok(queuedLog, 'should have message queued audit log');
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest with LOG_AUDIT=false skips audit logs', async () => {
+  const logEntries = [];
+  const mockLogger = { info: (msg) => logEntries.push(msg), error: () => {} };
+  const queueStore = createMockQueueStore();
+  const { server, port } = await createAndStartServer({
+    queueStore,
+    logger: mockLogger,
+    logAudit: false
+  });
+  try {
+    await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: 'test' },
+      headers: { authorization: 'Bearer token' }
+    });
+    const queuedLog = logEntries.find((e) => typeof e === 'string' && e.includes('message queued'));
+    assert.equal(queuedLog, undefined, 'should not have audit log when LOG_AUDIT=false');
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest with LOG_TRACE=false skips trace logs', async () => {
+  const logEntries = [];
+  const mockLogger = { info: (msg) => logEntries.push(msg), error: () => {} };
+  const queueStore = createMockQueueStore();
+  const { server, port } = await createAndStartServer({
+    queueStore,
+    logger: mockLogger,
+    logTrace: false
+  });
+  try {
+    await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: 'test' },
+      headers: { authorization: 'Bearer token' }
+    });
+    const ingressLog = logEntries.find((e) => typeof e === 'string' && e.includes('[ingress-http-server:') && e.includes('ingress'));
+    assert.equal(ingressLog, undefined, 'should not have trace log when LOG_TRACE=false');
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest with auth failure logs trace ingress', async () => {
+  const logEntries = [];
+  const mockLogger = { info: (msg) => logEntries.push(msg), error: () => {} };
+  const { server, port } = await createAndStartServer({
+    jwtAuth: createMockJwtAuth(true),
+    logger: mockLogger
+  });
+  try {
+    await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: 'test' },
+      headers: { authorization: 'Bearer invalid' }
+    });
+    const ingressLog = logEntries.find((e) => typeof e === 'string' && e.includes('ingress'));
+    assert.ok(ingressLog, 'should have ingress trace log even on auth failure');
+  } finally {
+    await server.stop();
+  }
+});
+
+test('POST /ingest with reqId is passed to queue payload', async () => {
+  const queueStore = createMockQueueStore();
+  const { server, port } = await createAndStartServer({ queueStore });
+  try {
+    await makeRequest(port, {
+      data: { recipient: { kind: 'user', value: '123' }, message: 'test' },
+      headers: { authorization: 'Bearer token' }
+    });
+    const enqueued = queueStore.getEnqueued();
+    assert.equal(enqueued.length, 1);
+    assert.equal(typeof enqueued[0].reqId, 'string');
+    assert.ok(enqueued[0].reqId.length > 0, 'reqId should not be empty');
   } finally {
     await server.stop();
   }

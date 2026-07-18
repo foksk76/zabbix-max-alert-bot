@@ -240,3 +240,19 @@ CREATE INDEX idx_queue_req_id ON delivery_queue(req_id);
 ### Correlation ID через HTTP header
 
 Минус: bot-platform-ingest.js — не HTTP-клиент в traditional sense. `reqId` генерируется на ingress, передаётся через payload. HTTP header избыточен. Отклонено.
+
+## Реализовано
+
+Sprint 17 (2026-07-18):
+
+| Модуль | Изменение |
+|--------|-----------|
+| `core/config.js` | `LOG_AUDIT`, `LOG_TRACE` env vars (default: true) |
+| `core/logger.js` | `formatLogLine()` helper для ADR-0029 формата |
+| `queue/store.js` | `req_id` столбец (nullable) + index, trace log при enqueue |
+| `ingress/http-server.js` | `reqId` генерируется через `crypto.randomUUID()`, trace/audit логи |
+| `ingress/jwt-source-auth.js` | Audit-логи auth success/fail с `reqId` и `ip` |
+| `queue/worker.js` | Trace/audit логи для dequeue/delivered/failed с `duration_ms` |
+| `transports/max/outbound-client.js` | Trace-логи для outbound request/response |
+
+Тесты: 293 tests passing (15 новых тестов для audit/trace).

@@ -165,3 +165,70 @@ test('start does not create duplicate intervals', () => {
   worker.start();
   worker.stop();
 });
+
+test('successful delivery logs audit message delivered with duration_ms', async () => {
+  const logEntries = [];
+  const items = [{ id: 10, payload: { text: 'test' }, attempts: 0, reqId: 'req-abc' }];
+  const store = createMockQueueStore([items]);
+  const outbound = createMockOutboundClient();
+  const worker = createQueueWorker({
+    queueStore: store,
+    outboundClient: outbound,
+    logger: { info: (msg) => logEntries.push(msg), error: () => {} }
+  });
+
+  await worker.poll();
+
+  const deliveredLog = logEntries.find((e) => typeof e === 'string' && e.includes('message delivered'));
+  assert.ok(deliveredLog, 'should have message delivered audit log');
+  assert.ok(deliveredLog.includes('"id":10'), 'should include item id');
+  assert.ok(deliveredLog.includes('"duration_ms"'), 'should include duration_ms');
+});
+
+test('failed delivery logs audit message failed with reason', async () => {
+  const logEntries = [];
+  const items = [{ id: 11, payload: { text: 'fail' }, attempts: 2, reqId: 'req-def' }];
+  const store = createMockQueueStore([items]);
+  const outbound = createMockOutboundClient(true);
+  const worker = createQueueWorker({
+    queueStore: store,
+    outboundClient: outbound,
+    maxAttempts: 5,
+    logger: { info: (msg) => logEntries.push(msg), error: () => {} }
+  });
+
+  await worker.poll();
+
+  const failedLog = logEntries.find((e) => typeof e === 'string' && e.includes('message failed'));
+  assert.ok(failedLog, 'should have message failed audit log');
+  assert.ok(failedLog.includes('"reason":"send failed"'), 'should include reason');
+  assert.ok(failedLog.includes('"attempts":3'), 'should include attempts');
+});
+
+test('dequeued trace log includes reqId', async () => {
+  const logEntries = [];
+  const items = [{ id: 12, payload: { text: 'test' }, attempts: 0, reqId: 'req-ghi' }];
+  const store = createMockQueueStore([items]);
+  const outbound = createMockOutboundClient();
+  const worker = createQueueWorker({
+    queueStore: store,
+    outboundClient: outbound,
+    logger: { info: (msg) => logEntries.push(msg), error: () => {} }
+  });
+
+  await worker.poll();
+
+  const dequeuedLog = logEntries.find((e) => typeof e === 'string' && e.includes('dequeued'));
+  assert.ok(dequeuedLog, 'should have dequeued trace log');
+  assert.ok(dequeuedLog.includes('req-ghi'), 'should include reqId');
+});
+
+test('worker without logger works without errors', async () => {
+  const items = [{ id: 13, payload: { text: 'test' }, attempts: 0 }];
+  const store = createMockQueueStore([items]);
+  const outbound = createMockOutboundClient();
+  const worker = createQueueWorker({ queueStore: store, outboundClient: outbound });
+
+  const result = await worker.poll();
+  assert.equal(result.processed, 1);
+});

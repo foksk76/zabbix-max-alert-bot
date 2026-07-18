@@ -106,9 +106,22 @@ function maskValue(value, secrets, seenValues = new WeakSet()) {
   return maskedObject;
 }
 
+function formatLogLine({ ts, level, module, reqId, action, context }) {
+  const tsStr = ts || new Date().toISOString();
+  const moduleStr = reqId ? `${module}:${reqId}` : module;
+  let line = `[${tsStr}] [${level}] [${moduleStr}] ${action}`;
+
+  if (context && typeof context === 'object' && Object.keys(context).length > 0) {
+    line += ` ${JSON.stringify(context)}`;
+  }
+
+  return line;
+}
+
 module.exports = {
   moduleName,
   createSafeLogger,
+  formatLogLine,
   maskText,
   maskValue
 };

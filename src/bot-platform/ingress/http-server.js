@@ -1,6 +1,8 @@
 'use strict';
 
 const http = require('node:http');
+const crypto = require('node:crypto');
+const { formatLogLine } = require('../core/logger');
 
 const MODULE_NAME = 'ingress-http-server';
 const DEFAULT_MAX_BODY_BYTES = 1024 * 1024;
@@ -13,6 +15,8 @@ function createIngressHttpServer(options = {}) {
   const outboundClient = options.outboundClient;
   const logger = options.logger || console;
   const maxBodyBytes = options.maxBodyBytes || DEFAULT_MAX_BODY_BYTES;
+  const logAudit = options.logAudit !== false;
+  const logTrace = options.logTrace !== false;
 
   let server = null;
 
@@ -48,6 +52,19 @@ function createIngressHttpServer(options = {}) {
   }
 
   async function handleIngest(req, res) {
+    const reqId = crypto.randomUUID();
+    const ip = req.socket && req.socket.remoteAddress || 'unknown';
+
+    if (logTrace) {
+      logger.info(formatLogLine({
+        level: 'info',
+        module: MODULE_NAME,
+        reqId,
+        action: 'ingress',
+        context: { method: req.method, path: req.url, from: ip }
+      }));
+    }
+
     if (req.method !== 'POST') {
       sendResponse(res, 404, { error: 'Not found' });
       return;
@@ -81,7 +98,7 @@ function createIngressHttpServer(options = {}) {
 
     try {
       const authHeader = req.headers.authorization || '';
-      const authResult = await jwtAuth.authenticate(authHeader);
+      const authResult = await jwtAuth.authenticate(authHeader, { reqId, ip });
       source = authResult.source;
     } catch (error) {
       sendResponse(res, 401, { error: 'Unauthorized' });
@@ -99,6 +116,16 @@ function createIngressHttpServer(options = {}) {
       return;
     }
 
+    if (logTrace) {
+      logger.info(formatLogLine({
+        level: 'info',
+        module: MODULE_NAME,
+        reqId,
+        action: 'normalized',
+        context: { recipient: event.recipient }
+      }));
+    }
+
     try {
       if (queueStore) {
         const outboundResponse = {
@@ -106,7 +133,17 @@ function createIngressHttpServer(options = {}) {
           recipient: event.recipient,
           text: typeof event.message === 'string' ? event.message : (event.message.text || '')
         };
-        queueStore.enqueue({ payload: outboundResponse, source });
+        const { id } = queueStore.enqueue({ payload: outboundResponse, source, reqId });
+
+        if (logAudit) {
+          logger.info(formatLogLine({
+            level: 'info',
+            module: MODULE_NAME,
+            action: 'message queued',
+            context: { id, source, recipient: event.recipient }
+          }));
+        }
+
         sendResponse(res, 200, { status: 'queued' });
       } else {
         await outboundClient.send(event);

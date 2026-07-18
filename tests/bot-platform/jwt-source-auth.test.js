@@ -176,3 +176,49 @@ test('authenticate uses custom claimName in error message', async () => {
     /Missing source_system claim/
   );
 });
+
+test('authenticate with reqId logs audit auth success', async () => {
+  const logEntries = [];
+  const auth = createJwtSourceAuth({
+    issuer: 'https://synthetic.idp.example.com',
+    verifierFactory: createMockVerifierFactory(),
+    logger: { info: (msg) => logEntries.push(msg), error: () => {} }
+  });
+
+  await auth.authenticate('Bearer token', { reqId: 'req-123', ip: '127.0.0.1' });
+
+  const successLog = logEntries.find((e) => typeof e === 'string' && e.includes('auth success'));
+  assert.ok(successLog, 'should have auth success audit log');
+  assert.ok(successLog.includes('req-123'), 'should include reqId');
+});
+
+test('authenticate with reqId logs audit auth failed', async () => {
+  const logEntries = [];
+  const auth = createJwtSourceAuth({
+    issuer: 'https://synthetic.idp.example.com',
+    verifierFactory: createMockVerifierFactory(),
+    logger: { info: (msg) => logEntries.push(msg), error: () => {} }
+  });
+
+  await assert.rejects(
+    () => auth.authenticate(null, { reqId: 'req-456', ip: '10.0.0.1' }),
+    /Missing Authorization header/
+  );
+
+  const failLog = logEntries.find((e) => typeof e === 'string' && e.includes('auth failed'));
+  assert.ok(failLog, 'should have auth failed audit log');
+  assert.ok(failLog.includes('req-456'), 'should include reqId');
+});
+
+test('authenticate without reqId works without audit log', async () => {
+  const logEntries = [];
+  const auth = createJwtSourceAuth({
+    issuer: 'https://synthetic.idp.example.com',
+    verifierFactory: createMockVerifierFactory(),
+    logger: { info: (msg) => logEntries.push(msg), error: () => {} }
+  });
+
+  const result = await auth.authenticate('Bearer token');
+  assert.equal(result.source, 'zabbix');
+  assert.equal(logEntries.length, 0, 'should not log audit without reqId');
+});
