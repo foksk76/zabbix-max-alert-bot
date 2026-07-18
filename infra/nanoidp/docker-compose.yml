@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   nanoidp:
     image: ghcr.io/cdelmonte-zg/nanoidp:latest
