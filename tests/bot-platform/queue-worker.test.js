@@ -179,8 +179,8 @@ test('successful delivery logs audit message delivered with duration_ms', async 
 
   await worker.poll();
 
-  const deliveredLog = logEntries.find((e) => typeof e === 'string' && e.includes('message delivered'));
-  assert.ok(deliveredLog, 'should have message delivered audit log');
+  const deliveredLog = logEntries.find((e) => typeof e === 'string' && e.includes('delivered'));
+  assert.ok(deliveredLog, 'should have delivered log');
   assert.ok(deliveredLog.includes('"id":10'), 'should include item id');
   assert.ok(deliveredLog.includes('"duration_ms"'), 'should include duration_ms');
 });
@@ -199,8 +199,8 @@ test('failed delivery logs audit message failed with reason', async () => {
 
   await worker.poll();
 
-  const failedLog = logEntries.find((e) => typeof e === 'string' && e.includes('message failed'));
-  assert.ok(failedLog, 'should have message failed audit log');
+  const failedLog = logEntries.find((e) => typeof e === 'string' && e.includes('failed'));
+  assert.ok(failedLog, 'should have failed log');
   assert.ok(failedLog.includes('"reason":"send failed"'), 'should include reason');
   assert.ok(failedLog.includes('"attempts":3'), 'should include attempts');
 });

@@ -56,16 +56,7 @@ function createQueueWorker(options = {}) {
           const durationMs = Date.now() - startMs;
           queueStore.ack(item.id);
 
-          if (logAudit) {
-            logger.info(formatLogLine({
-              level: 'info',
-              module: MODULE_NAME,
-              action: 'message delivered',
-              context: { id: item.id, duration_ms: durationMs }
-            }));
-          }
-
-          if (logTrace) {
+          if (logAudit || logTrace) {
             logger.info(formatLogLine({
               level: 'info',
               module: MODULE_NAME,
@@ -80,16 +71,7 @@ function createQueueWorker(options = {}) {
           const attempts = (item.attempts || 0) + 1;
           const maxAttempts = options.maxAttempts || 5;
 
-          if (logAudit) {
-            logger.info(formatLogLine({
-              level: 'info',
-              module: MODULE_NAME,
-              action: 'message failed',
-              context: { id: item.id, reason: error.message, attempts }
-            }));
-          }
-
-          if (logTrace) {
+          if (logAudit || logTrace) {
             logger.info(formatLogLine({
               level: 'info',
               module: MODULE_NAME,
