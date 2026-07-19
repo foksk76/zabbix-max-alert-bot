@@ -102,7 +102,7 @@ Trace-точки:
 
 - Человек читает текст до `{`
 - Logstash парсит JSON-хвост через `json` filter
-- Фильтрация: `journalctl -u max-identity-bot-live | grep '\[audit\]'`
+- Фильтрация: `journalctl -u zyablik-bot-live | grep '\[audit\]'`
 
 ### Прокидывание reqId через очередь
 
@@ -227,7 +227,7 @@ CREATE INDEX idx_queue_req_id ON delivery_queue(req_id);
 
 ### Только audit trail (без trace)
 
-Минус: невозможно追跡 message через pipeline. Для инцидента «сообщение не пришло» нужно знать на каком этапе застряло. Отклонено.
+Минус: невозможно отследить message через pipeline. Для инцидента «сообщение не пришло» нужно знать на каком этапе застряло. Отклонено.
 
 ### Только trace (без audit)
 
