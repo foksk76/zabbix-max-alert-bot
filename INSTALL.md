@@ -1,4 +1,4 @@
-# INSTALL
+# INSTALL (v1.0.0)
 
 Краткая установка проекта для настройки доставки Zabbix -> МАХ.
 
@@ -57,11 +57,14 @@ Timeout: 10s
 Enabled: yes
 ```
 
-В поле `Script` вставить содержимое:
+В поле `Script` вставить содержимое одного из скриптов:
 
 ```text
-src/zabbix-media-type/max-webhook.js
+src/zabbix-media-type/max-webhook.js              — прямой путь (Zabbix → MAX Bot API)
+src/zabbix-media-type/bot-platform-ingest.js      — через bot-platform (требует HTTP-ingress и IdP)
 ```
+
+Выбор зависит от сценария: для простой доставки `max-webhook.js`, для multi-source ingest с очередью — `bot-platform-ingest.js`.
 
 ## 3. Заполнить параметры
 
@@ -82,6 +85,7 @@ Trigger_status: {TRIGGER.STATUS}
 
 `HTTPProxy` заполняется только если Zabbix должен ходить в МАХ через HTTP-прокси.
 
+`RecipientType` — необязательный, по умолчанию `chat_id`. Если нужна личная отправка, укажите `user_id`.  
 `RecipientType` и `To` должны соответствовать друг другу:
 
 ```text
