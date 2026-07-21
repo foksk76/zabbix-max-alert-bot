@@ -211,19 +211,51 @@ Agent поддерживает `Authorization: Bearer` natивно. API Key — 
 - Backend API: stdlib `http.createServer` (ADR-0023) — не добавляются
   HTTP-фреймворки (express, fastify, koa)
 - Зависимости (исключения из ADR-0015, каждая обоснована):
-  - `openid-client` — OIDC-клиент для auth ( layer: auth/oidc.js )
   - `react`, `vite` — frontend SPA ( layer: ui/ )
   - `recharts` (или `chart.js`) — графики ( layer: ui/ )
   - `tailwindcss` — стилизация ( layer: ui/ )
+  - UI-зависимости живут в отдельном `src/queue-monitor/ui/package.json`
+    (не затрагивают root `package.json` и его ADR-0015 policy-test)
+- OIDC auth: **hand-rolled** на stdlib (`node:fetch` + `node:crypto`),
+  Authorization Code + PKCE (см. поправку ниже). Новых runtime-зависимостей
+  в root `package.json` НЕ появляется.
 - Session management: standalone session store (не Express middleware),
-  совместимый с stdlib `http.createServer` (ADR-0023)
+  совместимый с stdlib `http.createServer` (ADR-0023). Cookie подписан
+  HMAC-SHA256 (без JWT — не тащим JWT-библиотеку).
 - ENV: `METRICS_API_KEY`, `IDP_ISSUER`, `IDP_CLIENT_ID`, `IDP_CLIENT_SECRET`,
-  `MONITOR_PORT` (default 9000)
+  `IDP_REDIRECT_URI`, `SESSION_SECRET`, `MONITOR_PORT` (default 9000)
 - systemd unit-файл обновлён: порт 9000, `ExecStartPost` readiness check
-- ADR-0015 (нулевые внешние зависимости) — расширен: новые зависимости
-  обоснованы (auth, UI, charts), каждая ограничена конкретным слоем
+- ADR-0015 (нулевые внешние зависимости) — расширен: UI-зависимости
+  обоснованы и ограничены слоем `ui/` (отдельный package.json)
 - Текущий `bot-platform` код не изменяется (reader-only модуль)
 - `delivery-queue.db` продолжает использоваться той же БД (WAL)
+
+## Поправка от 2026-07-21: hand-rolled OIDC вместо `openid-client`
+
+Первоначально ADR-0034 предполагал `openid-client` как исключение из ADR-0015.
+При реализации (Sprint 21) от этой зависимости отказались в пользу hand-rolled
+OIDC-клиента на stdlib (`src/queue-monitor/auth/oidc.js`).
+
+Причины:
+- `openid-client` v5+ распространяется только в ESM-формате, тогда как
+  репозиторий — CommonJS. Подключение потребовало бы dynamic `import()`
+  и усложнило бы тестирование.
+- В дереве уже есть две JWT/OIDC-библиотеки (`@okta/jwt-verifier`, `jose`).
+  Третья — без необходимости: нужный flow (Authorization Code + PKCE,
+  discovery, token exchange) укладывается в ~150 строк stdlib.
+- Существующий прецедент: `src/bot-platform/ingress/oidc-verifier.js` уже
+  hand-rolls JWKS-верификацию на `node:crypto` + `fetch` — тот же подход
+  расширен на authorization-code flow.
+
+Реализованный flow покрывает: PKCE (S256), state (cookie-echo против CSRF),
+OP discovery через `/.well-known/openid-configuration` (с fallback на
+конвенции `/authorize`, `/token`, `/userinfo`), client_secret_basic auth на
+token endpoint. Refresh-token flow оставлен на future work (сессия живёт
+`maxAgeSeconds`, после истечения — повторный login).
+
+Альтернатива `openid-client` остаётся доступной через инъекцию
+`options.oidcClient` в `createQueueMonitor` (ADR-0016), если later
+потребуются advanced-фичи (back-channel logout, JWKS rotation edge cases).
 
 ## Тесты
 

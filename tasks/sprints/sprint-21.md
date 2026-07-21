@@ -16,12 +16,15 @@ OAuth2/OIDC (NanoIdP MVP), session cookies, UI компоненты для
 - **ADR-0034:** Readonly SQLite replica, stdlib `http.createServer`,
   Bearer Token для metrics, OAuth2/OIDC для UI
 - **ADR-0023:** HTTP-фреймворки (express/fastify) не добавляются — только stdlib
-- **ADR-0015:** `openid-client` — исключение (auth layer),
-  `react`/`vite`/`recharts`/`tailwindcss` — в отдельном `ui/package.json`
+- **ADR-0015:** `react`/`vite`/`recharts`/`tailwindcss` — в отдельном
+  `ui/package.json` (root не затрагивается). OIDC-клиент реализован
+  hand-rolled на stdlib (поправка ADR-0034 от 2026-07-21) — `openid-client`
+  в итоге НЕ используется (ESM-only при CJS-репо, 3-я JWT-библиотека).
 - **React + Vite:** SPA без SSR, 1 оператор, простота. Frontend в
   `src/queue-monitor/ui/` с отдельным `package.json` (не нарушает ADR-0015
   для root package.json).
-- **OAuth2/OIDC:** `openid-client` для flow. NanoIdP для MVP, Okta/Keycloak для prod.
+- **OAuth2/OIDC:** hand-rolled на stdlib (`node:fetch` + `node:crypto`),
+  Authorization Code + PKCE. NanoIdP для MVP, Okta/Keycloak для prod.
 - **Session:** Standalone session store (не Express middleware) — совместим
   с stdlib `http.createServer` (ADR-0023). In-memory Map для MVP.
 - **Session cookie:** HTTP-only, JWT внутри. Cookie парсится вручную
@@ -35,7 +38,7 @@ OAuth2/OIDC (NanoIdP MVP), session cookies, UI компоненты для
 | ADR | Constraint | Where it applies |
 |-----|-----------|-----------------|
 | ADR-0013 | `createSafeLogger()` для всех модулей, secret redaction | OIDC client не логирует токены |
-| ADR-0015 | Нулевые внешние зависимости | `openid-client` — исключение (ADR-0034) |
+| ADR-0015 | Нулевые внешние зависимости | OIDC — hand-rolled (поправка ADR-0034); UI-зависимости в отдельном `ui/package.json` |
 | ADR-0016 | Options-based DI паттерн | Все factory functions |
 | ADR-0023 | stdlib HTTP only | Session store — standalone, не Express middleware |
 | ADR-0031 | Apache-2.0 SPDX headers | Все новые файлы в `src/queue-monitor/` |
@@ -255,10 +258,10 @@ timeseries chart, top recipients/sources table, errors table.
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| `openid-client` native deps on some platforms | Medium | Prebuild binaries; fallback: manual OIDC implementation |
+| Hand-rolled OIDC: edge cases PKCE/discovery | Medium | Покрыть тестами с mock-OP; fallback — инъекция `openid-client` через DI |
 | Vite dev server proxy в dev mode | Low | Proxy config в `vite.config.js`; production — static serving |
 | Session secret management | Medium | Secret через ENV `SESSION_SECRET`, не хардкодить |
-| CSRF в OAuth2 state parameter | Low | `openid-client` генерирует state автоматически |
+| CSRF в OAuth2 state parameter | Low | `state` = random + cookie-echo; PKCE S256 обязателен |
 | Frontend bundle size | Low | Recharts + React = ~200KB gzipped; acceptable for 1 operator |
 | NanoIdP compatibility с OIDC spec | Medium | Test с real NanoIdP instance; fallback: mock during dev |
 
