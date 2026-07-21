@@ -138,7 +138,6 @@ async function startIngressAndQueue(config, options, io) {
       backoffMax: config.queueBackoffMax,
       processingTtlSeconds: config.queueProcessingTtlSeconds
     });
-    stopHandles.push({ name: 'queue-store', stop: () => queueStore.close() });
   }
 
   let ingress = null;
@@ -163,6 +162,8 @@ async function startIngressAndQueue(config, options, io) {
   }
 
   if (config.queueEnabled) {
+    stopHandles.push({ name: 'queue-store', stop: () => queueStore.close() });
+
     const worker = createQueueWorker({
       queueStore,
       outboundClient,
@@ -208,7 +209,15 @@ async function main(argv = process.argv.slice(2), io = { stdout: process.stdout,
     if (config.maxTransportMode === 'long_polling') {
       startBotPlatformService(environment);
 
-      await startIngressAndQueue(config, options, io);
+      const shutdownHandle = await startIngressAndQueue(config, options, io);
+
+      const shutdownIo = options.io || io;
+      const onSignal = async () => {
+        shutdownIo.stdout.write('Synthetic mode: coordinated shutdown\n');
+        await shutdownHandle.stop(shutdownIo);
+      };
+      process.on('SIGTERM', onSignal);
+      process.on('SIGINT', onSignal);
 
       io.stdout.write('MAX bot-platform safe test service started in long_polling mode with synthetic updates\n');
       return 0;

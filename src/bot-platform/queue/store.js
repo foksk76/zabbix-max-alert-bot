@@ -137,7 +137,7 @@ function createQueueStore(options = {}) {
   // и может вызываться явно при старте процесса. Не инкрементирует attempts —
   // reclaim трактуется как crash-recovery (at-least-once), а не failed-delivery.
   function reclaimStale(now) {
-    const ts = now || Math.floor(Date.now() / 1000);
+    const ts = now != null ? now : Math.floor(Date.now() / 1000);
     return stmts.reclaimStaleProcessing.run(ts, ts - processingTtlSeconds).changes;
   }
 
