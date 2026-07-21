@@ -123,6 +123,12 @@ async function startIngressAndQueue(config, options, io) {
     logger: options.logger || console
   });
 
+  // ADR-0033: ресурсы, требующие coordinated shutdown при SIGTERM/SIGINT.
+  // Порядок регистрации задаёт обратный порядок остановки в stop():
+  // первыми останавливаем те, кто может держать event loop (worker, ingress),
+  // затем освобождаем БД.
+  const stopHandles = [];
+
   let queueStore = null;
   if (config.queueEnabled) {
     queueStore = options.queueStore || createQueueStore({
@@ -131,10 +137,12 @@ async function startIngressAndQueue(config, options, io) {
       backoffMax: config.queueBackoffMax,
       processingTtlSeconds: config.queueProcessingTtlSeconds
     });
+    stopHandles.push({ name: 'queue-store', stop: () => queueStore.close() });
   }
 
+  let ingress = null;
   if (config.ingressEnabled) {
-    const ingress = createIngressPipeline({
+    ingress = createIngressPipeline({
       port: config.ingressPort,
       issuer: config.idpIssuer,
       audience: config.idpAudience,
@@ -150,6 +158,7 @@ async function startIngressAndQueue(config, options, io) {
 
     await ingress.start();
     io.stdout.write(`HTTP-ingress server started on port ${config.ingressPort}\n`);
+    stopHandles.push({ name: 'ingress', stop: () => ingress.stop() });
   }
 
   if (config.queueEnabled) {
@@ -166,7 +175,26 @@ async function startIngressAndQueue(config, options, io) {
 
     worker.start();
     io.stdout.write('Queue worker started\n');
+    // Worker первым в очереди остановки (завершаем polling до закрытия ingress/БД).
+    stopHandles.unshift({ name: 'queue-worker', stop: () => worker.stop() });
   }
+
+  // ADR-0033: единый shutdown handle для signal handlers. Остановка идёт в порядке,
+  // обратном регистрации worker → ingress → queue-store. Любая ошибка логируется,
+  // но не прерывает остальные shutdown-шаги.
+  return {
+    stop: async (shutdownIo) => {
+      for (const handle of stopHandles) {
+        try {
+          await handle.stop();
+        } catch (error) {
+          if (shutdownIo && shutdownIo.stderr) {
+            shutdownIo.stderr.write(`shutdown step '${handle.name}' failed: ${error.message}\n`);
+          }
+        }
+      }
+    }
+  };
 }
 
 async function main(argv = process.argv.slice(2), io = { stdout: process.stdout, stderr: process.stderr }, options = {}) {
@@ -190,7 +218,7 @@ async function main(argv = process.argv.slice(2), io = { stdout: process.stdout,
 
   if (isLiveCommand(argv)) {
     try {
-      await startIngressAndQueue(config, options, io);
+      const shutdownHandle = await startIngressAndQueue(config, options, io);
 
       const startLiveService = typeof options.startLiveBotPlatformService === 'function'
         ? options.startLiveBotPlatformService
@@ -199,6 +227,7 @@ async function main(argv = process.argv.slice(2), io = { stdout: process.stdout,
       startLiveService(environment, {
         ...options.liveOptions,
         identityHandler: options.liveOptions && options.liveOptions.identityHandler || app.routes.identity,
+        shutdownHandle,
         io
       });
       io.stdout.write('MAX bot-platform live service started in long_polling mode\n');
@@ -242,6 +271,7 @@ module.exports = {
   runBotPlatformLongPollingOnce,
   startBotPlatformService,
   startLiveBotPlatformService,
+  startIngressAndQueue,
   runMaxIdentityDryRun,
   runBotPlatformDryRun,
   main
