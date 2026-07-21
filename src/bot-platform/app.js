@@ -101,6 +101,7 @@ function runBotPlatformLongPollingOnce(environment = process.env, options = {}) 
 }
 
 async function startIngressAndQueue(config, options, io) {
+  const environment = options.environment || process.env;
   const { createMaxOutboundClient } = require('./transports/max/outbound-client');
   const { createNativeFetchHttpClient, buildLiveMessagesApiUrl } = require('./runtime');
 
