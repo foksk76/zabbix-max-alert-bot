@@ -20,7 +20,9 @@ function createMonitorHttpServer(options = {}) {
     const search = url.slice(idx + 1);
     const params = {};
     for (const pair of search.split('&')) {
-      const [key, value] = pair.split('=');
+      const eqIdx = pair.indexOf('=');
+      const key = eqIdx === -1 ? pair : pair.slice(0, eqIdx);
+      const value = eqIdx === -1 ? '' : pair.slice(eqIdx + 1);
       if (key) {
         params[decodeURIComponent(key)] = value ? decodeURIComponent(value) : '';
       }

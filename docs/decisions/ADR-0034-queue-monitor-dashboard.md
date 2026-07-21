@@ -147,14 +147,14 @@ Reader парсит JSON из `payload` для извлечения `recipient` 
 
 ### Shared shutdown handle
 
-Queue-monitor добавляется в `stopHandles` массив:
+Queue-monitor добавляется в `stopHandles` массив через `unshift` (после worker):
 
 ```
-stopHandles = [queue-worker, ingress, queue-store, queue-monitor]
+stopHandles = [queue-worker, queue-monitor, ingress, queue-store]
 ```
 
 `queue-monitor.stop()` закрывает HTTP-сервер и readonly DB connection.
-Порядок остановки: worker → ingress → queue-store → queue-monitor.
+Порядок остановки: worker → monitor → ingress → queue-store.
 
 ### Health check
 

@@ -2,6 +2,7 @@
 'use strict';
 
 const MODULE_NAME = 'queue-monitor-metrics';
+const MAX_LIMIT = 100;
 
 function createMetricsRoutes(options = {}) {
   const reader = options.reader;
@@ -76,7 +77,7 @@ function createMetricsRoutes(options = {}) {
 
   function top(ctx) {
     const by = ctx.query.by || 'source';
-    const limit = parseInt(ctx.query.limit, 10) || 5;
+    const limit = Math.min(parseInt(ctx.query.limit, 10) || 5, MAX_LIMIT);
 
     if (by === 'recipient') {
       const data = reader.topRecipient(limit);
@@ -94,7 +95,7 @@ function createMetricsRoutes(options = {}) {
   }
 
   function errors(ctx) {
-    const limit = parseInt(ctx.query.limit, 10) || 20;
+    const limit = Math.min(parseInt(ctx.query.limit, 10) || 20, MAX_LIMIT);
     const data = reader.errors(limit);
     return {
       statusCode: 200,
