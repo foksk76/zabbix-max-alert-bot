@@ -128,7 +128,8 @@ async function startIngressAndQueue(config, options, io) {
     queueStore = options.queueStore || createQueueStore({
       dbPath: options.queueDbPath || 'delivery-queue.db',
       backoffBase: config.queueBackoffBase,
-      backoffMax: config.queueBackoffMax
+      backoffMax: config.queueBackoffMax,
+      processingTtlSeconds: config.queueProcessingTtlSeconds
     });
   }
 
