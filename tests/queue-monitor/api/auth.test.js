@@ -228,3 +228,23 @@ test('protectRoute in bearer-only mode ignores session cookie', () => {
     assert.equal(result, undefined);
     assert.equal(ctx.res.statusCode, 401);
 });
+
+test('protectRoute returns 401 when session not found in store after valid cookie', () => {
+    const secret = 'test-session-secret-32-chars-long!!';
+    // Empty store — session was purged/destroyed server-side
+    const sessionStore = createMockSessionStore(null, secret);
+    const cookie = createSignedSessionCookie('sess-purged', 'csrf-token', secret);
+
+    const auth = createBearerAuth({ apiKey: 'test-secret-123', sessionStore });
+    const handler = (ctx) => ({ statusCode: 200, body: { ok: true } });
+    const protectedHandler = auth.protectRoute(handler);
+
+    const ctx = {
+        req: mockReq({ cookie }),
+        res: mockRes()
+    };
+
+    const result = protectedHandler(ctx);
+    assert.equal(result, undefined);
+    assert.equal(ctx.res.statusCode, 401);
+});

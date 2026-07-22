@@ -252,6 +252,8 @@ export IDP_ISSUER=http://localhost:8000
 export IDP_AUDIENCE=bot-platform
 export JWT_CLAIM_NAME=entitlements
 export JWT_CLAIM_VALUE=zabbix
+export MONITOR_ENABLED=true
+export METRICS_API_KEY=<сгенерировать-токен>
 
 node src/bot-platform/app.js
 ```
