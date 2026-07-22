@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 // ADR-0034: загрузка метрик с /api/metrics/* с автообновлением.

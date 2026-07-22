@@ -310,5 +310,6 @@ module.exports = {
     clearStateCookie,
     buildSessionCookieHeader,
     buildExpiredCookieHeader,
-    base64url
+    base64url,
+    safeEqual
 };

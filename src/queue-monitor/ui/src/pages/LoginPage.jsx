@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import React from 'react';
 
 // Простая страница с кнопкой редиректа на /api/auth/login (OAuth2 flow стартует на сервере).

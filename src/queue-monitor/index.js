@@ -87,7 +87,7 @@ function createQueueMonitor(options = {}) {
         staticDir
     });
 
-    // Public routes.
+    // Публичные маршруты (без auth).
     httpServer.registerRoute('GET', '/readyz', readyz.readyz);
 
     // Metrics: Bearer token auth (для внешних систем мониторинга).

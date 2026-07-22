@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import React, { useState, useEffect } from 'react';
 import { useSession } from './hooks/useSession.js';
 import LoginPage from './pages/LoginPage.jsx';

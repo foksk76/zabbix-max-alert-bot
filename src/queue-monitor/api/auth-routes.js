@@ -151,7 +151,7 @@ function createAuthRoutes(options = {}) {
     function redirectWithError(path, errorCode) {
         return {
             statusCode: 302,
-            headers: { Location: `${path}?error=${errorCode}` }
+            headers: { Location: `${path}?error=${encodeURIComponent(errorCode)}` }
         };
     }
 
