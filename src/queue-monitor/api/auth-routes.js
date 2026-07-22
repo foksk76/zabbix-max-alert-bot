@@ -161,6 +161,5 @@ function createAuthRoutes(options = {}) {
 module.exports = {
     MODULE_NAME,
     STATE_COOKIE_NAME,
-    readSession,
     createAuthRoutes
 };

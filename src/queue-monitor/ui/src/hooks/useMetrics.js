@@ -19,11 +19,18 @@ export function useMetrics({ windowSeconds = 3600, refreshMs = 30000 }) {
 
     const refresh = useCallback(async () => {
         try {
+            const fetchJson = async (url) => {
+                const r = await fetch(url, { credentials: 'same-origin' });
+                if (r.status === 401) {
+                    throw new Error('SESSION_EXPIRED');
+                }
+                return r.json();
+            };
             const [sumRes, tsRes, topRes, errRes] = await Promise.all([
-                fetch('/api/metrics/summary', { credentials: 'same-origin' }).then((r) => r.json()),
-                fetch(`/api/metrics/timeseries?window=${windowSeconds}`, { credentials: 'same-origin' }).then((r) => r.json()),
-                fetch(`/api/metrics/top?by=${topBy}&limit=5`, { credentials: 'same-origin' }).then((r) => r.json()),
-                fetch('/api/metrics/errors?limit=20', { credentials: 'same-origin' }).then((r) => r.json())
+                fetchJson('/api/metrics/summary'),
+                fetchJson(`/api/metrics/timeseries?window=${windowSeconds}`),
+                fetchJson(`/api/metrics/top?by=${topBy}&limit=5`),
+                fetchJson('/api/metrics/errors?limit=20')
             ]);
             setSummary(sumRes);
             setTimeseries(tsRes);
@@ -32,7 +39,11 @@ export function useMetrics({ windowSeconds = 3600, refreshMs = 30000 }) {
             setError(null);
             setLastUpdated(new Date());
         } catch (err) {
-            setError(err.message);
+            if (err.message === 'SESSION_EXPIRED') {
+                setError('Сессия истекла. Войдите заново.');
+            } else {
+                setError(err.message);
+            }
         } finally {
             setLoading(false);
         }

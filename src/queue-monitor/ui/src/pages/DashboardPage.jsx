@@ -17,11 +17,15 @@ export default function DashboardPage({ user, csrf }) {
     });
 
     async function logout() {
-        await fetch('/api/auth/logout', {
-            method: 'POST',
-            headers: { 'X-CSRF-Token': csrf },
-            credentials: 'same-origin'
-        });
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: { 'X-CSRF-Token': csrf },
+                credentials: 'same-origin'
+            });
+        } catch {
+            // Network error — redirect anyway (session may already be destroyed)
+        }
         window.location.href = '/';
     }
 

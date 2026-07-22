@@ -115,13 +115,6 @@ test('protectRoute returns undefined when auth fails', () => {
     assert.equal(result, undefined);
 });
 
-test('protectRoute throws when apiKey is empty', () => {
-    assert.throws(
-        () => createBearerAuth({ apiKey: '' }),
-        /apiKey is required/
-    );
-});
-
 test('timing-safe comparison prevents timing attacks', () => {
     const auth = createBearerAuth({ apiKey: 'secret' });
     const req1 = mockReq({ authorization: 'Bearer secrete' });

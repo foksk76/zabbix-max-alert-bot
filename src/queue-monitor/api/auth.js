@@ -2,6 +2,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const { readSession } = require('../auth/session');
 
 const MODULE_NAME = 'queue-monitor-bearer-auth';
 
@@ -45,7 +46,6 @@ function createBearerAuth(options = {}) {
         if (!sessionStore) {
             return false;
         }
-        const { readSession } = require('../auth/session');
         const session = readSession(req, sessionStore);
         return Boolean(session);
     }
