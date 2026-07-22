@@ -71,7 +71,7 @@ function createAuthRoutes(options = {}) {
         const stored = readStateCookie(ctx.req, sessionStore.secret);
         clearStateCookie(ctx.res, { secure }); // однократный использования
 
-        if (!stored || stored.state !== state) {
+        if (!stored || !safeEqual(stored.state, state)) {
             return redirectWithError('/', 'state_mismatch');
         }
 

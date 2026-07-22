@@ -30,13 +30,16 @@ function hmac(secret, value) {
 }
 
 // timing-safe сравнение двух строк произвольной длины.
+// Паддим короткий буфер нулями до длины длинного, чтобы не утекала длина токена.
 function safeEqual(a, b) {
     const bufA = Buffer.from(String(a));
     const bufB = Buffer.from(String(b));
-    if (bufA.length !== bufB.length) {
-        return false;
-    }
-    return crypto.timingSafeEqual(bufA, bufB);
+    const maxLen = Math.max(bufA.length, bufB.length);
+    const paddedA = Buffer.alloc(maxLen, 0);
+    const paddedB = Buffer.alloc(maxLen, 0);
+    bufA.copy(paddedA);
+    bufB.copy(paddedB);
+    return crypto.timingSafeEqual(paddedA, paddedB) && bufA.length === bufB.length;
 }
 
 // Создать signed cookie-значение: payload.hmac

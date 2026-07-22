@@ -113,6 +113,32 @@ test('protectRoute returns undefined when auth fails', () => {
 
     const result = protectedHandler(ctx);
     assert.equal(result, undefined);
+    assert.equal(ctx.res.statusCode, 401);
+});
+
+test('protectRoute returns 401 for expired session cookie', () => {
+    const secret = 'test-session-secret-32-chars-long!!';
+    const sessionData = { sessionId: 'sess-expired', user: { sub: 'operator' }, csrf: 'csrf-token' };
+    const sessionStore = createMockSessionStore(sessionData, secret);
+
+    // Create cookie with expiresAt in the past
+    const { signSessionCookie: sign } = require('../../../src/queue-monitor/auth/session');
+    const expiredAt = Math.floor(Date.now() / 1000) - 3600;
+    const value = sign(secret, 'sess-expired', 'csrf-token', expiredAt);
+    const cookie = `session=${value}`;
+
+    const auth = createBearerAuth({ apiKey: 'test-secret-123', sessionStore });
+    const handler = (ctx) => ({ statusCode: 200, body: { ok: true } });
+    const protectedHandler = auth.protectRoute(handler);
+
+    const ctx = {
+        req: mockReq({ cookie }),
+        res: mockRes()
+    };
+
+    const result = protectedHandler(ctx);
+    assert.equal(result, undefined);
+    assert.equal(ctx.res.statusCode, 401);
 });
 
 test('timing-safe comparison prevents timing attacks', () => {

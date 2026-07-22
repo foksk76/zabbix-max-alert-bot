@@ -186,9 +186,9 @@ writes/sec. Миграция не оправдана текущей нагруз
 
 ### WebSocket/SSE для live-обновлений
 
-Реal-time push вместо polling.
+Real-time push вместо polling.
 
-Минус: для 1 оператора polling каждые 30 секufficient. WebSocket добавляет
+Минус: для 1 оператора polling каждые 30 секунд достаточен. WebSocket добавляет
 сложность (reconnect, state management). Отклонено.
 
 ### Grafana/external dashboards

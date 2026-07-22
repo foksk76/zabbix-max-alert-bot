@@ -91,6 +91,7 @@ INSTALL.md                       краткая установка
 ```text
 src/zabbix-media-type/           webhook-скрипт для Zabbix Media type
 src/bot-platform/                бот-платформа (app.js — точка входа)
+src/queue-monitor/               dashboard: метрики, auth, UI (ADR-0034)
 tests/                           policy-тесты и unit tests (bot-platform)
 docs/decisions/                  ADR и процессные решения
 docs/ideas/                      pre-ADR idea documents

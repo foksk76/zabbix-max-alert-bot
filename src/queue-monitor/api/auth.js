@@ -2,7 +2,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
-const { readSession } = require('../auth/session');
+const { readSession, safeEqual } = require('../auth/session');
 
 const MODULE_NAME = 'queue-monitor-bearer-auth';
 
@@ -23,10 +23,8 @@ function createBearerAuth(options = {}) {
         }
 
         const token = match[1];
-        const expected = Buffer.from(apiKey, 'utf8');
-        const received = Buffer.from(token, 'utf8');
 
-        if (expected.length !== received.length || !crypto.timingSafeEqual(expected, received)) {
+        if (!safeEqual(apiKey, token)) {
             return false;
         }
 

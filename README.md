@@ -64,7 +64,7 @@ docs/decisions/   ADR и принятые решения
 docs/identity-plugin/  Identity Plugin документация
 examples/         обезличенные примеры параметров и чек-листы
 infra/            инфраструктура (NanoIDP Docker setup)
-src/              исходники webhook и bot-platform
+src/              исходники webhook, bot-platform и queue-monitor
 systemd/          unit-файлы для bot-platform
 tasks/            sprint plans
 tests/            Node.js policy tests и unit tests
