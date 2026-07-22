@@ -124,6 +124,18 @@ test('createQueueMonitorConfig rejects invalid AUTH_RATE_CONCURRENCY', () => {
     );
 });
 
+// --- Sprint 23 / L3 (Task 6): IDP_REQUIRE_DISCOVERY ---
+
+test('createQueueMonitorConfig defaults IDP_REQUIRE_DISCOVERY to false', () => {
+    const config = createQueueMonitorConfig({});
+    assert.equal(config.idpRequireDiscovery, false, 'fallback preserved by default');
+});
+
+test('createQueueMonitorConfig reads IDP_REQUIRE_DISCOVERY=true', () => {
+    const config = createQueueMonitorConfig({ IDP_REQUIRE_DISCOVERY: 'true' });
+    assert.equal(config.idpRequireDiscovery, true);
+});
+
 test('createQueueMonitorConfig trims whitespace from values', () => {
     const config = createQueueMonitorConfig({
         METRICS_API_KEY: '  test-key  ',

@@ -19,7 +19,9 @@ function createQueueMonitorConfig(environment = process.env) {
         authRateLimit: readBoolEnvValue(environment, 'AUTH_RATE_LIMIT', true),
         authRateLimitMax: readIntegerEnvValue(environment, 'AUTH_RATE_LIMIT_MAX', 20, 1, 10000),
         authRateLimitWindowMs: readIntegerEnvValue(environment, 'AUTH_RATE_LIMIT_WINDOW_MS', 60_000, 1, 3_600_000),
-        authRateConcurrency: readIntegerEnvValue(environment, 'AUTH_RATE_CONCURRENCY', 5, 1, 1000)
+        authRateConcurrency: readIntegerEnvValue(environment, 'AUTH_RATE_CONCURRENCY', 5, 1, 1000),
+        // Sprint 23 / L3 (Task 6): требовать валидный OIDC discovery вместо fallback.
+        idpRequireDiscovery: readBoolEnvValue(environment, 'IDP_REQUIRE_DISCOVERY', false)
     };
 }
 
