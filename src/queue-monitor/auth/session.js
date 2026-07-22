@@ -301,7 +301,6 @@ module.exports = {
     verifySessionCookie,
     signCookieValue,
     verifyCookieValue,
-    safeEqual,
     parseCookieHeader,
     readSession,
     setSessionCookie,
