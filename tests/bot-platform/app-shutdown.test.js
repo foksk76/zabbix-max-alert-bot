@@ -30,6 +30,8 @@ function buildConfig(overrides = {}) {
     jwtClaimValue: '',
     logAudit: false,
     logTrace: false,
+    monitorEnabled: false,
+    monitorPort: 0,
     ...overrides
   };
 }
@@ -229,5 +231,43 @@ test('createLiveServiceShutdownHandlers calls exit(0) even when liveService.stop
     stdoutLines.some((line) => line.includes('Coordinated shutdown error')),
     'error logged (not swallowed silently)'
   );
+});
+
+// ADR-0034: регрессия для бага, где startIngressAndQueue обращался к `environment`,
+// не объявленному в scope функции. В проде (без инъекции options.monitor) это
+// бросало ReferenceError и убивало boot при monitorEnabled=true.
+// Тест НЕ инъектирует options.monitor, поэтому выполнится реальный createQueueMonitor.
+// Чтобы избежать открытия реального HTTP-порта и DB, передаём environment, в котором
+// MONITOR_ENABLED=false — тогда createQueueMonitor вернёт no-op handle. Сам факт
+// успешного возвращения handle доказывает, что `environment` доступен в scope.
+test('startIngressAndQueue does not throw ReferenceError on environment when monitorEnabled', async () => {
+  const fakeQueueStore = {
+    enqueue: () => ({ id: 1 }),
+    dequeue: () => [],
+    reclaimStale: () => 0,
+    ack: () => {},
+    nack: () => {},
+    stats: () => ({}),
+    close: () => {}
+  };
+  const fakeOutboundClient = { send: async () => ({}) };
+
+  const handle = await startIngressAndQueue(
+    buildConfig({ queueEnabled: false, monitorEnabled: true, monitorPort: 0 }),
+    {
+      queueStore: fakeQueueStore,
+      outboundClient: fakeOutboundClient,
+      // Внутренний config монитора читает MONITOR_ENABLED из environment.
+      // false → createQueueMonitor вернёт no-op, без открытия порта/БД.
+      environment: { MONITOR_ENABLED: 'false' }
+    },
+    { stdout: { write: () => {} }, stderr: { write: () => {} } }
+  );
+
+  // Если бы `environment` не был в scope, старт упал бы с ReferenceError ещё до
+  // этого assert. Успешное возвращение handle — проверка регрессии.
+  assert.equal(typeof handle.stop, 'function');
+
+  await handle.stop({ stderr: { write: () => {} } });
 });
 

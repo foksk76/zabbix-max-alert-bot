@@ -18,6 +18,10 @@ dist/
 build/
 coverage/
 
+# Queue-monitor UI build artifacts (ADR-0034)
+src/queue-monitor/ui/node_modules/
+src/queue-monitor/ui/dist/
+
 # OS / editors
 .DS_Store
 .idea/

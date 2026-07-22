@@ -1,0 +1,275 @@
+# Sprint 21: Queue Monitor Frontend UI + OAuth2 Auth
+
+## Outcome
+
+Построить React SPA дашборд для queue-monitor: авторизация через
+OAuth2/OIDC (NanoIdP MVP), session cookies, UI компоненты для
+метрик (summary, timeseries charts, top recipients, errors table),
+интеграция frontend build с HTTP-сервером queue-monitor.
+
+Контекст: Sprint 20 завершён — backend API с Bearer Token auth работает.
+Теперь нужен UI для оператора: визуализация метрик, авторизация через IdP,
+автообновление данных.
+
+## Architecture Decisions
+
+- **ADR-0034:** Readonly SQLite replica, stdlib `http.createServer`,
+  Bearer Token для metrics, OAuth2/OIDC для UI
+- **ADR-0023:** HTTP-фреймворки (express/fastify) не добавляются — только stdlib
+- **ADR-0015:** `react`/`vite`/`recharts`/`tailwindcss` — в отдельном
+  `ui/package.json` (root не затрагивается). OIDC-клиент реализован
+  hand-rolled на stdlib (поправка ADR-0034 от 2026-07-21) — `openid-client`
+  в итоге НЕ используется (ESM-only при CJS-репо, 3-я JWT-библиотека).
+- **React + Vite:** SPA без SSR, 1 оператор, простота. Frontend в
+  `src/queue-monitor/ui/` с отдельным `package.json` (не нарушает ADR-0015
+  для root package.json).
+- **OAuth2/OIDC:** hand-rolled на stdlib (`node:fetch` + `node:crypto`),
+  Authorization Code + PKCE. NanoIdP для MVP, Okta/Keycloak для prod.
+- **Session:** Standalone session store (не Express middleware) — совместим
+  с stdlib `http.createServer` (ADR-0023). In-memory Map для MVP.
+- **Session cookie:** HTTP-only, JWT внутри. Cookie парсится вручную
+  через `Cookie` header в HTTP handler.
+- **Build:** `vite build` → `dist/`. HTTP-сервер раздаёт static files
+  из `dist/` для `GET /*` (кроме `/api/*` и `/readyz`).
+- **Charts:** Recharts — лёгкий, React-native, достаточно для 1 оператора.
+
+### Related ADRs
+
+| ADR | Constraint | Where it applies |
+|-----|-----------|-----------------|
+| ADR-0013 | `createSafeLogger()` для всех модулей, secret redaction | OIDC client не логирует токены |
+| ADR-0015 | Нулевые внешние зависимости | OIDC — hand-rolled (поправка ADR-0034); UI-зависимости в отдельном `ui/package.json` |
+| ADR-0016 | Options-based DI паттерн | Все factory functions |
+| ADR-0023 | stdlib HTTP only | Session store — standalone, не Express middleware |
+| ADR-0031 | Apache-2.0 SPDX headers | Все новые файлы в `src/queue-monitor/` |
+| ADR-0033 | Shutdown ordering | queue-monitor останавливается после queue-store (WAL dependency) |
+| ADR-0034 | OAuth2/OIDC для UI, stdlib HTTP | Весь спринт |
+
+## Tasks
+
+### Task 1: UI Scaffold — React + Vite + Tailwind
+
+**Status:** Done
+
+**Description:** Инициализировать React SPA в `src/queue-monitor/ui/`.
+Создать `package.json`, `vite.config.js`, `tailwind.config.js`,
+базовую структуру с `index.html`, `src/main.jsx`, `src/App.jsx`.
+
+**Acceptance criteria:**
+- [x] `src/queue-monitor/ui/package.json` с dependencies: `react`, `react-dom`, `vite`, `@vitejs/plugin-react`, `tailwindcss`, `recharts`
+- [x] `src/queue-monitor/ui/vite.config.js` — dev server на порту 5173, proxy `/api` → `http://localhost:9000`
+- [x] `src/queue-monitor/ui/tailwind.config.js` — базовая конфигурация
+- [x] `src/queue-monitor/ui/index.html` — entry point
+- [x] `src/queue-monitor/ui/src/main.jsx` — React root render
+- [x] `src/queue-monitor/ui/src/App.jsx` — базовый layout с routing
+- [x] `npm run dev` в `ui/` запускает dev server
+- [x] `npm run build` в `ui/` создаёт `dist/` с production build
+
+**Verification:**
+- [x] `cd src/queue-monitor/ui && npm run dev` — dev server стартует
+- [x] `cd src/queue-monitor/ui && npm run build` — `dist/` создан
+- [x] Browser: `http://localhost:5173` показывает пустой layout
+
+**Dependencies:** None
+
+**Files likely touched:**
+- `src/queue-monitor/ui/package.json` (новый)
+- `src/queue-monitor/ui/vite.config.js` (новый)
+- `src/queue-monitor/ui/tailwind.config.js` (новый)
+- `src/queue-monitor/ui/postcss.config.js` (новый)
+- `src/queue-monitor/ui/index.html` (новый)
+- `src/queue-monitor/ui/src/main.jsx` (новый)
+- `src/queue-monitor/ui/src/App.jsx` (новый)
+- `src/queue-monitor/ui/src/index.css` (новый)
+
+**Estimated scope:** S (8 файлов, шаблоны)
+
+---
+
+### Task 2: OIDC Client + Session Store
+
+**Status:** Done
+
+**Description:** Создать `src/queue-monitor/auth/oidc.js` — OIDC-клиент
+для авторизации через IdP. Создать `src/queue-monitor/auth/session.js` —
+standalone session store для управления session cookie (без Express,
+совместим с stdlib `http.createServer`).
+
+**Acceptance criteria:**
+- [x] `createOidcClient({ issuer, clientId, clientSecret, redirectUri })` — factory
+- [x] `oidcClient.getAuthorizationUrl()` → URL для redirect на IdP
+- [x] `oidcClient.callback(code)` → `{ accessToken, idToken, profile }`
+- [x] `oidcClient.refresh(refreshToken)` → `{ accessToken }`
+- [x] `createSessionStore({ secret, maxAge })` — standalone store (не Express middleware)
+  - In-memory Map для session storage (MVP)
+  - `store.get(sessionId)` → session object или null
+  - `store.set(sessionId, session)` → void
+  - `store.destroy(sessionId)` → void
+- [x] `parseSessionCookie(req, secret)` → `{ sessionId, user }` или null — парсит `Cookie` header
+- [x] `setSessionCookie(res, sessionId, maxAge)` → void — устанавливает `Set-Cookie` header
+- [x] Session хранит `user` object из ID token claims
+- [x] Cookie: HTTP-only, secure (in prod), sameSite: lax
+- [x] Тесты: mock OIDC responses, session creation/destruction, cookie parsing
+
+**Примечание:** `express-session` НЕ используется — ADR-0023 требует
+только stdlib HTTP. Session store реализуется как standalone модуль,
+интегрируемый через ручную обработку `Cookie`/`Set-Cookie` headers
+в `http.createServer` handler.
+
+**Verification:**
+- [x] `node --test tests/queue-monitor/oidc.test.js` — тесты проходят
+- [x] `node --test tests/queue-monitor/session.test.js` — тесты проходят
+- [x] `npm test` — без регрессий
+
+**Dependencies:** None
+
+**Files likely touched:**
+- `src/queue-monitor/auth/oidc.js` (новый)
+- `src/queue-monitor/auth/session.js` (новый)
+- `tests/queue-monitor/oidc.test.js` (новый)
+- `tests/queue-monitor/session.test.js` (новый)
+
+**Estimated scope:** M (4 файла)
+
+---
+
+### Task 3: Auth Endpoints (login, callback, logout)
+
+**Status:** Done
+
+**Description:** Создать `src/queue-monitor/api/auth-routes.js` —
+обработчики для OAuth2 flow: login (redirect на IdP), callback
+(exchange code → session), logout (destroy session).
+
+**Acceptance criteria:**
+- [x] `createAuthRoutes({ oidcClient, sessionMiddleware })` → `{ login, callback, logout }`
+- [x] `GET /api/auth/login` → redirect на IdP authorization URL
+- [x] `GET /api/auth/callback?code=xxx` → exchange code, create session, redirect на `/`
+- [x] `POST /api/auth/logout` → destroy session, redirect на `/`
+- [x] Ошибки callback → redirect на `/` с error flash
+- [x] CSRF protection: state parameter в OAuth2 flow
+- [x] Тесты: полный flow (mock OIDC)
+
+**Verification:**
+- [x] `node --test tests/queue-monitor/auth-routes.test.js` — тесты проходят
+- [x] `npm test` — без регрессий
+
+**Dependencies:** Task 2
+
+**Files likely touched:**
+- `src/queue-monitor/api/auth-routes.js` (новый)
+- `tests/queue-monitor/auth-routes.test.js` (новый)
+
+**Estimated scope:** S (2 файла)
+
+---
+
+### Task 4: Dashboard UI Components
+
+**Status:** Done
+
+**Description:** Создать React компоненты для дашборда: summary cards,
+timeseries chart, top recipients/sources table, errors table.
+Использовать Recharts для графиков, Tailwind для стилей.
+
+**Acceptance criteria:**
+- [x] `SummaryCards` — отображает pending/processing/delivered/failed + total
+- [x] `TimeseriesChart` — line chart по статусам, переключение окна 1ч/6ч/12ч/24ч
+- [x] `TopTable` — топ-5 отправителей и получателей (переключение by=source/by=recipient)
+- [x] `ErrorsTable` — последние ошибки (id, source, recipient, attempts, time)
+- [x] `DashboardPage` — собирает все компоненты, fetch данные с `/api/metrics/*`
+- [x] Автообновление каждые 30 сек (setInterval + cleanup)
+- [x] Loading state и error state для каждого компонента
+- [x] Responsive layout (Tailwind breakpoints)
+- [x] Login page: кнопка «Войти через IdP»
+
+**Verification:**
+- [x] `cd src/queue-monitor/ui && npm run build` — build succeeds
+- [x] Browser: dashboard отображает данные (с mock API или реальным)
+- [x] Responsive: mobile/tablet/desktop layouts корректны
+
+**Dependencies:** Task 1, Sprint 20 (backend API)
+
+**Files likely touched:**
+- `src/queue-monitor/ui/src/components/SummaryCards.jsx` (новый)
+- `src/queue-monitor/ui/src/components/TimeseriesChart.jsx` (новый)
+- `src/queue-monitor/ui/src/components/TopTable.jsx` (новый)
+- `src/queue-monitor/ui/src/components/ErrorsTable.jsx` (новый)
+- `src/queue-monitor/ui/src/pages/DashboardPage.jsx` (новый)
+- `src/queue-monitor/ui/src/pages/LoginPage.jsx` (новый)
+- `src/queue-monitor/ui/src/hooks/useMetrics.js` (новый)
+- `src/queue-monitor/ui/src/App.jsx` (редактирование)
+
+**Estimated scope:** L (8 файлов, React components)
+
+---
+
+### Task 5: Build Integration + Static Serving
+
+**Status:** Done
+
+**Description:** Интегрировать frontend build с HTTP-сервером queue-monitor.
+После `vite build` статические файлы из `dist/` раздаются для `GET /*`.
+Добавить script `build:ui` в root `package.json`.
+
+**Acceptance criteria:**
+- [x] `src/queue-monitor/http-server.js` раздаёт static files из `dist/` для `GET /*`
+- [x] Static serving: проверяет существование файла, fallback на `index.html` (SPA routing)
+- [x] MIME types: `.html`, `.js`, `.css`, `.json`, `.png`, `.svg`
+- [x] `GET /api/*` и `GET /readyz` не перехватываются static handler
+- [x] Root `package.json`: `build:ui` script → `cd src/queue-monitor/ui && npm install && npm run build`
+- [x] Root `package.json`: `build` script → `npm run build:ui`
+- [x] `src/queue-monitor/index.js` передаёт `staticDir` в HTTP-сервер
+
+**Verification:**
+- [x] `npm run build:ui` — frontend build succeeds
+- [x] `MONITOR_ENABLED=true METRICS_API_KEY=test node src/bot-platform/app.js` — dashboard доступен на `http://localhost:9000/`
+- [x] `curl http://localhost:9000/` — HTML response (SPA)
+- [x] `curl http://localhost:9000/api/metrics/summary` — JSON response (не static)
+- [x] `npm test` — без регрессий
+
+**Dependencies:** Task 1, Task 4, Sprint 20 (HTTP server)
+
+**Files likely touched:**
+- `src/queue-monitor/http-server.js` (редактирование)
+- `src/queue-monitor/index.js` (редактирование)
+- `package.json` (редактирование)
+
+**Estimated scope:** S (3 файла)
+
+---
+
+## Checkpoint: Sprint 21
+
+- [x] `npm test` passes
+- [x] `npm run build:ui` succeeds
+- [x] Dashboard UI renders в browser на `http://localhost:9000/`
+- [x] OAuth2 login flow работает с NanoIdP
+- [x] Session cookie устанавливается после login
+- [x] Metrics данные отображаются на dashboard
+- [x] Auto-refresh каждые 30 сек
+- [x] Static assets served by queue-monitor HTTP server
+- [x] Все файлы в `src/queue-monitor/` имеют SPDX header
+- [x] Review перед мержем
+
+---
+
+## Risks and Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Hand-rolled OIDC: edge cases PKCE/discovery | Medium | Покрыть тестами с mock-OP; fallback — инъекция `openid-client` через DI |
+| Vite dev server proxy в dev mode | Low | Proxy config в `vite.config.js`; production — static serving |
+| Session secret management | Medium | Secret через ENV `SESSION_SECRET`, не хардкодить |
+| CSRF в OAuth2 state parameter | Low | `state` = random + cookie-echo; PKCE S256 обязателен |
+| Frontend bundle size | Low | Recharts + React = ~200KB gzipped; acceptable for 1 operator |
+| NanoIdP compatibility с OIDC spec | Medium | Test с real NanoIdP instance; fallback: mock during dev |
+
+## Не входит в спринт
+
+- **Zabbix template** — настройка на стороне Zabbix
+- **Okta/Keycloak production setup** — отдельный ADR (ADR-0027)
+- **ACL/роли** — один оператор, granular permissions не нужны
+- **WebSocket/SSE** — polling достаточен
+- **Export в CSV/PDF** — Out of MVP
+- **Алертинг через UI** — алерты через внешнюю систему мониторинга

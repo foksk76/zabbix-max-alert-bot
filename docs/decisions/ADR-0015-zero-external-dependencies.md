@@ -85,6 +85,13 @@ Bot-platform — компонент, который:
 | `http.createServer` (stdlib) — ingress-сервер | ADR-0023 | Входящие HTTP, stdlib only |
 | `@okta/jwt-verifier` — JWT-проверка | ADR-0024 | Auth-слой `JwtSourceAuth` |
 | `better-sqlite3` — delivery-log | ADR-0025 | Слой `LogStore` |
+| `react`, `vite`, `recharts`, `tailwindcss` | ADR-0034 | Frontend queue-monitor (`ui/`, отдельный `package.json`) |
+
+Примечание: ADR-0034 первоначально предполагал `openid-client` как исключение,
+но при реализации (поправка от 2026-07-21) OIDC-клиент сделан hand-rolled на
+stdlib — см. ADR-0034 «Поправка от 2026-07-21». Новых runtime-зависимостей в
+root `package.json` не появилось. UI-зависимости живут в отдельном
+`src/queue-monitor/ui/package.json` и policy-test для root не проверяют.
 
 Каждое исключение:
 
