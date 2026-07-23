@@ -86,6 +86,9 @@ Bot-platform — компонент, который:
 | `@okta/jwt-verifier` — JWT-проверка | ADR-0024 | Auth-слой `JwtSourceAuth` |
 | `better-sqlite3` — delivery-log | ADR-0025 | Слой `LogStore` |
 | `react`, `vite`, `recharts`, `tailwindcss` | ADR-0034 | Frontend queue-monitor (`ui/`, отдельный `package.json`) |
+| `storybook`, `@storybook/react-vite` | ADR-0036 | UI-devDependency queue-monitor (`ui/`, dev only, не в production bundle) |
+| `shadcn/ui` (copy-paste компоненты) | ADR-0036 | UI-компоненты queue-monitor (`ui/components/ui/`, нет runtime-зависимости) |
+| `lucide-react` | ADR-0036 | SVG-иконки queue-monitor (`ui/`, tree-shakeable) |
 
 Примечание: ADR-0034 первоначально предполагал `openid-client` как исключение,
 но при реализации (поправка от 2026-07-21) OIDC-клиент сделан hand-rolled на

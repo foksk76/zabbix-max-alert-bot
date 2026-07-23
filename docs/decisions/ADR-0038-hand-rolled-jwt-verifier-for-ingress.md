@@ -1,0 +1,132 @@
+# ADR-0038: Hand-rolled JWT-verifier для ingress layer
+
+## Статус
+
+Принято.
+
+## Дата
+
+2026-07-23
+
+## Контекст
+
+ADR-0024 принимает `@okta/jwt-verifier` как исключение из ADR-0015
+для auth-слоя `JwtSourceAuth` (`src/bot-platform/ingress/jwt-source-auth.js`).
+
+В ingress layer существует второй JWT-верификатор —
+`src/bot-platform/ingress/oidc-verifier.js`. Он используется в `app.js`
+для verification JWT-токенов, приходящих от внешних источников
+(Zabbix, SIEM, корпоративные боты) через `POST /ingest`.
+
+Два JWT-верификатора в кодовой базе требуют документирования:
+- когда используется каждый
+- почему не унифицировать через `@okta/jwt-verifier`
+- безопасность hand-rolled реализации
+
+### Два контекста использования
+
+| Модуль | Контекст | Что верифицирует |
+|---|---|---|
+| `jwt-source-auth.js` | Auth-слой (ADR-0024) | Access tokens от IdP для аутентификации источников |
+| `oidc-verifier.js` | Ingress layer | JWT от произвольных внешних источников (source-mapping) |
+
+`jwt-source-auth.js` использует `@okta/jwt-verifier` — готовый
+пакет с JWKS-кешированием, algorithm allowlist, claim validation.
+
+`oidc-verifier.js` — hand-rolled на `node:crypto` + `globalThis.fetch`.
+Причины:
+- ingress layer не зависит от IdP-провайдера (ADR-0022: multi-source);
+- JWT от внешних источников могут использовать разные JWKS-endpoints;
+- `@okta/jwt-verifier` привязан к Okta-специфичным API;
+- hand-rolled верификатор — ~135 строк stdlib, легко audit-уется.
+
+## Решение
+
+Зафиксировать `oidc-verifier.js` как deliberately hand-rolled
+JWT-verifier для ingress layer. Модуль документирован, протестирован,
+и его существование — осознанный выбор.
+
+### Возможности
+
+```text
+createOidcVerifierFactory(options) → createVerifier({ issuer, audience })
+  createVerifier.verifyAccessToken(token) → { claims }
+```
+
+- **JWKS fetching**: `/.well-known/jwks.json` с in-memory cache (TTL 1 час)
+- **Algorithm allowlist**: только RSA-family (`RS256`, `RS384`, `RS512`)
+- **Claim validation**: `exp`, `iat`, `iss`, `aud`
+- **Key import**: `crypto.createPublicKey({ key: jwk, format: 'jwk' })`
+- **Signature verification**: `crypto.verify(algorithm, data, key, signature)`
+
+### Безопасность
+
+| Аспект | Реализация |
+|---|---|
+| Algorithm confusion | Allowlist: только RS256/RS384/RS512. HS*, ES*, PS* отклоняются |
+| Key confusion | JWKS endpoint привязан к `issuer`. RSA-only, HMAC не поддерживается |
+| Expiry | `exp` и `iat` проверяются |
+| Issuer | `iss` проверяется against configured `issuer` |
+| Audience | `aud` проверяется если `expectedAudience` задан |
+| JWKS rotation | Кеш 1 час, ре-фетч при `kid` не найден |
+| Insecure HTTP | `logger.warn` при HTTP issuer, но верификация работает |
+
+### Почему не унифицировать через `@okta/jwt-verifier`
+
+- `@okta/jwt-verifier` привязан к Okta SDK API;
+- ingress layer работает с произвольными OIDC-провайдерами (не только Okta);
+- hand-rolled верификатор — 135 строк, полностью на stdlib;
+- оба модуля решают разные задачи в разных слоях.
+
+### Связь с queue-monitor/auth/oidc.js
+
+`src/queue-monitor/auth/oidc.js` зеркалирует паттерн `oidc-verifier.js`
+для OAuth2 Authorization Code flow. Это осознанное дублирование:
+queue-monitor auth — отдельный слой (ADR-0034), отдельный `package.json`,
+отдельная ответственность.
+
+## Рассмотренные альтернативы
+
+### Унифицировать через `@okta/jwt-verifier`
+
+Минус: `@okta/jwt-verifier` привязан к Okta SDK, не работает с
+произвольными JWKS-endpoints. Ingress layer должен поддерживать
+любой OIDC-провайдер (ADR-0022: multi-source). Отклонено.
+
+### Использовать `jose` (JWT library)
+
+Минус: ADR-0015 (zero deps). `jose` — ESM-only, добавляет dependency
+для ~135 строк кода. Отклонено.
+
+### Вынести в отдельный пакет
+
+Минус: один файл (135 строк), два потребителя (`app.js`, `oidc.js`).
+Вынос в пакет = overengineering. Отклонено.
+
+## Последствия
+
+### Новые файлы
+
+Нет — модуль уже реализован.
+
+### Документация
+
+Этот ADR фиксирует:
+- существование двух JWT-верификаторов в кодовой базе;
+- причину hand-rolled реализации;
+- безопасностные свойства (algorithm allowlist, RSA-only);
+- связь с `@okta/jwt-verifier` (разные слои, разные задачи).
+
+### Не затронуто
+
+- root `package.json` — без изменений;
+- `@okta/jwt-verifier` — продолжает использоваться в `jwt-source-auth.js`;
+- ADR-0015 policy-test — без изменений.
+
+## Ссылки
+
+- [ADR-0024](ADR-0024-accept-okta-jwt-verifier.md) — `@okta/jwt-verifier` для auth-слоя
+- [ADR-0022](ADR-0022-expand-scope-multi-source-ingest.md) — multi-source ingress
+- [ADR-0015](ADR-0015-zero-external-dependencies.md) — нулевые внешние зависимости
+- `src/bot-platform/ingress/oidc-verifier.js` — реализация
+- `src/bot-platform/ingress/jwt-source-auth.js` — `@okta/jwt-verifier` consumer

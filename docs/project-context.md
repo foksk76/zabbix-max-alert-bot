@@ -113,6 +113,10 @@ Live-сценарий с реальным входящим сообщением 
 - по ADR-0033 crash recovery для delivery pipeline (reclaim stale, poison-loop prevention, graceful shutdown);
 - по ADR-0034 ввести Queue Monitor Dashboard (встроенный дашборд, readonly SQLite replica, API для метрик, auth через IdP);
 - по ADR-0035 session auth как альтернатива Bearer Token для dashboard metrics;
+- по ADR-0036 ввести дизайн-систему для React UI queue-monitor (design tokens, компонентная библиотека, Storybook, AI-guidelines);
+- по ADR-0037 ввести SSRF-защиту для IdP-запросов (dns resolution + private IP blocking);
+- по ADR-0038 зафиксировать hand-rolled JWT-verifier для ingress layer (RS256/384/512, JWKS cache);
+- по ADR-0039 ввести rate limiting для auth-эндпоинтов dashboard (sliding window + concurrency cap);
 - не реализовывать автоматическую повторную отправку, маршрутизацию на боте или управление Zabbix из МАХ без отдельного ADR.
 
 ## Основные артефакты

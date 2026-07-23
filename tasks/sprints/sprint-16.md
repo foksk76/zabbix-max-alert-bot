@@ -15,12 +15,12 @@
 **Description:** Расширить `createBotPlatformConfig()` переменными для ingress: `INGRESS_ENABLED`, `INGRESS_PORT`. Добавить валидацию: `INGRESS_PORT` обязателен при `INGRESS_ENABLED=true`.
 
 **Acceptance criteria:**
-- [ ] `createBotPlatformConfig({ INGRESS_ENABLED: 'true', INGRESS_PORT: '8443' })` возвращает `ingressEnabled: true`, `ingressPort: 8443`
-- [ ] `createBotPlatformConfig({})` возвращает `ingressEnabled: false` (default)
-- [ ] Валидация: `INGRESS_PORT` обязателен при `INGRESS_ENABLED=true`
+- [x] `createBotPlatformConfig({ INGRESS_ENABLED: 'true', INGRESS_PORT: '8443' })` возвращает `ingressEnabled: true`, `ingressPort: 8443`
+- [x] `createBotPlatformConfig({})` возвращает `ingressEnabled: false` (default)
+- [x] Валидация: `INGRESS_PORT` обязателен при `INGRESS_ENABLED=true`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -36,14 +36,14 @@
 **Description:** Расширить `createBotPlatformApp()` для второго pipeline. Если `config.ingressEnabled`: создать `http-server` с `jwtAuth`, `normalizer`, `queueStore`, `outboundClient`. Запустить HTTP-сервер на `config.ingressPort`. Если `config.queueEnabled`: создать `queueWorker` и запустить `start()`. Оба pipeline в одном процессе `app.js`.
 
 **Acceptance criteria:**
-- [ ] `app.js` с `INGRESS_ENABLED=false` → только long-polling pipeline (существующее поведение)
-- [ ] `app.js` с `INGRESS_ENABLED=true` → long-polling + HTTP-ingress pipelines
-- [ ] `app.js` с `QUEUE_ENABLED=true` → queue worker запущен
-- [ ] `app.js` с `QUEUE_ENABLED=false` → queue worker не запущен
-- [ ] Оба pipeline делят один outbound-client (ADR-0023)
+- [x] `app.js` с `INGRESS_ENABLED=false` → только long-polling pipeline (существующее поведение)
+- [x] `app.js` с `INGRESS_ENABLED=true` → long-polling + HTTP-ingress pipelines
+- [x] `app.js` с `QUEUE_ENABLED=true` → queue worker запущен
+- [x] `app.js` с `QUEUE_ENABLED=false` → queue worker не запущен
+- [x] Оба pipeline делят один outbound-client (ADR-0023)
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Sprint 14 (queue), Sprint 15 (ingress)
 
@@ -59,13 +59,13 @@
 **Description:** Тесты wiring в app.js: проверить что ingress pipeline создаётся при `INGRESS_ENABLED=true`, queue worker запускается при `QUEUE_ENABLED=true`, оба pipeline не конфликтуют.
 
 **Acceptance criteria:**
-- [ ] Тест: `INGRESS_ENABLED=true` → http.createServer вызван
-- [ ] Тест: `QUEUE_ENABLED=true` → queueWorker.start() вызван
-- [ ] Тест: `INGRESS_ENABLED=false` → http.createServer не вызван
-- [ ] Тест: `QUEUE_ENABLED=false` → queueWorker.start() не вызван
+- [x] Тест: `INGRESS_ENABLED=true` → http.createServer вызван
+- [x] Тест: `QUEUE_ENABLED=true` → queueWorker.start() вызван
+- [x] Тест: `INGRESS_ENABLED=false` → http.createServer не вызван
+- [x] Тест: `QUEUE_ENABLED=false` → queueWorker.start() не вызван
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 2
 
@@ -81,13 +81,13 @@
 **Description:** Полный end-to-end тест: HTTP-сервер получает POST /ingest → JWT auth → normalize → queue.enqueue → worker.poll → outbound.send → MAX API. Использовать mock outboundClient и mock jwtAuth.
 
 **Acceptance criteria:**
-- [ ] POST /ingest (valid JWT + body) → outboundClient.send() вызван с правильным payload
-- [ ] POST /ingest (invalid JWT) → 401, outboundClient.send() не вызван
-- [ ] POST /ingest (queue enabled) → queueStore.enqueue() вызван, outboundClient.send() вызван worker'ом
-- [ ] Dry-run mode → outboundClient.send() возвращает dry-run payload без очереди
+- [x] POST /ingest (valid JWT + body) → outboundClient.send() вызван с правильным payload
+- [x] POST /ingest (invalid JWT) → 401, outboundClient.send() не вызван
+- [x] POST /ingest (queue enabled) → queueStore.enqueue() вызван, outboundClient.send() вызван worker'ом
+- [x] Dry-run mode → outboundClient.send() возвращает dry-run payload без очереди
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 2, 3
 
@@ -103,12 +103,12 @@
 **Description:** Фасад для ingress pipeline. Экспортирует `createIngressPipeline(options)` — создаёт и связывает `http-server`, `jwtAuth`, `normalizers`, `queueStore`. Упрощает wiring в `app.js`.
 
 **Acceptance criteria:**
-- [ ] `createIngressPipeline({ port, issuer, audience, queueStore, outboundClient, logger })` возвращает `{ start(), stop() }`
-- [ ] `start()` запускает HTTP-сервер
-- [ ] `stop()` останавливает HTTP-сервер
+- [x] `createIngressPipeline({ port, issuer, audience, queueStore, outboundClient, logger })` возвращает `{ start(), stop() }`
+- [x] `start()` запускает HTTP-сервер
+- [x] `stop()` останавливает HTTP-сервер
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Sprint 15
 
@@ -124,12 +124,12 @@
 **Description:** Обновить секцию "Planned changes" в `docs/zabbix-media-type.md`: добавить статус реализации для каждого компонента (queue, ingress, auth, normalizer).
 
 **Acceptance criteria:**
-- [ ] Секция "Planned changes" отражает текущий статус реализации
-- [ ] Ссылки на ADR-0022..0028 актуальны
-- [ ] Нет секретов и реальных идентификаторов
+- [x] Секция "Planned changes" отражает текущий статус реализации
+- [x] Ссылки на ADR-0022..0028 актуальны
+- [x] Нет секретов и реальных идентификаторов
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -145,11 +145,11 @@
 **Description:** Обновить `docs/project-context.md`: добавить секцию о текущем статусе multi-source ingest реализации. Отметить какие компоненты реализованы, какие в процессе.
 
 **Acceptance criteria:**
-- [ ] `docs/project-context.md` содержит актуальный статус multi-source ingest
-- [ ] Ссылки на ADR-0022..0028 актуальны
+- [x] `docs/project-context.md` содержит актуальный статус multi-source ingest
+- [x] Ссылки на ADR-0022..0028 актуальны
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -165,17 +165,17 @@
 **Description:** Полная проверка: все тесты проходят, dry-run работает, queue disabled по умолчанию, ingress disabled по умолчанию, backward compatibility сохранена.
 
 **Acceptance criteria:**
-- [ ] `npm test` — все тесты проходят
-- [ ] Dry-run mode работает (существующее поведение)
-- [ ] `QUEUE_ENABLED=false` — очередь не используется
-- [ ] `INGRESS_ENABLED=false` — HTTP-ingress не запускается
-- [ ] Backward compatibility: существующий long-polling pipeline работает без изменений
-- [ ] Нет секретов в коде и документации
-- [ ] Нет CJK/garbled текста в документации
+- [x] `npm test` — все тесты проходят
+- [x] Dry-run mode работает (существующее поведение)
+- [x] `QUEUE_ENABLED=false` — очередь не используется
+- [x] `INGRESS_ENABLED=false` — HTTP-ingress не запускается
+- [x] Backward compatibility: существующий long-polling pipeline работает без изменений
+- [x] Нет секретов в коде и документации
+- [x] Нет CJK/garbled текста в документации
 
 **Verification:**
-- [ ] `npm test` passes
-- [ ] Manual check: dry-run prints safe result
+- [x] `npm test` passes
+- [x] Manual check: dry-run prints safe result
 
 **Dependencies:** Tasks 1-7
 
@@ -186,20 +186,20 @@
 
 ## Checkpoint: After Tasks 1-2 (App Wiring)
 
-- [ ] `app.js` поддерживает два pipeline
-- [ ] Ingress pipeline создаётся при `INGRESS_ENABLED=true`
-- [ ] Queue worker запускается при `QUEUE_ENABLED=true`
+- [x] `app.js` поддерживает два pipeline
+- [x] Ingress pipeline создаётся при `INGRESS_ENABLED=true`
+- [x] Queue worker запускается при `QUEUE_ENABLED=true`
 
 ## Checkpoint: After Tasks 3-4 (Integration Tests)
 
-- [ ] End-to-end тест работает
-- [ ] Все HTTP-коды протестированы
-- [ ] Queue integration работает
+- [x] End-to-end тест работает
+- [x] Все HTTP-коды протестированы
+- [x] Queue integration работает
 
 ## Checkpoint: After Tasks 5-8 (Final)
 
-- [ ] Ingress facade создан
-- [ ] Документация обновлена
-- [ ] `npm test` passes (все тесты)
-- [ ] Backward compatibility подтверждена
-- [ ] Готово к ревью
+- [x] Ingress facade создан
+- [x] Документация обновлена
+- [x] `npm test` passes (все тесты)
+- [x] Backward compatibility подтверждена
+- [x] Готово к ревью
