@@ -15,7 +15,39 @@
 | Badge | `./ui/badge.jsx` | Статусы (success, warning, error, info) |
 | Input | `./ui/input.jsx` | Поля ввода |
 
-Иконки: `lucide-react` (tree-shakeable).
+## Icons
+
+Иконки: **только** `lucide-react` (tree-shakeable, ISC лицензия).
+Никаких кастомных SVG-иконок.
+
+### Icon Reference
+
+| Иконка | Импорт | Где используется |
+|--------|--------|------------------|
+| `Clock` | `lucide-react` | SummaryCards (pending), TimeseriesChart (window buttons) |
+| `Loader` | `lucide-react` | SummaryCards (processing) |
+| `CheckCircle` | `lucide-react` | SummaryCards (delivered) |
+| `XCircle` | `lucide-react` | SummaryCards (failed) |
+| `RefreshCw` | `lucide-react` | DashboardPage (refresh button) |
+| `LogOut` | `lucide-react` | DashboardPage (logout button) |
+| `Bird` | `lucide-react` | LoginPage (logo) |
+| `ArrowUpRight` | `lucide-react` | TopTable (source toggle) |
+| `Users` | `lucide-react` | TopTable (recipient toggle) |
+| `AlertTriangle` | `lucide-react` | ErrorsTable (error rows) |
+
+### Usage Pattern
+
+```jsx
+import { RefreshCw } from 'lucide-react';
+
+<Button variant="ghost" size="sm">
+    <RefreshCw className="w-4 h-4 mr-1 shrink-0" />
+    обновить
+</Button>
+```
+
+Стиль иконок по умолчанию: `w-4 h-4` (16px) или `w-3.5 h-3.5` (14px).
+Для кнопок: добавлять `mr-1 shrink-0` для отступа и предотвращения сжатия.
 
 ## Forbidden Patterns
 

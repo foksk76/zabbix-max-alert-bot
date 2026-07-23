@@ -13,7 +13,7 @@ export const Default = {
                 <CardTitle>Card Title</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-sm text-neutral-500">Card content goes here.</p>
+                <p className="text-sm text-muted-foreground">Card content goes here.</p>
             </CardContent>
         </Card>
     )

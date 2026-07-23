@@ -20,12 +20,12 @@ const TableBody = React.forwardRef(({ className, ...props }, ref) => (
 TableBody.displayName = 'TableBody';
 
 const TableRow = React.forwardRef(({ className, ...props }, ref) => (
-    <tr ref={ref} className={cn('border-b border-neutral-100 transition-colors hover:bg-neutral-50', className)} {...props} />
+    <tr ref={ref} className={cn('border-b border-border transition-colors hover:bg-accent', className)} {...props} />
 ));
 TableRow.displayName = 'TableRow';
 
 const TableHead = React.forwardRef(({ className, ...props }, ref) => (
-    <th ref={ref} className={cn('h-10 px-2 text-left align-middle font-medium text-neutral-500 [&:has([role=checkbox])]:pr-0', className)} {...props} />
+    <th ref={ref} className={cn('h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0', className)} {...props} />
 ));
 TableHead.displayName = 'TableHead';
 

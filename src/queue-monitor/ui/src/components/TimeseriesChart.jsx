@@ -3,6 +3,7 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card.jsx';
 import { Button } from './ui/button.jsx';
+import { Clock } from 'lucide-react';
 import { semantic, neutral } from '../tokens/colors.js';
 
 const WINDOWS = [
@@ -45,7 +46,7 @@ export default function TimeseriesChart({ timeseries, windowSeconds, onWindowCha
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="animate-pulse h-[260px] bg-neutral-100 rounded" />
+                    <div className="animate-pulse h-[260px] bg-muted rounded" />
                 </CardContent>
             </Card>
         );
@@ -66,6 +67,7 @@ export default function TimeseriesChart({ timeseries, windowSeconds, onWindowCha
                                 size="sm"
                                 onClick={() => onWindowChange(w.seconds)}
                             >
+                                <Clock className="w-3.5 h-3.5 mr-1 shrink-0 hidden sm:inline" />
                                 {w.label}
                             </Button>
                         ))}
@@ -74,7 +76,7 @@ export default function TimeseriesChart({ timeseries, windowSeconds, onWindowCha
             </CardHeader>
             <CardContent>
                 {data.length === 0 ? (
-                    <p className="text-sm text-neutral-400 py-12 text-center">Нет данных за период</p>
+                    <p className="text-sm text-muted-foreground py-12 text-center">Нет данных за период</p>
                 ) : (
                     <ResponsiveContainer width="100%" height={260}>
                         <LineChart data={data}>

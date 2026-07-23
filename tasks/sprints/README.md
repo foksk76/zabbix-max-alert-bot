@@ -32,6 +32,7 @@ Identity Plugin Live MAX Identity Bot реализуется через спри
 - `sprint-23.md` — Queue Monitor Hardening: rate limiting (M2) и SSRF-защита (L3)
 - `sprint-24.md` — ADR-0036 Дизайн-система для React UI queue-monitor (shadcn/ui, Lucide, tokens, Storybook)
 - `sprint-25.md` — ADR-0038 Тесты для hand-rolled JWT-verifier (oidc-verifier.js)
+- `sprint-26.md` — Queue Monitor UI Polish: Lucide Icons, fontWeights, CSS-переменные shadcn/ui
 
 ## Status
 
@@ -55,6 +56,7 @@ Sprint 22: Complete (ADR-0035: Session Auth для Dashboard Metrics)
 Sprint 23: Complete (Queue Monitor Hardening: rate limiting M2 + SSRF-защита L3 — findings из security-and-hardening ревью)
 Sprint 24: Complete (ADR-0036: Дизайн-система для React UI queue-monitor — shadcn/ui, Lucide, tokens, Storybook)
 Sprint 25: Complete (ADR-0038: Тесты для hand-rolled JWT-verifier — oidc-verifier.js unit tests)
+Sprint 26: Pending (Queue Monitor UI Polish — Lucide Icons, fontWeights, CSS-переменные shadcn/ui)
 ```
 
 Детальная информация в `tasks/sprints/sprint-07.md`.

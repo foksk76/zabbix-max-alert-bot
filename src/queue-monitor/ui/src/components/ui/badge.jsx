@@ -3,10 +3,10 @@ import * as React from 'react';
 import { cn } from '../../lib/utils.js';
 
 const badgeVariants = {
-    default: 'bg-brand-500 text-white',
-    secondary: 'bg-neutral-100 text-neutral-700',
-    destructive: 'bg-error text-white',
-    outline: 'border border-neutral-200 text-neutral-700',
+    default: 'bg-primary text-primary-foreground',
+    secondary: 'bg-secondary text-secondary-foreground',
+    destructive: 'bg-destructive text-destructive-foreground',
+    outline: 'border border-input text-foreground',
     success: 'bg-success-light text-success-dark border border-success/20',
     warning: 'bg-warning-light text-warning-dark border border-warning/20',
     error: 'bg-error-light text-error-dark border border-error/20',

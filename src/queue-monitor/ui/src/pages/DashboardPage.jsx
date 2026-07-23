@@ -6,6 +6,7 @@ import TopTable from '../components/TopTable.jsx';
 import ErrorsTable from '../components/ErrorsTable.jsx';
 import { useMetrics } from '../hooks/useMetrics.js';
 import { Button } from '../components/ui/button.jsx';
+import { RefreshCw, LogOut } from 'lucide-react';
 
 export default function DashboardPage({ user, csrf }) {
     const [windowSeconds, setWindowSeconds] = useState(3600);
@@ -32,18 +33,19 @@ export default function DashboardPage({ user, csrf }) {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50">
-            <header className="bg-white border-b border-neutral-200">
+        <div className="min-h-screen bg-background">
+            <header className="bg-card border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded bg-brand-500 flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">З</span>
+                        <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
+                            <span className="text-primary-foreground font-bold text-sm">З</span>
                         </div>
-                        <h1 className="text-base font-semibold text-neutral-800">Зяблик — очередь доставки</h1>
+                        <h1 className="text-base font-semibold text-foreground">Зяблик — очередь доставки</h1>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
-                        <span className="text-neutral-500 hidden sm:inline">{user?.name || user?.email || user?.sub}</span>
+                        <span className="text-muted-foreground hidden sm:inline">{user?.name || user?.email || user?.sub}</span>
                         <Button variant="ghost" size="sm" onClick={logout}>
+                            <LogOut className="w-4 h-4 mr-1 shrink-0" />
                             Выйти
                         </Button>
                     </div>
@@ -53,6 +55,7 @@ export default function DashboardPage({ user, csrf }) {
             <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
                 <div className="flex items-center justify-between">
                     <Button variant="ghost" size="sm" onClick={() => metrics.refresh()}>
+                        <RefreshCw className="w-4 h-4 mr-1 shrink-0" />
                         обновить
                     </Button>
                 </div>
@@ -81,7 +84,7 @@ export default function DashboardPage({ user, csrf }) {
                 </div>
 
                 {metrics.lastUpdated && (
-                    <p className="text-xs text-neutral-400 text-center">
+                    <p className="text-xs text-muted-foreground text-center">
                         обновлено: {metrics.lastUpdated.toLocaleTimeString('ru-RU')}
                     </p>
                 )}

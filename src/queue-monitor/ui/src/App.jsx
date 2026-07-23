@@ -9,8 +9,8 @@ export default function App() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-                <p className="text-neutral-500">Загрузка…</p>
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <p className="text-muted-foreground">Загрузка…</p>
             </div>
         );
     }

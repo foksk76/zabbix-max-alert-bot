@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card.jsx';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './ui/table.jsx';
 import { Badge } from './ui/badge.jsx';
+import { AlertTriangle } from 'lucide-react';
 
 function formatTime(ts) {
     if (!ts) {
@@ -34,7 +35,7 @@ export default function ErrorsTable({ errors }) {
                 <CardContent>
                     <div className="animate-pulse space-y-2">
                         {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="h-10 bg-neutral-100 rounded" />
+                            <div key={i} className="h-10 bg-muted rounded" />
                         ))}
                     </div>
                 </CardContent>
@@ -66,8 +67,13 @@ export default function ErrorsTable({ errors }) {
                         <TableBody>
                             {rows.map((row) => (
                                 <TableRow key={row.id} className="align-top">
-                                    <TableCell className="text-neutral-400 font-mono text-xs">{row.id}</TableCell>
-                                    <TableCell>{row.source || '—'}</TableCell>
+                                    <TableCell className="text-muted-foreground font-mono text-xs">{row.id}</TableCell>
+                                    <TableCell>
+                                        <span className="inline-flex items-center gap-1">
+                                            <AlertTriangle className="w-3.5 h-3.5 text-error shrink-0" />
+                                            {row.source || '—'}
+                                        </span>
+                                    </TableCell>
                                     <TableCell className="break-all">{parseRecipient(row.payload)}</TableCell>
                                     <TableCell className="text-center">
                                         <Badge variant="error">{row.attempts}</Badge>

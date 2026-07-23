@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card.jsx';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './ui/table.jsx';
 import { Button } from './ui/button.jsx';
+import { ArrowUpRight, Users } from 'lucide-react';
 
 export default function TopTable({ top, topBy, onByChange }) {
     if (top === null) {
@@ -16,7 +17,7 @@ export default function TopTable({ top, topBy, onByChange }) {
                 <CardContent>
                     <div className="animate-pulse space-y-2">
                         {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="h-10 bg-neutral-100 rounded" />
+                            <div key={i} className="h-10 bg-muted rounded" />
                         ))}
                     </div>
                 </CardContent>
@@ -38,6 +39,7 @@ export default function TopTable({ top, topBy, onByChange }) {
                             size="sm"
                             onClick={() => onByChange('source')}
                         >
+                            <ArrowUpRight className="w-3.5 h-3.5 mr-1 shrink-0" />
                             по источнику
                         </Button>
                         <Button
@@ -45,6 +47,7 @@ export default function TopTable({ top, topBy, onByChange }) {
                             size="sm"
                             onClick={() => onByChange('recipient')}
                         >
+                            <Users className="w-3.5 h-3.5 mr-1 shrink-0" />
                             по получателю
                         </Button>
                     </div>
@@ -52,7 +55,7 @@ export default function TopTable({ top, topBy, onByChange }) {
             </CardHeader>
             <CardContent>
                 {rows.length === 0 ? (
-                    <p className="text-sm text-neutral-400 py-8 text-center">Нет данных</p>
+                    <p className="text-sm text-muted-foreground py-8 text-center">Нет данных</p>
                 ) : (
                     <Table>
                         <TableHeader>
