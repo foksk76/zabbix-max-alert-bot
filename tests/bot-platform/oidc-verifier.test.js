@@ -242,6 +242,8 @@ test('JWKS cache miss — kid found after re-fetch (happy path refresh)', async 
     assert.equal(fetchCount, 1, 'should fetch JWKS on first call');
 
     // Force cache expiry so next call re-fetches
+    // NOTE: JWKS_CACHE_TTL_MS must match the value in oidc-verifier.js (60 * 60 * 1000).
+    // If the source constant changes, update this value to keep tests deterministic.
     const JWKS_CACHE_TTL_MS = 60 * 60 * 1000;
     const originalDateNow = Date.now;
     let currentTime = Date.now();
@@ -501,6 +503,7 @@ test('JWKS cache expired — re-fetch happens', async () => {
     const jwksBodyV2 = createJwksResponse('kid-v2');
     const logger = createMockLogger();
 
+    // NOTE: JWKS_CACHE_TTL_MS must match the value in oidc-verifier.js (60 * 60 * 1000).
     const JWKS_CACHE_TTL_MS = 60 * 60 * 1000;
     let currentTime = Date.now();
     const originalDateNow = Date.now;
@@ -653,6 +656,60 @@ test('issuer without trailing slash matches token issuer exactly', async () => {
     const result = await verifier.verifyAccessToken(token);
 
     assert.ok(result.claims);
+});
+
+test('algorithm mismatch — JWT signed with RS384 but header claims RS256 → invalid signature', async () => {
+    ensureKeyPair();
+    const jwksBody = createJwksResponse();
+    const { fetch: mockFetch } = createMockFetch(jwksBody);
+    const logger = createMockLogger();
+
+    const factory = createOidcVerifierFactory({ fetchFn: mockFetch, logger });
+    const verifier = factory({ issuer: 'https://idp.example.com' });
+
+    // Build a JWT where header says RS256 but we sign with RS384
+    const headerB64 = base64UrlEncode(makeHeader('RS256'));
+    const payloadB64 = base64UrlEncode(makePayload());
+    const signingInput = `${headerB64}.${payloadB64}`;
+    const privateKey = crypto.createPrivateKey({ key: keyPair.privateKey, format: 'jwk' });
+    const sig = crypto.sign('sha384', Buffer.from(signingInput), privateKey); // RS384 signature
+    const sigB64 = sig.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const mismatchedToken = `${headerB64}.${payloadB64}.${sigB64}`;
+
+    await assert.rejects(
+        () => verifier.verifyAccessToken(mismatchedToken),
+        (err) => {
+            assert.equal(err.message, 'Invalid JWT signature');
+            return true;
+        }
+    );
+});
+
+test('multiple keys in JWKS — correct kid is matched', async () => {
+    ensureKeyPair();
+    const otherKeyPair = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+        privateKeyEncoding: { type: 'pkcs8', format: 'jwk' },
+        publicKeyEncoding: { type: 'spki', format: 'jwk' }
+    });
+
+    const jwksBody = {
+        keys: [
+            { kid: 'other-key', kty: otherKeyPair.publicKey.kty, n: otherKeyPair.publicKey.n, e: otherKeyPair.publicKey.e, alg: 'RS256', use: 'sig' },
+            { kid: 'test-kid-1', kty: publicKeyJwk.kty, n: publicKeyJwk.n, e: publicKeyJwk.e, alg: 'RS256', use: 'sig' }
+        ]
+    };
+    const { fetch: mockFetch } = createMockFetch(jwksBody);
+    const logger = createMockLogger();
+
+    const factory = createOidcVerifierFactory({ fetchFn: mockFetch, logger });
+    const verifier = factory({ issuer: 'https://idp.example.com' });
+
+    const token = createJwt(keyPair.privateKey, makeHeader('RS256', 'test-kid-1'), makePayload());
+    const result = await verifier.verifyAccessToken(token);
+
+    assert.ok(result.claims, 'should verify with correct key from multi-key JWKS');
+    assert.equal(result.claims.sub, 'user-123');
 });
 
 // ---------------------------------------------------------------------------

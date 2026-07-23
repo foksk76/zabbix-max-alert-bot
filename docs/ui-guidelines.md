@@ -12,7 +12,7 @@
 | Button | `./ui/button.jsx` | Кнопки (default, destructive, outline, ghost) |
 | Card | `./ui/card.jsx` | Карточки (metric cards, panels) |
 | Table | `./ui/table.jsx` | Таблицы (данные, списки) |
-| Badge | `./ui/ui/badge.jsx` | Статусы (success, warning, error, info) |
+| Badge | `./ui/badge.jsx` | Статусы (success, warning, error, info) |
 | Input | `./ui/input.jsx` | Поля ввода |
 
 Иконки: `lucide-react` (tree-shakeable).
