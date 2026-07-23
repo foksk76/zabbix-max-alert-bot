@@ -9,14 +9,11 @@
 
 const crypto = require('node:crypto');
 const { assertSafeUrl } = require('./url-safety');
+const { base64url } = require('./base64url');
 
 const MODULE_NAME = 'queue-monitor-oidc';
 const DEFAULT_SCOPE = 'openid profile email';
 const DISCOVERY_PATH = '/.well-known/openid-configuration';
-
-function base64url(buf) {
-    return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
 
 // Сгенерировать PKCE code_verifier (43-128 chars, base64url random).
 // Возвращает { codeVerifier, codeChallenge } где codeChallenge = S256(verifier).

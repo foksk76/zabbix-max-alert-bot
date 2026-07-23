@@ -261,9 +261,11 @@ token endpoint. Refresh-token flow оставлен на future work (сесси
 
 ## Тесты
 
-- `tests/queue-monitor/api-metrics.test.js`: API endpoints с Bearer Token
-- `tests/queue-monitor/auth.test.js`: OAuth2 flow, session, logout
-- `tests/queue-monitor/db-reader.test.js`: readonly queries, concurrent access
-- `tests/queue-monitor/readyz.test.js`: readiness check 200/503
+- `tests/queue-monitor/api/metrics.test.js`: API endpoints с Bearer Token
+- `tests/queue-monitor/api/auth.test.js`: Bearer + session auth, protectRoute
+- `tests/queue-monitor/auth/session.test.js`: session store, signed cookies, CSRF
+- `tests/queue-monitor/auth-routes.test.js`: OAuth2 flow, login/callback/logout
+- `tests/queue-monitor/db/reader.test.js`: readonly queries, concurrent access
+- `tests/queue-monitor/api/readyz.test.js`: readiness check 200/503
 - Обновить `tests/bot-platform/app-shutdown.test.js`: queue-monitor в
   shutdown order

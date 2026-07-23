@@ -18,11 +18,17 @@ export default function DashboardPage({ user, csrf }) {
 
     async function logout() {
         try {
-            await fetch('/api/auth/logout', {
+            const r = await fetch('/api/auth/logout', {
                 method: 'POST',
                 headers: { 'X-CSRF-Token': csrf },
                 credentials: 'same-origin'
             });
+            // Сервер вернул ответ, но logout не прошёл (403 CSRF, 500 и т.д.) —
+            // сессия может быть ещё активна. Предупредить пользователя, но
+            // всё равно уйти со страницы (UI logout — best-effort).
+            if (!r.ok) {
+                alert(`Не удалось выйти (сервер: ${r.status}). Сессия может быть активна.`);
+            }
         } catch {
             // Network error — redirect anyway (session may already be destroyed)
         }
