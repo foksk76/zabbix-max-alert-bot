@@ -49,9 +49,11 @@ async function discoverEndpoints(issuer, fetchFn, logger, options = {}) {
         const url = joinUrl(issuer, DISCOVERY_PATH);
         // L3: SSRF-проверка перед fetch. Бросает, если hostname резолвится
         // в private/reserved/loopback/link-local или scheme не https.
-        await assertSafeUrl(url, dnsLookup !== undefined || onDebug !== undefined || relaxSsrf
-            ? { ...(dnsLookup !== undefined ? { dnsLookup } : {}), ...(onDebug !== undefined ? { onDebug } : {}), ...(relaxSsrf ? { relaxSsrf } : {}) }
-            : {});
+        await assertSafeUrl(url, {
+            ...(dnsLookup !== undefined ? { dnsLookup } : {}),
+            ...(onDebug !== undefined ? { onDebug } : {}),
+            ...(relaxSsrf ? { relaxSsrf, onAudit: ({ hostname, reason }) => logger.warn(`[${MODULE_NAME}] SSRF relaxation: ${hostname} — ${reason}`) } : {})
+        });
         const response = await fetchFn(url);
         if (!response.ok) {
             if (requireDiscovery) {
@@ -115,7 +117,10 @@ function createOidcClient(options = {}) {
         const o = {};
         if (dnsLookup !== undefined) o.dnsLookup = dnsLookup;
         if (onDebug !== undefined) o.onDebug = onDebug;
-        if (relaxSsrf) o.relaxSsrf = true;
+        if (relaxSsrf) {
+            o.relaxSsrf = true;
+            o.onAudit = ({ hostname, reason }) => logger.warn(`[${MODULE_NAME}] SSRF relaxation: ${hostname} — ${reason}`);
+        }
         return o;
     }
 

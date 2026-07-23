@@ -410,11 +410,9 @@ test('discovery rejects cloud metadata IP 169.254.169.254 (SSRF)', async () => {
     ]);
 
     // Без requireDiscovery ошибка SSRF проглатывается catch'ем → fallback.
-    // Проверяем, что fetchFn не вызвался (SSRF предотвратил запрос).
+    // Проверяем, что fetchFn не вызван (SSRF предотвратил запрос).
     await discoverEndpoints(ISSUER, fetchFn, silentLogger, { dnsLookup: metadataLookup });
-    // Если бы SSRF не сработал, fetchFn.calls содержал бы discovery-запрос.
-    // Здесь fallback сработал БЕЗ fetch (assertSafeUrl бросил до fetchFn).
-    // Точный assertion: fetchFn.calls пуст или не содержит discovery.
+    assert.equal(fetchFn.calls.length, 0, 'fetch must not be called when SSRF check fails before fetch');
 });
 
 test('discovery with requireDiscovery=true throws on SSRF instead of fallback', async () => {
@@ -509,4 +507,58 @@ test('createOidcClient auto-detects SSRF relaxation from HTTP issuer (null = aut
 
     const tokens = await client.callback({ code: 'c', codeVerifier: 'v' });
     assert.equal(tokens.accessToken, 'at');
+});
+
+// --- relaxSsrf edge cases ---
+
+test('createOidcClient with relaxSsrf: null does NOT bypass SSRF (strict equality)', async () => {
+    const fetchFn = mockFetch([
+        { match: () => true, respond: () => discoveryResponse() }
+    ]);
+
+    // null !== true: options.relaxSsrf === true is false, so SSRF stays active.
+    // Token endpoint resolves to private IP → rejected.
+    await assert.rejects(
+        () => createOidcClient({
+            issuer: ISSUER, clientId: CLIENT_ID, clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI, fetchFn, logger: silentLogger,
+            dnsLookup: privateDnsLookup, relaxSsrf: null
+        }).callback({ code: 'c', codeVerifier: 'v' }),
+        /private\/reserved range/
+    );
+});
+
+test('createOidcClient with relaxSsrf=true + requireDiscovery=true still bypasses SSRF', async () => {
+    const fetchFn = mockFetch([
+        { match: (url) => url.includes('openid-configuration'), respond: () => discoveryResponse() },
+        { match: (url, init) => init.method === 'POST', respond: () => jsonResponse(200, { access_token: 'at' }) }
+    ]);
+
+    // relaxSsrf=true takes precedence: assertSafeUrl returns early before IP check.
+    const client = createOidcClient({
+        issuer: ISSUER, clientId: CLIENT_ID, clientSecret: CLIENT_SECRET,
+        redirectUri: REDIRECT_URI, fetchFn, logger: silentLogger,
+        dnsLookup: privateDnsLookup, relaxSsrf: true, requireDiscovery: true
+    });
+
+    const tokens = await client.callback({ code: 'c', codeVerifier: 'v' });
+    assert.equal(tokens.accessToken, 'at');
+});
+
+test('createOidcClient logs audit warning when relaxSsrf=true', async () => {
+    const warnings = [];
+    const logger = { info() {}, warn: (m) => warnings.push(m), error() {} };
+    const fetchFn = mockFetch([
+        { match: (url) => url.includes('openid-configuration'), respond: () => discoveryResponse() },
+        { match: (url, init) => init.method === 'POST', respond: () => jsonResponse(200, { access_token: 'at' }) }
+    ]);
+
+    const client = createOidcClient({
+        issuer: ISSUER, clientId: CLIENT_ID, clientSecret: CLIENT_SECRET,
+        redirectUri: REDIRECT_URI, fetchFn, logger,
+        dnsLookup: privateDnsLookup, relaxSsrf: true
+    });
+
+    await client.callback({ code: 'c', codeVerifier: 'v' });
+    assert.ok(warnings.some((w) => w.includes('SSRF relaxation')), 'audit warning must be logged');
 });

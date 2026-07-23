@@ -139,7 +139,7 @@ test('assertSafeUrl rejects non-https scheme', async () => {
     );
     await assert.rejects(
         () => assertSafeUrl('file:///etc/passwd', { dnsLookup: mockLookup({}) }),
-        /non-https scheme|invalid URL/
+        /non-https scheme/
     );
 });
 
@@ -309,4 +309,50 @@ test('assertSafeUrl error message contains only hostname, not resolved IP', asyn
     }
     assert.ok(caught.includes('internal.example'));
     assert.ok(!caught.includes('10.0.0.1'), 'resolved IP must NOT be in error message');
+});
+
+// --- relaxSsrf edge cases ---
+
+test('assertSafeUrl accepts file:// scheme when relaxSsrf=true', async () => {
+    // file:// — валидный URL, relaxSsrf пропускает проверку scheme.
+    await assert.doesNotReject(
+        () => assertSafeUrl('file:///etc/passwd', { relaxSsrf: true })
+    );
+});
+
+test('assertSafeUrl rejects file:// scheme when relaxSsrf is null (not boolean true)', async () => {
+    // null ≠ true: strict equality в options.relaxSsrf === true.
+    await assert.rejects(
+        () => assertSafeUrl('file:///etc/passwd', { relaxSsrf: null }),
+        /non-https scheme/
+    );
+});
+
+test('assertSafeUrl rejects HTTP scheme when relaxSsrf is undefined', async () => {
+    await assert.rejects(
+        () => assertSafeUrl('http://idp.example.com', { dnsLookup: mockLookup({ 'idp.example.com': ['93.184.216.34'] }) }),
+        /non-https scheme/
+    );
+});
+
+test('assertSafeUrl calls onAudit when relaxSsrf=true bypasses checks', async () => {
+    let auditInfo = null;
+    await assertSafeUrl('http://10.0.0.1:8000/token', {
+        dnsLookup: mockLookup({}),
+        relaxSsrf: true,
+        onAudit: (info) => { auditInfo = info; }
+    });
+    assert.ok(auditInfo, 'onAudit must be called when relaxSsrf=true');
+    assert.equal(auditInfo.hostname, '10.0.0.1');
+    assert.ok(auditInfo.reason.includes('relaxSsrf'));
+});
+
+test('assertSafeUrl does NOT call onAudit when relaxSsrf=false', async () => {
+    let auditCalled = false;
+    await assertSafeUrl('https://idp.example.com', {
+        dnsLookup: mockLookup({ 'idp.example.com': ['93.184.216.34'] }),
+        relaxSsrf: false,
+        onAudit: () => { auditCalled = true; }
+    });
+    assert.equal(auditCalled, false, 'onAudit must not fire when relaxSsrf is false');
 });
