@@ -22,12 +22,12 @@
 **Description:** Расширить `createBotPlatformConfig()` двумя новыми boolean переменными: `LOG_AUDIT` и `LOG_TRACE`. Использовать существующий `readBoolEnvValue`. Дефолт: `true` (ADR-0029 specifies enabled by default).
 
 **Acceptance criteria:**
-- [ ] `createBotPlatformConfig({ LOG_AUDIT: 'true', LOG_TRACE: 'true' })` → `logAudit: true`, `logTrace: true`
-- [ ] `createBotPlatformConfig({})` → `logAudit: true`, `logTrace: true` (default)
-- [ ] `createBotPlatformConfig({ LOG_AUDIT: 'false' })` → `logAudit: false`
+- [x] `createBotPlatformConfig({ LOG_AUDIT: 'true', LOG_TRACE: 'true' })` → `logAudit: true`, `logTrace: true`
+- [x] `createBotPlatformConfig({})` → `logAudit: true`, `logTrace: true` (default)
+- [x] `createBotPlatformConfig({ LOG_AUDIT: 'false' })` → `logAudit: false`
 
 **Verification:**
-- [ ] `npm test` passes (config.test.js)
+- [x] `npm test` passes (config.test.js)
 
 **Dependencies:** None
 
@@ -44,13 +44,13 @@
 **Description:** Добавить в `src/bot-platform/core/logger.js` функцию `formatLogLine({ ts, level, module, reqId, action, context })`, которая возвращает строку формата ADR-0029: `[<ISO-timestamp>] [<level>] [<module>:<reqId>] <action> {<json-context>}`. Если `reqId` не передан — формат `[<module>]`. Если `context` пуст — без JSON-хвоста. Экспортировать функцию.
 
 **Acceptance criteria:**
-- [ ] `formatLogLine({ ts: '2026-07-18T04:58:06.123Z', level: 'info', module: 'ingress', reqId: 'abc123', action: 'auth success', context: { sub: 'zabbix' } })` → `[2026-07-18T04:58:06.123Z] [info] [ingress:abc123] auth success {"sub":"zabbix"}`
-- [ ] `formatLogLine({ ts, level, module: 'worker', action: 'delivered', context: { id: 13 } })` → `[ts] [info] [worker] delivered {"id":13}`
-- [ ] `formatLogLine({ ts, level, module: 'ingress', reqId: 'abc', action: 'ingress', context: null })` → `[ts] [info] [ingress:abc] ingress`
-- [ ] Функция экспортируется из модуля
+- [x] `formatLogLine({ ts: '2026-07-18T04:58:06.123Z', level: 'info', module: 'ingress', reqId: 'abc123', action: 'auth success', context: { sub: 'zabbix' } })` → `[2026-07-18T04:58:06.123Z] [info] [ingress:abc123] auth success {"sub":"zabbix"}`
+- [x] `formatLogLine({ ts, level, module: 'worker', action: 'delivered', context: { id: 13 } })` → `[ts] [info] [worker] delivered {"id":13}`
+- [x] `formatLogLine({ ts, level, module: 'ingress', reqId: 'abc', action: 'ingress', context: null })` → `[ts] [info] [ingress:abc] ingress`
+- [x] Функция экспортируется из модуля
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -66,14 +66,14 @@
 **Description:** В `src/bot-platform/queue/store.js` добавить миграцию: при старте `createQueueStore` выполнять `ALTER TABLE delivery_queue ADD COLUMN req_id TEXT` (с try/catch — если столбец уже есть) и `CREATE INDEX IF NOT EXISTS idx_queue_req_id ON delivery_queue(req_id)`. Обновить INSERT/SELECT запросы для поддержки `req_id`. Принимать `reqId` в `enqueue(entry)`, возвращать в `dequeue()`.
 
 **Acceptance criteria:**
-- [ ] `createQueueStore()` создаёт таблицу с `req_id` столбцем (или мигрирует существующую)
-- [ ] `enqueue({ payload, source, reqId: 'abc' })` → запись с `req_id = 'abc'`
-- [ ] `dequeue()` возвращает объекты с `reqId` полем
-- [ ] `enqueue({ payload, source })` → `req_id = NULL` (backward compat)
-- [ ] Существующие тесты queue-store проходят
+- [x] `createQueueStore()` создаёт таблицу с `req_id` столбцем (или мигрирует существующую)
+- [x] `enqueue({ payload, source, reqId: 'abc' })` → запись с `req_id = 'abc'`
+- [x] `dequeue()` возвращает объекты с `reqId` полем
+- [x] `enqueue({ payload, source })` → `req_id = NULL` (backward compat)
+- [x] Существующие тесты queue-store проходят
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -90,16 +90,16 @@
 **Description:** В `handleIngest`: (1) генерировать `reqId = crypto.randomUUID()` в начале; (2) trace-log `ingress` с method, path, from (IP); (3) передавать `reqId` в `jwtAuth.authenticate(header, { reqId, ip })`; (4) trace-log `normalized` с recipient; (5) передавать `reqId` в `queueStore.enqueue({ ...entry, reqId })`; (6) audit-log `message queued`. Использовать `formatLogLine()` для вывода. Проверять `LOG_AUDIT` / `LOG_TRACE` флаги из config перед логированием.
 
 **Acceptance criteria:**
-- [ ] `POST /ingest` логирует `[trace:req:<uuid>] ingress POST /ingest from <ip>`
-- [ ] JWT auth success → `[audit] auth success sub=... source=... ip=...`
-- [ ] Normalize → `[trace:req:<uuid>] normalized recipient=user:123`
-- [ ] Enqueue → `[audit] message queued id=<n> source=... recipient=...`
-- [ ] При `LOG_AUDIT=false` audit-логи не выводятся
-- [ ] При `LOG_TRACE=false` trace-логи не выводятся
-- [ ] `reqId` добавляется в queue payload
+- [x] `POST /ingest` логирует `[trace:req:<uuid>] ingress POST /ingest from <ip>`
+- [x] JWT auth success → `[audit] auth success sub=... source=... ip=...`
+- [x] Normalize → `[trace:req:<uuid>] normalized recipient=user:123`
+- [x] Enqueue → `[audit] message queued id=<n> source=... recipient=...`
+- [x] При `LOG_AUDIT=false` audit-логи не выводятся
+- [x] При `LOG_TRACE=false` trace-логи не выводятся
+- [x] `reqId` добавляется в queue payload
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 1, 2, 3
 
@@ -116,13 +116,13 @@
 **Description:** Расширить `authenticate(authorizationHeader)` → `authenticate(authorizationHeader, options = {})` для принятия `{ reqId, ip }`. Добавить audit-логи: (1) auth success — `[audit] auth success sub=... source=... ip=...`; (2) auth failed — `[audit] auth failed reason=... ip=...`. Использовать `formatLogLine()`. IP не верифицируется (приходит из http-server).
 
 **Acceptance criteria:**
-- [ ] `authenticate(header, { reqId, ip })` → audit-лог success с sub, source, ip
-- [ ] `authenticate(null, { reqId, ip })` → audit-лог failed с reason, ip
-- [ ] `authenticate(header)` (без options) → работает без audit (backward compat)
-- [ ] Ошибки не содержат raw token
+- [x] `authenticate(header, { reqId, ip })` → audit-лог success с sub, source, ip
+- [x] `authenticate(null, { reqId, ip })` → audit-лог failed с reason, ip
+- [x] `authenticate(header)` (без options) → работает без audit (backward compat)
+- [x] Ошибки не содержат raw token
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 2
 
@@ -139,14 +139,14 @@
 **Description:** Расширить `ingress-http-server.test.js` и `ingress-e2e.test.js` тестами для audit/trace: (1) mock logger проверяет что `formatLogLine` вызывается с правильными параметрами; (2) `reqId` присутствует в queue payload; (3) audit-логи вызываются при auth success/fail; (4) trace-логи вызываются на каждом этапе.
 
 **Acceptance criteria:**
-- [ ] Тест: `POST /ingest` → logger вызывается с `action: 'ingress'` и `reqId`
-- [ ] Тест: auth success → logger вызывается с `action: 'auth success'`
-- [ ] Тест: auth failure → logger вызывается с `action: 'auth failed'`
-- [ ] Тест: `reqId` в enqueue payload
-- [ ] `LOG_AUDIT=false` → audit-логи не вызываются
+- [x] Тест: `POST /ingest` → logger вызывается с `action: 'ingress'` и `reqId`
+- [x] Тест: auth success → logger вызывается с `action: 'auth success'`
+- [x] Тест: auth failure → logger вызывается с `action: 'auth failed'`
+- [x] Тест: `reqId` в enqueue payload
+- [x] `LOG_AUDIT=false` → audit-логи не вызываются
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 4, 5
 
@@ -163,12 +163,12 @@
 **Description:** В `queue/store.js` добавить trace-log при enqueue: `[trace:req:<reqId>] enqueued id=<rowId>`. Добавить dependency injection для `logger` через options. Log-вызов опционален (logger может отсутствовать).
 
 **Acceptance criteria:**
-- [ ] `enqueue({ payload, source, reqId })` → trace-лог `enqueued id=<n>`
-- [ ] `enqueue({ payload, source })` → без trace-лога (нет reqId)
-- [ ] Без logger в options → работает без ошибок
+- [x] `enqueue({ payload, source, reqId })` → trace-лог `enqueued id=<n>`
+- [x] `enqueue({ payload, source })` → без trace-лога (нет reqId)
+- [x] Без logger в options → работает без ошибок
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 3
 
@@ -185,14 +185,14 @@
 **Description:** В `queue/worker.js` добавить: (1) trace-log при dequeue: `[trace:queue:<id>] dequeued attempt=<n>`; (2) audit + trace при success: `[audit] message delivered id=<n> duration_ms=<ms>`, `[trace:queue:<id>] delivered duration_ms=<ms>`; (3) audit + trace при failure: `[audit] message failed id=<n> reason=... attempts=<n>`, `[trace:queue:<id>] failed reason=...`. Использовать `formatLogLine()`. Измерять duration с момента dequeue до ack/nack.
 
 **Acceptance criteria:**
-- [ ] Successful delivery → audit-лог `message delivered` с `duration_ms`
-- [ ] Failed delivery → audit-лог `message failed` с `reason` и `attempts`
-- [ ] Trace-лог `dequeued attempt=<n>` при dequeue
-- [ ] Trace-лог `delivered` / `failed` после ack/nack
-- [ ] `duration_ms` корректно измеряется
+- [x] Successful delivery → audit-лог `message delivered` с `duration_ms`
+- [x] Failed delivery → audit-лог `message failed` с `reason` и `attempts`
+- [x] Trace-лог `dequeued attempt=<n>` при dequeue
+- [x] Trace-лог `delivered` / `failed` после ack/nack
+- [x] `duration_ms` корректно измеряется
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 2
 
@@ -209,12 +209,12 @@
 **Description:** В `transports/max/outbound-client.js` добавить trace-log: (1) before request: `[trace:queue:<reqId>] outbound POST <url>`; (2) after response: добавить `statusCode` в context. Извлекать `reqId` из response/payload. Использовать `formatLogLine()`.
 
 **Acceptance criteria:**
-- [ ] `send(response)` с `reqId` в payload → trace-лог `outbound POST <url>`
-- [ ] Response → trace-лог с `statusCode`
-- [ ] Без `reqId` → работает без trace-лога
+- [x] `send(response)` с `reqId` в payload → trace-лог `outbound POST <url>`
+- [x] Response → trace-лог с `statusCode`
+- [x] Без `reqId` → работает без trace-лога
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 2
 
@@ -231,13 +231,13 @@
 **Description:** Расширить `queue-worker.test.js`, `queue-store.test.js`, `max-outbound-client.test.js` тестами для audit/trace: (1) mock logger проверяет формат; (2) duration_ms измеряется; (3) reqId прокидывается через payload; (4) audit/trace вызываются при success/failure.
 
 **Acceptance criteria:**
-- [ ] Worker: mock logger проверяет `action: 'delivered'` и `duration_ms`
-- [ ] Worker: mock logger проверяет `action: 'failed'` и `reason`
-- [ ] Store: `reqId` сохраняется в `req_id` столбец
-- [ ] Outbound: trace-лог вызывается с `statusCode`
+- [x] Worker: mock logger проверяет `action: 'delivered'` и `duration_ms`
+- [x] Worker: mock logger проверяет `action: 'failed'` и `reason`
+- [x] Store: `reqId` сохраняется в `req_id` столбец
+- [x] Outbound: trace-лог вызывается с `statusCode`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 7, 8, 9
 
@@ -255,14 +255,14 @@
 **Description:** Полный end-to-end тест lifecycle trace: POST /ingest → auth → normalize → queue → dequeue → outbound → ack. Mock outboundClient. Проверить: (1) reqId генерируется и прокидывается через все этапы; (2) audit-логи вызываются на auth, queue, delivery; (3) trace-логи вызываются на ingress, jwt, normalize, enqueue, dequeue, outbound, delivered.
 
 **Acceptance criteria:**
-- [ ] reqId одинаковый на всех этапах (ingress → queue → outbound)
-- [ ] Audit-логи: auth success, message queued, message delivered
-- [ ] Trace-логи: ingress, jwt verified, normalized, enqueued, dequeued, outbound, delivered
-- [ ] `LOG_AUDIT=false` → только trace-логи
-- [ ] `LOG_TRACE=false` → только audit-логи
+- [x] reqId одинаковый на всех этапах (ingress → queue → outbound)
+- [x] Audit-логи: auth success, message queued, message delivered
+- [x] Trace-логи: ingress, jwt verified, normalized, enqueued, dequeued, outbound, delivered
+- [x] `LOG_AUDIT=false` → только trace-логи
+- [x] `LOG_TRACE=false` → только audit-логи
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 4-10
 
@@ -278,13 +278,13 @@
 **Description:** Обновить документацию: (1) `docs/project-context.md` — env vars `LOG_AUDIT`/`LOG_TRACE`, req_id в схеме; (2) `examples/bot-platform/env.example` — добавить `LOG_AUDIT` и `LOG_TRACE`; (3) ADR-0029 — добавить "Реализовано" секцию со ссылками на код.
 
 **Acceptance criteria:**
-- [ ] `docs/project-context.md` содержит `LOG_AUDIT` и `LOG_TRACE` в env vars
-- [ ] `examples/bot-platform/env.example` содержит `LOG_AUDIT=true` и `LOG_TRACE=true`
-- [ ] ADR-0029 отмечает реализованные модули
-- [ ] Нет секретов и реальных идентификаторов
+- [x] `docs/project-context.md` содержит `LOG_AUDIT` и `LOG_TRACE` в env vars
+- [x] `examples/bot-platform/env.example` содержит `LOG_AUDIT=true` и `LOG_TRACE=true`
+- [x] ADR-0029 отмечает реализованные модули
+- [x] Нет секретов и реальных идентификаторов
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 1-11
 
@@ -297,32 +297,32 @@
 
 ## Checkpoint: After Tasks 1-3 (Foundation)
 
-- [ ] `npm test` passes
-- [ ] Config возвращает `logAudit: true`, `logTrace: true`
-- [ ] `formatLogLine()` produces correct ADR-0029 format
-- [ ] `delivery_queue` таблица имеет `req_id` столбец
+- [x] `npm test` passes
+- [x] Config возвращает `logAudit: true`, `logTrace: true`
+- [x] `formatLogLine()` produces correct ADR-0029 format
+- [x] `delivery_queue` таблица имеет `req_id` столбец
 
 ## Checkpoint: After Tasks 4-6 (Ingress)
 
-- [ ] `POST /ingest` генерирует `reqId` и логирует ingress/jwt/normalize/enqueue
-- [ ] Audit-логи: auth success/fail
-- [ ] Trace-логи: ingress, jwt verified, normalized, enqueued
-- [ ] Тесты проходят
+- [x] `POST /ingest` генерирует `reqId` и логирует ingress/jwt/normalize/enqueue
+- [x] Audit-логи: auth success/fail
+- [x] Trace-логи: ingress, jwt verified, normalized, enqueued
+- [x] Тесты проходят
 
 ## Checkpoint: After Tasks 7-10 (Queue + Outbound)
 
-- [ ] `reqId` прокидывается через queue payload и `req_id` столбец
-- [ ] Audit-логи: message queued/delivered/failed
-- [ ] Trace-логи: dequeued/outbound/delivered/failed
-- [ ] Тесты проходят
+- [x] `reqId` прокидывается через queue payload и `req_id` столбец
+- [x] Audit-логи: message queued/delivered/failed
+- [x] Trace-логи: dequeued/outbound/delivered/failed
+- [x] Тесты проходят
 
 ## Checkpoint: After Tasks 11-12 (Complete)
 
-- [ ] Полный lifecycle trace от ingress до delivery
-- [ ] `journalctl -u zyablik-bot-live | grep -E 'message queued|message delivered|message failed|auth success|auth failed'` работает
-- [ ] `npm test` — все тесты проходят
-- [ ] Документация обновлена
-- [ ] Готово к ревью
+- [x] Полный lifecycle trace от ingress до delivery
+- [x] `journalctl -u zyablik-bot-live | grep -E 'message queued|message delivered|message failed|auth success|auth failed'` работает
+- [x] `npm test` — все тесты проходят
+- [x] Документация обновлена
+- [x] Готово к ревью
 
 ## Post-sprint: MAX API Stress Test + Fixes (2026-07-18)
 

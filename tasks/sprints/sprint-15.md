@@ -15,12 +15,12 @@
 **Description:** Добавить `@okta/jwt-verifier` v4.x в `package.json` как runtime dependency. Проверить `npm audit`.
 
 **Acceptance criteria:**
-- [ ] `package.json` содержит `"dependencies": { "@okta/jwt-verifier": "^4.x" }`
-- [ ] `npm install` завершается без ошибок
-- [ ] `npm audit` не показывает критических уязвимостей
+- [x] `package.json` содержит `"dependencies": { "@okta/jwt-verifier": "^4.x" }`
+- [x] `npm install` завершается без ошибок
+- [x] `npm audit` не показывает критических уязвимостей
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -36,12 +36,12 @@
 **Description:** Расширить `createBotPlatformConfig()` переменными для IdP: `IDP_ISSUER`, `IDP_AUDIENCE`. Добавить валидацию: если ingress включён, `IDP_ISSUER` обязателен.
 
 **Acceptance criteria:**
-- [ ] `createBotPlatformConfig({ IDP_ISSUER: 'https://example.idp.com' })` возвращает `idpIssuer`
-- [ ] `createBotPlatformConfig({})` возвращает `idpIssuer: ''` (default)
-- [ ] Валидация: `IDP_ISSUER` обязателен при `INGRESS_ENABLED=true`
+- [x] `createBotPlatformConfig({ IDP_ISSUER: 'https://example.idp.com' })` возвращает `idpIssuer`
+- [x] `createBotPlatformConfig({})` возвращает `idpIssuer: ''` (default)
+- [x] Валидация: `IDP_ISSUER` обязателен при `INGRESS_ENABLED=true`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -57,16 +57,16 @@
 **Description:** JWT-аутентификация через `@okta/jwt-verifier` (совместим с OIDC-провайдерами). Фабрика `createJwtSourceAuth(options = {})` принимает `{ issuer, audience, claimName, claimValue, logger }`. Метод `authenticate(authorizationHeader)` извлекает Bearer token, верифицирует через IdP JWKS, возвращает `{ source }` из claim. Fail-closed: любая ошибка → исключение.
 
 **Acceptance criteria:**
-- [ ] `createJwtSourceAuth({ issuer, audience })` создаёт auth-модуль
-- [ ] `authenticate('Bearer <valid-jwt>')` возвращает `{ source: 'zabbix' }`
-- [ ] `authenticate(null)` выбрасывает ошибку
-- [ ] `authenticate('Bearer invalid')` выбрасывает ошибку
-- [ ] `authenticate('Bearer <expired-jwt>')` выбрасывает ошибку
-- [ ] `authenticate('Bearer <wrong-aud-jwt>')` выбрасывает ошибку
-- [ ] Ошибки не содержат raw token в сообщении (safe logger)
+- [x] `createJwtSourceAuth({ issuer, audience })` создаёт auth-модуль
+- [x] `authenticate('Bearer <valid-jwt>')` возвращает `{ source: 'zabbix' }`
+- [x] `authenticate(null)` выбрасывает ошибку
+- [x] `authenticate('Bearer invalid')` выбрасывает ошибку
+- [x] `authenticate('Bearer <expired-jwt>')` выбрасывает ошибку
+- [x] `authenticate('Bearer <wrong-aud-jwt>')` выбрасывает ошибку
+- [x] Ошибки не содержат raw token в сообщении (safe logger)
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 1
 
@@ -82,15 +82,15 @@
 **Description:** Unit tests для JwtSourceAuth: мокать `@okta/jwt-verifier` (ADR-0016 — dependency injection). Тестировать happy path, отсутствие токена, невалидный токен, expired, wrong audience.
 
 **Acceptance criteria:**
-- [ ] Тест: валидный JWT → `{ source: 'zabbix' }`
-- [ ] Тест: null header → ошибка
-- [ ] Тест: невалидный token → ошибка
-- [ ] Тест: expired token → ошибка
-- [ ] Тест: wrong audience → ошибка
-- [ ] Тест: ошибка не содержит raw token
+- [x] Тест: валидный JWT → `{ source: 'zabbix' }`
+- [x] Тест: null header → ошибка
+- [x] Тест: невалидный token → ошибка
+- [x] Тест: expired token → ошибка
+- [x] Тест: wrong audience → ошибка
+- [x] Тест: ошибка не содержит raw token
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 3
 
@@ -106,13 +106,13 @@
 **Description:** Добавить константу `SOURCE_ZABBIX = 'zabbix'` (и `SOURCE_INGEST = 'ingest'` для ingest pipeline) в event-contract. Расширить `createInternalEvent()` для поддержки ingest source.
 
 **Acceptance criteria:**
-- [ ] `SOURCE_ZABBIX === 'zabbix'`
-- [ ] `SOURCE_INGEST === 'ingest'`
-- [ ] `createInternalEvent({ source: 'ingest', recipient: {...}, message: {...} })` работает
-- [ ] Существующие тесты event-contract продолжают работать
+- [x] `SOURCE_ZABBIX === 'zabbix'`
+- [x] `SOURCE_INGEST === 'ingest'`
+- [x] `createInternalEvent({ source: 'ingest', recipient: {...}, message: {...} })` работает
+- [x] Существующие тесты event-contract продолжают работать
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -128,14 +128,14 @@
 **Description:** Per-source normalizer для Zabbix. Принимает body из `POST /ingest` (контракт: `{ recipient: { kind, value }, message: '...' }`), возвращает canonical event `{ source: 'zabbix', recipient, message: { text }, raw }`. Валидирует `recipient.kind` (user|chat) и `recipient.value`.
 
 **Acceptance criteria:**
-- [ ] `normalizeZabbixEvent({ recipient: { kind: 'user', value: '123' }, message: 'alert' })` → canonical event
-- [ ] `normalizeZabbixEvent({ recipient: { kind: 'chat', value: '456' }, message: 'alert' })` → canonical event
-- [ ] `normalizeZabbixEvent({})` → ошибка (recipient обязателен)
-- [ ] `normalizeZabbixEvent({ recipient: { kind: 'unknown' } })` → ошибка
-- [ ] `normalizeZabbixEvent({ recipient: { value: '123' } })` → ошибка (kind обязателен)
+- [x] `normalizeZabbixEvent({ recipient: { kind: 'user', value: '123' }, message: 'alert' })` → canonical event
+- [x] `normalizeZabbixEvent({ recipient: { kind: 'chat', value: '456' }, message: 'alert' })` → canonical event
+- [x] `normalizeZabbixEvent({})` → ошибка (recipient обязателен)
+- [x] `normalizeZabbixEvent({ recipient: { kind: 'unknown' } })` → ошибка
+- [x] `normalizeZabbixEvent({ recipient: { value: '123' } })` → ошибка (kind обязателен)
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 5
 
@@ -151,12 +151,12 @@
 **Description:** Normalizer registry. Объект `{ zabbix: normalizeZabbixEvent }`. Функция `getNormalizer(sourceName)` возвращает normalizer или `null`. Пока только Zabbix, расширяемость для будущих источников.
 
 **Acceptance criteria:**
-- [ ] `getNormalizer('zabbix')` возвращает функцию
-- [ ] `getNormalizer('unknown')` возвращает `null`
-- [ ] Экспортирует `normalizeZabbixEvent` для прямого использования
+- [x] `getNormalizer('zabbix')` возвращает функцию
+- [x] `getNormalizer('unknown')` возвращает `null`
+- [x] Экспортирует `normalizeZabbixEvent` для прямого использования
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 6
 
@@ -172,14 +172,14 @@
 **Description:** Unit tests для normalizers: Zabbix normalizer happy path + error cases, registry lookup.
 
 **Acceptance criteria:**
-- [ ] Тест: Zabbix user event → canonical event с `source: 'zabbix'`
-- [ ] Тест: Zabbix chat event → canonical event с `source: 'zabbix'`
-- [ ] Тест: Zabbix без recipient → ошибка
-- [ ] Тест: getNormalizer('zabbix') → функция
-- [ ] Тест: getNormalizer('unknown') → null
+- [x] Тест: Zabbix user event → canonical event с `source: 'zabbix'`
+- [x] Тест: Zabbix chat event → canonical event с `source: 'zabbix'`
+- [x] Тест: Zabbix без recipient → ошибка
+- [x] Тест: getNormalizer('zabbix') → функция
+- [x] Тест: getNormalizer('unknown') → null
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 6, 7
 
@@ -195,17 +195,17 @@
 **Description:** HTTP-сервер на `http.createServer` (stdlib). Маршрут `POST /ingest`. Принимает `{ port, jwtAuth, normalizer, queueStore, outboundClient, logger }` через options. Парсит JSON body, вызывает `jwtAuth.authenticate(header)`, определяет normalizer по `source`, нормализует, отправляет через `outboundClient` или `queueStore.enqueue()`. Ответы: 200 (ok), 400 (invalid body), 401 (auth failure), 501 (channel without recipient).
 
 **Acceptance criteria:**
-- [ ] `POST /ingest` с валидным JWT + body → 200
-- [ ] `POST /ingest` без JWT → 401
-- [ ] `POST /ingest` с невалидным JWT → 401
-- [ ] `POST /ingest` с невалидным JSON body → 400
-- [ ] `POST /ingest` без recipient → 400
-- [ ] `POST /ingest` с `channel` без `recipient` → 501
-- [ ] Сервер слушает на указанном порту
-- [ ] GET/PUT/DELETE → 404
+- [x] `POST /ingest` с валидным JWT + body → 200
+- [x] `POST /ingest` без JWT → 401
+- [x] `POST /ingest` с невалидным JWT → 401
+- [x] `POST /ingest` с невалидным JSON body → 400
+- [x] `POST /ingest` без recipient → 400
+- [x] `POST /ingest` с `channel` без `recipient` → 501
+- [x] Сервер слушает на указанном порту
+- [x] GET/PUT/DELETE → 404
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 3, 6, 7
 
@@ -221,16 +221,16 @@
 **Description:** Интеграционные тесты HTTP-сервера: мокать jwtAuth, normalizer, outboundClient. Тестировать все HTTP-ответы, включая ошибки.
 
 **Acceptance criteria:**
-- [ ] Тест: POST /ingest + valid JWT → 200 + outbound/send вызван
-- [ ] Тест: POST /ingest + no JWT → 401
-- [ ] Тест: POST /ingest + invalid JWT → 401
-- [ ] Тест: POST /ingest + invalid JSON → 400
-- [ ] Тест: POST /ingest + no recipient → 400
-- [ ] Тест: POST /ingest + channel only → 501
-- [ ] Тест: GET /ingest → 404
+- [x] Тест: POST /ingest + valid JWT → 200 + outbound/send вызван
+- [x] Тест: POST /ingest + no JWT → 401
+- [x] Тест: POST /ingest + invalid JWT → 401
+- [x] Тест: POST /ingest + invalid JSON → 400
+- [x] Тест: POST /ingest + no recipient → 400
+- [x] Тест: POST /ingest + channel only → 501
+- [x] Тест: GET /ingest → 404
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 9
 
@@ -241,26 +241,26 @@
 
 ## Checkpoint: After Tasks 1-2 (Foundation)
 
-- [ ] `@okta/jwt-verifier` установлен
-- [ ] IdP env vars добавлены в config
-- [ ] `npm test` passes
+- [x] `@okta/jwt-verifier` установлен
+- [x] IdP env vars добавлены в config
+- [x] `npm test` passes
 
 ## Checkpoint: After Tasks 3-4 (JWT Auth)
 
-- [ ] `jwt-source-auth.js` создан и работает
-- [ ] `jwt-source-auth.test.js` — все тесты проходят
-- [ ] Mock-JWT тесты работают без реального IdP
+- [x] `jwt-source-auth.js` создан и работает
+- [x] `jwt-source-auth.test.js` — все тесты проходят
+- [x] Mock-JWT тесты работают без реального IdP
 
 ## Checkpoint: After Tasks 5-8 (Normalizers)
 
-- [ ] `SOURCE_ZABBIX` добавлен в event-contract
-- [ ] Zabbix normalizer работает
-- [ ] Normalizer registry работает
-- [ ] Тесты normalizers проходят
+- [x] `SOURCE_ZABBIX` добавлен в event-contract
+- [x] Zabbix normalizer работает
+- [x] Normalizer registry работает
+- [x] Тесты normalizers проходят
 
 ## Checkpoint: After Tasks 9-10 (HTTP Server)
 
-- [ ] HTTP-сервер работает с `POST /ingest`
-- [ ] Все HTTP-коды ответов протестированы
-- [ ] Интеграционные тесты проходят
-- [ ] `npm test` passes (все тесты)
+- [x] HTTP-сервер работает с `POST /ingest`
+- [x] Все HTTP-коды ответов протестированы
+- [x] Интеграционные тесты проходят
+- [x] `npm test` passes (все тесты)

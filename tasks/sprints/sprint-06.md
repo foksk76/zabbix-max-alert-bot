@@ -15,15 +15,15 @@
 **Description:** Создать модуль plugin-loader с тремя функциями: `loadPlugins(pluginsDir)`, `buildRouteMap(plugins)`, `createPluginLoader(pluginsDir)`.
 
 **Acceptance criteria:**
-- [ ] `loadPlugins` сканирует директорию, находит поддиректории с `index.js`
-- [ ] `loadPlugins` валидирует интерфейс: `name` (string, совпадает с dirname), `routes` (object, все значения — функции)
-- [ ] `loadPlugins` пропускает директории без `index.js` молча
-- [ ] `buildRouteMap` объединяет маршруты, ошибается на дубликатах
-- [ ] `createPluginLoader` возвращает `{ plugins, routes }`
+- [x] `loadPlugins` сканирует директорию, находит поддиректории с `index.js`
+- [x] `loadPlugins` валидирует интерфейс: `name` (string, совпадает с dirname), `routes` (object, все значения — функции)
+- [x] `loadPlugins` пропускает директории без `index.js` молча
+- [x] `buildRouteMap` объединяет маршруты, ошибается на дубликатах
+- [x] `createPluginLoader` возвращает `{ plugins, routes }`
 
 **Verification:**
-- [ ] Модуль импортируется без ошибок
-- [ ] `npm test` passes
+- [x] Модуль импортируется без ошибок
+- [x] `npm test` passes
 
 **Dependencies:** None
 
@@ -39,13 +39,13 @@
 **Description:** Заменить `createIdentityPlugin()` scaffold на flat export `{ name, routes }`. Удалить `moduleName` и `capabilities`. Сохранить прямые экспорты `formatIdentityResponse` и `handleIdentityEvent` для тестов.
 
 **Acceptance criteria:**
-- [ ] Экспорт: `{ name: 'identity', routes: { identity: handleIdentityEvent }, formatIdentityResponse, handleIdentityEvent }`
-- [ ] `name` совпадает с именем директории `identity`
-- [ ] Нет `createIdentityPlugin`, `moduleName`, `capabilities`
+- [x] Экспорт: `{ name: 'identity', routes: { identity: handleIdentityEvent }, formatIdentityResponse, handleIdentityEvent }`
+- [x] `name` совпадает с именем директории `identity`
+- [x] Нет `createIdentityPlugin`, `moduleName`, `capabilities`
 
 **Verification:**
-- [ ] Модуль импортируется без ошибок
-- [ ] `npm test` passes (после обновления импортов в тестах)
+- [x] Модуль импортируется без ошибок
+- [x] `npm test` passes (после обновления импортов в тестах)
 
 **Dependencies:** Task 1
 
@@ -61,11 +61,11 @@
 **Description:** Импортировать и реэкспортировать `createPluginLoader` из `./plugin-loader`. Изменить `pluginLoader: 'pending'` на `pluginLoader: 'available'` в компонентах.
 
 **Acceptance criteria:**
-- [ ] `createPluginLoader` доступен из `require('./core')`
-- [ ] `core.components.pluginLoader === 'available'`
+- [x] `createPluginLoader` доступен из `require('./core')`
+- [x] `core.components.pluginLoader === 'available'`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 1
 
@@ -81,12 +81,12 @@
 **Description:** Изменить `runMaxIdentityDryRun` для принятия `routeHandlers` как второго параметра. Удалить хардкоженный импорт `handleIdentityEvent`.
 
 **Acceptance criteria:**
-- [ ] Сигнатура: `runMaxIdentityDryRun(maxPayload, routeHandlers = {})`
-- [ ] Router создаётся из переданных `routeHandlers`
-- [ ] Нет импорта `handleIdentityEvent` в файле
+- [x] Сигнатура: `runMaxIdentityDryRun(maxPayload, routeHandlers = {})`
+- [x] Router создаётся из переданных `routeHandlers`
+- [x] Нет импорта `handleIdentityEvent` в файле
 
 **Verification:**
-- [ ] `npm test` passes (после обновления вызовов в тестах/app.js)
+- [x] `npm test` passes (после обновления вызовов в тестах/app.js)
 
 **Dependencies:** Task 1
 
@@ -102,12 +102,12 @@
 **Description:** Изменить `createIdentityUpdateProcessor` для принятия `routeHandlers` через `options`. Удалить хардкоженный импорт `handleIdentityEvent`.
 
 **Acceptance criteria:**
-- [ ] `options.routeHandlers` передаётся в `createEventRouter`
-- [ ] Значение по умолчанию: `{}` (пустой route map)
-- [ ] Нет импорта `handleIdentityEvent` в файле
+- [x] `options.routeHandlers` передаётся в `createEventRouter`
+- [x] Значение по умолчанию: `{}` (пустой route map)
+- [x] Нет импорта `handleIdentityEvent` в файле
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 1
 
@@ -123,13 +123,13 @@
 **Description:** Импортировать `createPluginLoader` из `./core/plugin-loader`. Вызывать его в `createBotPlatformApp`. Передавать `routes` в `runMaxIdentityDryRun`. Удалить импорт `createIdentityPlugin`.
 
 **Acceptance criteria:**
-- [ ] `createBotPlatformApp` вызывает `createPluginLoader(path.join(__dirname, 'plugins'))`
-- [ ] `app.routes` содержит загруженные маршруты
-- [ ] CLI handler передаёт `app.routes` в `runMaxIdentityDryRun`
-- [ ] Нет импорта `createIdentityPlugin`
+- [x] `createBotPlatformApp` вызывает `createPluginLoader(path.join(__dirname, 'plugins'))`
+- [x] `app.routes` содержит загруженные маршруты
+- [x] CLI handler передаёт `app.routes` в `runMaxIdentityDryRun`
+- [x] Нет импорта `createIdentityPlugin`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 1, 2, 4
 
@@ -145,11 +145,11 @@
 **Description:** Передавать `options.routeHandlers` в `createIdentityUpdateProcessor`.
 
 **Acceptance criteria:**
-- [ ] `routeHandlers` передаётся из `options` в `createIdentityUpdateProcessor`
-- [ ] Значение по умолчанию: `{}`
+- [x] `routeHandlers` передаётся из `options` в `createIdentityUpdateProcessor`
+- [x] Значение по умолчанию: `{}`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 1, 5
 
@@ -165,18 +165,18 @@
 **Description:** Написать тесты для plugin-loader: загрузка из директории, валидация интерфейса, сборка route map, обработка дубликатов.
 
 **Acceptance criteria:**
-- [ ] Тест: `loadPlugins` возвращает пустой массив для пустой директории
-- [ ] Тест: `loadPlugins` загружает identity plugin
-- [ ] Тест: `loadPlugins` пропускает директории без `index.js`
-- [ ] Тест: `loadPlugins` ошибается при отсутствии `name`
-- [ ] Тест: `loadPlugins` ошибается при несовпадении `name` с dirname
-- [ ] Тест: `loadPlugins` ошибается при не-функции в routes
-- [ ] Тест: `buildRouteMap` объединяет маршруты
-- [ ] Тест: `buildRouteMap` ошибается на дубликатах
-- [ ] Тест: `createPluginLoader` возвращает `{ plugins, routes }`
+- [x] Тест: `loadPlugins` возвращает пустой массив для пустой директории
+- [x] Тест: `loadPlugins` загружает identity plugin
+- [x] Тест: `loadPlugins` пропускает директории без `index.js`
+- [x] Тест: `loadPlugins` ошибается при отсутствии `name`
+- [x] Тест: `loadPlugins` ошибается при несовпадении `name` с dirname
+- [x] Тест: `loadPlugins` ошибается при не-функции в routes
+- [x] Тест: `buildRouteMap` объединяет маршруты
+- [x] Тест: `buildRouteMap` ошибается на дубликатах
+- [x] Тест: `createPluginLoader` возвращает `{ plugins, routes }`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Task 1
 
@@ -192,14 +192,14 @@
 **Description:** Обновить импорты и проверки: удалить `createIdentityPlugin`, добавить `createPluginLoader`, проверять `app.plugins` как массив и `app.routes` как объект.
 
 **Acceptance criteria:**
-- [ ] `createIdentityPlugin` удалён из импортов
-- [ ] `createPluginLoader` импортируется и проверяется как функция
-- [ ] `app.plugins` — массив плагинов
-- [ ] `app.routes` — объект с ключом `identity`
-- [ ] `app.core.components.pluginLoader === 'available'`
+- [x] `createIdentityPlugin` удалён из импортов
+- [x] `createPluginLoader` импортируется и проверяется как функция
+- [x] `app.plugins` — массив плагинов
+- [x] `app.routes` — объект с ключом `identity`
+- [x] `app.core.components.pluginLoader === 'available'`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 1, 2, 3, 6
 
@@ -215,11 +215,11 @@
 **Description:** Обновить вызовы `runMaxIdentityDryRun`: передавать `{ identity: handleIdentityEvent }` как `routeHandlers`.
 
 **Acceptance criteria:**
-- [ ] Импорт `handleIdentityEvent` из identity plugin
-- [ ] Все вызовы `runMaxIdentityDryRun(payload)` заменены на `runMaxIdentityDryRun(payload, { identity: handleIdentityEvent })`
+- [x] Импорт `handleIdentityEvent` из identity plugin
+- [x] Все вызовы `runMaxIdentityDryRun(payload)` заменены на `runMaxIdentityDryRun(payload, { identity: handleIdentityEvent })`
 
 **Verification:**
-- [ ] `npm test` passes
+- [x] `npm test` passes
 
 **Dependencies:** Tasks 2, 4
 
@@ -235,17 +235,17 @@
 **Description:** Зафиксировать решение о convention-based plugin loader в `docs/decisions/ADR-0012-use-convention-based-plugin-loader.md`.
 
 **Acceptance criteria:**
-- [ ] ADR создан в `docs/decisions/`
-- [ ] Статус: Accepted
-- [ ] Описан контекст (текущий manual plugin pattern, pain point)
-- [ ] Описано решение (convention-based auto-discovery)
-- [ ] Описан интерфейс плагина `{ name, routes }`
-- [ ] Рассмотрены альтернативы (config-driven, self-registering, middleware)
-- [ ] `docs/decisions/README.md` обновлён
+- [x] ADR создан в `docs/decisions/`
+- [x] Статус: Accepted
+- [x] Описан контекст (текущий manual plugin pattern, pain point)
+- [x] Описано решение (convention-based auto-discovery)
+- [x] Описан интерфейс плагина `{ name, routes }`
+- [x] Рассмотрены альтернативы (config-driven, self-registering, middleware)
+- [x] `docs/decisions/README.md` обновлён
 
 **Verification:**
-- [ ] ADR существует и не содержит секретов
-- [ ] `npm test` passes
+- [x] ADR существует и не содержит секретов
+- [x] `npm test` passes
 
 **Dependencies:** None (can be done in parallel with code tasks)
 
