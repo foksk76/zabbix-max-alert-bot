@@ -154,6 +154,12 @@ async function assertSafeUrl(rawUrl, options = {}) {
         throw new Error(`SSRF check: ${parsed.hostname} — non-https scheme (${parsed.protocol})`);
     }
 
+    // Даже при relaxSsrf=true отклоняем опасные scheme (file:, javascript:, data:).
+    // SSRF relaxation нужен для HTTP issuer на MVP стенде — не для произвольных протоколов.
+    if (relaxSsrf && parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        throw new Error(`SSRF check: ${parsed.hostname} — unsupported scheme (${parsed.protocol})`);
+    }
+
     // HTTP issuer на MVP стенде: пропускаем IP-проверки ( IdP уже на trusted LAN).
     if (relaxSsrf) {
         if (onAudit) {

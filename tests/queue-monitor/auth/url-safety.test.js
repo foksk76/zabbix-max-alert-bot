@@ -313,10 +313,34 @@ test('assertSafeUrl error message contains only hostname, not resolved IP', asyn
 
 // --- relaxSsrf edge cases ---
 
-test('assertSafeUrl accepts file:// scheme when relaxSsrf=true', async () => {
-    // file:// — валидный URL, relaxSsrf пропускает проверку scheme.
+test('assertSafeUrl rejects file:// scheme even with relaxSsrf=true', async () => {
+    // relaxSsrf пропускает IP-проверки, но НЕ опасные scheme.
+    await assert.rejects(
+        () => assertSafeUrl('file:///etc/passwd', { relaxSsrf: true }),
+        /unsupported scheme/
+    );
+});
+
+test('assertSafeUrl rejects javascript: scheme even with relaxSsrf=true', async () => {
+    await assert.rejects(
+        () => assertSafeUrl('javascript:alert(1)', { relaxSsrf: true }),
+        /unsupported scheme/
+    );
+});
+
+test('assertSafeUrl rejects data: scheme even with relaxSsrf=true', async () => {
+    await assert.rejects(
+        () => assertSafeUrl('data:text/html,<script>alert(1)</script>', { relaxSsrf: true }),
+        /unsupported scheme/
+    );
+});
+
+test('assertSafeUrl accepts http: scheme when relaxSsrf=true', async () => {
     await assert.doesNotReject(
-        () => assertSafeUrl('file:///etc/passwd', { relaxSsrf: true })
+        () => assertSafeUrl('http://10.0.0.1:8000/token', {
+            dnsLookup: mockLookup({}),
+            relaxSsrf: true
+        })
     );
 });
 
