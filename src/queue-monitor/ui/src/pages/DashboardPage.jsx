@@ -8,19 +8,10 @@ import ErrorBoundary from '../components/ErrorBoundary.jsx';
 import { useMetrics } from '../hooks/useMetrics.js';
 import { useTimeRange } from '../hooks/useTimeRange.js';
 import TimeRangeBar from '../components/TimeRangeBar.jsx';
+import RefreshDropdown from '../components/RefreshDropdown.jsx';
 import { Button } from '../components/ui/button.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 import { RefreshCw, LogOut, Clock, Activity } from 'lucide-react';
-
-// ADR-0041: интервалы автообновления (раздел 4).
-const REFRESH_OPTIONS = [
-    { label: '30с', ms: 30000 },
-    { label: '1м', ms: 60000 },
-    { label: '5м', ms: 300000 },
-    { label: '10м', ms: 600000 },
-    { label: '30м', ms: 1800000 },
-    { label: 'выкл', ms: 0 }
-];
 
 export default function DashboardPage({ user, csrf }) {
     const { timeRange, setRelative, setAbsolute } = useTimeRange();
@@ -148,19 +139,7 @@ export default function DashboardPage({ user, csrf }) {
                             <RefreshCw className="w-4 h-4 mr-1 shrink-0" />
                             {refreshMs > 0 ? `обновить (${countdown}с)` : 'обновить'}
                         </Button>
-                        <div className="flex gap-0.5">
-                            {REFRESH_OPTIONS.map((opt) => (
-                                <Button
-                                    key={opt.ms}
-                                    variant={refreshMs === opt.ms ? 'default' : 'ghost'}
-                                    size="sm"
-                                    className="text-xs h-7 px-2"
-                                    onClick={() => handleRefreshOptionChange(opt.ms)}
-                                >
-                                    {opt.label}
-                                </Button>
-                            ))}
-                        </div>
+                        <RefreshDropdown value={refreshMs} onChange={setRefreshMs} />
                     </div>
                     {metrics.lastUpdated && (
                         <span className="text-xs text-muted-foreground hidden sm:inline">
