@@ -125,8 +125,8 @@ function createMetricsRoutes(options = {}) {
     function timeseries(ctx) {
         const windowSeconds = parseWindowSeconds(ctx.query?.window);
         const { from, to } = parseFromTo(ctx);
-        const effectiveWindow = (from && to) ? 0 : windowSeconds;
-        const data = reader.timeseries(effectiveWindow);
+        const timeFilter = reader.buildTimeFilter(windowSeconds, from, to);
+        const data = reader.timeseries(windowSeconds, timeFilter);
         return {
             statusCode: 200,
             body: {

@@ -114,10 +114,22 @@ function createQueueReader(options = {}) {
         return result;
     }
 
-    function timeseries(windowSeconds) {
-        const now = Math.floor(Date.now() / 1000);
-        const since = windowSeconds ? now - windowSeconds : 0;
-        const rows = stmts.timeseries.all(since);
+    function timeseries(windowSeconds, timeFilter) {
+        const tf = timeFilter || (windowSeconds ? (() => {
+            const now = Math.floor(Date.now() / 1000);
+            return { clause: 'created_at >= ?', params: [now - windowSeconds] };
+        })() : { clause: '1=1', params: [] });
+
+        const rows = db.prepare(`
+            SELECT
+                    (created_at / 3600) * 3600 as bucket,
+                    status,
+                    COUNT(*) as count
+            FROM delivery_queue
+            WHERE ${tf.clause}
+            GROUP BY bucket, status
+            ORDER BY bucket ASC
+        `).all(...tf.params);
 
         return rows.map((row) => ({
             bucket: row.bucket,

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import React, { useState, useRef, useCallback } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, ReferenceArea } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card.jsx';
 import { semantic, neutral } from '../tokens/colors.js';
 import { useTheme } from '../hooks/useTheme.js';
@@ -8,6 +8,7 @@ import { useTheme } from '../hooks/useTheme.js';
 // ADR-0041: TimeseriesChart — чистый компонент отображения данных.
 // Window picker вынесен в TimeRangeBar. Drag-to-pan позволяет выбирать
 // абсолютный диапазон перетаскиванием на графике.
+// ADR-0041: Конвертация координат через activeLabel (рекомендовано ADR).
 
 const STATUS_LABELS = {
     delivered: 'Доставлено',
@@ -64,9 +65,6 @@ function CustomTooltip({ active, payload, label }) {
     );
 }
 
-// ADR-0041: drag-to-pan — порог 10px для предотвращения случайных drag.
-const DRAG_THRESHOLD_PX = 10;
-
 export default function TimeseriesChart({ timeseries, onPan }) {
     const theme = useTheme();
     const gridStroke = theme === 'dark' ? neutral[700] : neutral[200];
@@ -75,67 +73,35 @@ export default function TimeseriesChart({ timeseries, onPan }) {
     const data = pivot(timeseries?.data);
 
     const [isDragging, setIsDragging] = useState(false);
-    const [dragStartX, setDragStartX] = useState(null);
-    const chartRef = useRef(null);
+    const [dragStartLabel, setDragStartLabel] = useState(null);
+    const [dragEndLabel, setDragEndLabel] = useState(null);
 
     const handleMouseDown = useCallback((e) => {
-        if (e && e.chartX !== undefined) {
+        if (e?.activeLabel !== undefined) {
             setIsDragging(true);
-            setDragStartX(e.chartX);
+            setDragStartLabel(e.activeLabel);
+            setDragEndLabel(null);
         }
     }, []);
 
-    const handleMouseUp = useCallback((e) => {
-        if (!isDragging || dragStartX === null || !e || e.chartX === undefined) {
-            setIsDragging(false);
-            setDragStartX(null);
-            return;
+    const handleMouseMove = useCallback((e) => {
+        if (isDragging && e?.activeLabel !== undefined) {
+            setDragEndLabel(e.activeLabel);
         }
+    }, [isDragging]);
 
-        const endX = e.chartX;
-        const delta = Math.abs(endX - dragStartX);
-
-        if (delta > DRAG_THRESHOLD_PX && data.length > 1 && onPan) {
-            const minX = Math.min(dragStartX, endX);
-            const maxX = Math.max(dragStartX, endX);
-
-            // Используем Recharts chartRef для получения точных coordinate offsets
-            const chartEl = chartRef.current;
-            if (!chartEl) {
-                setIsDragging(false);
-                setDragStartX(null);
-                return;
-            }
-
-            // Recharts хранит coordinate map в internal state LineChart
-            // Используем XAxis domain для точной конвертации
-            const firstBucket = data[0].bucket;
-            const lastBucket = data[data.length - 1].bucket;
-            const timeSpan = lastBucket - firstBucket;
-            if (timeSpan <= 0) {
-                setIsDragging(false);
-                setDragStartX(null);
-                return;
-            }
-
-            // Recharts layout: left padding ~60px для YAxis, right padding ~20px
-            // Точная ширина plot area = container width - paddingLeft - paddingRight
-            const containerWidth = chartEl.offsetWidth || 1;
-            const plotLeft = 60;
-            const plotRight = 20;
-            const plotWidth = containerWidth - plotLeft - plotRight;
-
-            const fromTs = Math.floor(firstBucket + ((minX - plotLeft) / plotWidth) * timeSpan);
-            const toTs = Math.floor(firstBucket + ((maxX - plotLeft) / plotWidth) * timeSpan);
-
+    const handleMouseUp = useCallback(() => {
+        if (isDragging && dragStartLabel !== null && dragEndLabel !== null && onPan) {
+            const fromTs = Math.min(dragStartLabel, dragEndLabel);
+            const toTs = Math.max(dragStartLabel, dragEndLabel);
             if (fromTs < toTs) {
                 onPan(fromTs, toTs);
             }
         }
-
         setIsDragging(false);
-        setDragStartX(null);
-    }, [isDragging, dragStartX, onPan, data]);
+        setDragStartLabel(null);
+        setDragEndLabel(null);
+    }, [isDragging, dragStartLabel, dragEndLabel, onPan]);
 
     if (timeseries === null) {
         return (
@@ -152,6 +118,13 @@ export default function TimeseriesChart({ timeseries, onPan }) {
         );
     }
 
+    const refAreaLeft = isDragging && dragStartLabel !== null && dragEndLabel !== null
+        ? Math.min(dragStartLabel, dragEndLabel)
+        : undefined;
+    const refAreaRight = isDragging && dragStartLabel !== null && dragEndLabel !== null
+        ? Math.max(dragStartLabel, dragEndLabel)
+        : undefined;
+
     return (
         <Card>
             <CardHeader>
@@ -163,14 +136,12 @@ export default function TimeseriesChart({ timeseries, onPan }) {
                 {data.length === 0 ? (
                     <p className="text-sm text-muted-foreground py-12 text-center">Нет данных за период</p>
                 ) : (
-                    <div
-                        ref={chartRef}
-                        style={{ cursor: isDragging ? 'grabbing' : 'default' }}
-                    >
+                    <div style={{ cursor: isDragging ? 'col-resize' : 'default' }}>
                         <ResponsiveContainer width="100%" height={260}>
                             <LineChart
                                 data={data}
                                 onMouseDown={handleMouseDown}
+                                onMouseMove={handleMouseMove}
                                 onMouseUp={handleMouseUp}
                             >
                                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
@@ -178,6 +149,15 @@ export default function TimeseriesChart({ timeseries, onPan }) {
                                 <YAxis allowDecimals={false} fontSize={11} tick={{ fill: axisTick }} />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ color: axisTick }} />
+                                {refAreaLeft !== undefined && refAreaRight !== undefined && (
+                                    <ReferenceArea
+                                        x1={refAreaLeft}
+                                        x2={refAreaRight}
+                                        strokeOpacity={0.3}
+                                        fill="currentColor"
+                                        className="text-primary"
+                                    />
+                                )}
                                 {Object.keys(STATUS_COLORS).map((status) => (
                                     <Line
                                         key={status}
