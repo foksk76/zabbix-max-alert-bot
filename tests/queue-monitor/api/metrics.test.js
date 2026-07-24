@@ -331,3 +331,145 @@ test('top clamps negative limit to MIN_LIMIT', () => {
     reader.close();
     fs.unlinkSync(dbPath);
 });
+
+// ADR-0041: from/to absolute range
+test('timeseries supports from/to absolute range', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    seedRow(db, { status: 'delivered' });
+    db.close();
+
+    const reader = createQueueReader({ dbPath });
+    const routes = createMetricsRoutes({ reader });
+
+    const now = Math.floor(Date.now() / 1000);
+    const result = routes.timeseries({ query: { from: String(now - 3600), to: String(now) } });
+
+    assert.equal(result.statusCode, 200);
+    assert.equal(result.body.from, now - 3600);
+    assert.equal(result.body.to, now);
+    assert.ok(result.body.window === undefined);
+    assert.ok(Array.isArray(result.body.data));
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('summary supports from/to absolute range', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    seedRow(db, { status: 'delivered' });
+    seedRow(db, { status: 'failed' });
+    db.close();
+
+    const reader = createQueueReader({ dbPath });
+    const routes = createMetricsRoutes({ reader });
+
+    const now = Math.floor(Date.now() / 1000);
+    const result = routes.summary({ query: { from: String(now - 3600), to: String(now) } });
+
+    assert.equal(result.statusCode, 200);
+    assert.equal(result.body.from, now - 3600);
+    assert.equal(result.body.to, now);
+    assert.ok(result.body.window === undefined);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('top supports from/to absolute range', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    seedRow(db, { source: 'zabbix' });
+    db.close();
+
+    const reader = createQueueReader({ dbPath });
+    const routes = createMetricsRoutes({ reader });
+
+    const now = Math.floor(Date.now() / 1000);
+    const result = routes.top({ query: { from: String(now - 3600), to: String(now) } });
+
+    assert.equal(result.statusCode, 200);
+    assert.equal(result.body.from, now - 3600);
+    assert.equal(result.body.to, now);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('errors supports from/to absolute range', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    seedRow(db, { status: 'failed' });
+    db.close();
+
+    const reader = createQueueReader({ dbPath });
+    const routes = createMetricsRoutes({ reader });
+
+    const now = Math.floor(Date.now() / 1000);
+    const result = routes.errors({ query: { from: String(now - 3600), to: String(now) } });
+
+    assert.equal(result.statusCode, 200);
+    assert.equal(result.body.from, now - 3600);
+    assert.equal(result.body.to, now);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('invalid from/to falls back to no-filter (from >= to)', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    seedRow(db, { status: 'delivered' });
+    db.close();
+
+    const reader = createQueueReader({ dbPath });
+    const routes = createMetricsRoutes({ reader });
+
+    const now = Math.floor(Date.now() / 1000);
+    const result = routes.timeseries({ query: { from: String(now), to: String(now - 3600) } });
+
+    assert.equal(result.statusCode, 200);
+    assert.equal(result.body.window, 0);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+// ADR-0041: интеграционный тест — timeseries с absolute range фильтрует данные
+test('timeseries with absolute range actually filters data (not just echoes from/to)', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    const now = Math.floor(Date.now() / 1000);
+    // Row 2 hours ago (outside 1-hour range)
+    db.prepare(`
+        INSERT INTO delivery_queue (payload, source, status, attempts, next_retry_at, created_at, updated_at)
+        VALUES (?, 'zabbix', 'delivered', 0, 0, ?, ?)
+    `).run(JSON.stringify({ text: 'old' }), now - 7200, now - 7200);
+    // Row 30 minutes ago (inside 1-hour range)
+    db.prepare(`
+        INSERT INTO delivery_queue (payload, source, status, attempts, next_retry_at, created_at, updated_at)
+    VALUES (?, 'grafana', 'failed', 0, 0, ?, ?)
+    `).run(JSON.stringify({ text: 'new' }), now - 1800, now - 1800);
+    db.close();
+
+    const reader = createQueueReader({ dbPath });
+    const routes = createMetricsRoutes({ reader });
+
+    // Query for last 1 hour — should only get the recent row
+    const result = routes.timeseries({ query: { from: String(now - 3600), to: String(now) } });
+
+    assert.equal(result.statusCode, 200);
+    const statuses = result.body.data.map((r) => r.status);
+    assert.ok(statuses.includes('failed'), 'should include recent failed row');
+    assert.ok(!statuses.includes('delivered'), 'should not include old delivered row outside range');
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
