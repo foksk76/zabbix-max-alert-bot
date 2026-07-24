@@ -44,6 +44,22 @@ function parseWindowSeconds(raw) {
     return parsed;
 }
 
+// ADR-0041: абсолютный диапазон (from/to) приоритетнее window.
+// from/to — unix timestamps (секунды), from < to.
+function parseFromTo(ctx) {
+    const rawFrom = ctx.query?.from;
+    const rawTo = ctx.query?.to;
+    if (rawFrom === undefined || rawTo === undefined) {
+        return { from: null, to: null };
+    }
+    const from = Number(rawFrom);
+    const to = Number(rawTo);
+    if (Number.isNaN(from) || Number.isNaN(to) || from <= 0 || to <= 0 || from >= to) {
+        return { from: null, to: null };
+    }
+    return { from, to };
+}
+
 function createMetricsRoutes(options = {}) {
     const reader = options.reader;
 
@@ -51,8 +67,11 @@ function createMetricsRoutes(options = {}) {
         throw new Error('reader is required');
     }
 
-    function summary(_ctx) {
-        const data = reader.summary();
+    function summary(ctx) {
+        const windowSeconds = parseWindowSeconds(ctx.query?.window);
+        const { from, to } = parseFromTo(ctx);
+        const timeFilter = reader.buildTimeFilter(windowSeconds, from, to);
+        const data = reader.summary(timeFilter);
         return {
             statusCode: 200,
             body: {
@@ -62,7 +81,8 @@ function createMetricsRoutes(options = {}) {
                 processing: data.processing,
                 delivered: data.delivered,
                 failed: data.failed,
-                totalAttempts: data.totalAttempts
+                totalAttempts: data.totalAttempts,
+                ...(from && to ? { from, to } : { window: windowSeconds })
             }
         };
     }
@@ -104,12 +124,14 @@ function createMetricsRoutes(options = {}) {
 
     function timeseries(ctx) {
         const windowSeconds = parseWindowSeconds(ctx.query.window);
-        const data = reader.timeseries(windowSeconds);
+        const { from, to } = parseFromTo(ctx);
+        const effectiveWindow = (from && to) ? 0 : windowSeconds;
+        const data = reader.timeseries(effectiveWindow);
         return {
             statusCode: 200,
             body: {
                 status: 'ok',
-                window: windowSeconds,
+                ...(from && to ? { from, to } : { window: windowSeconds }),
                 data
             }
         };
@@ -118,31 +140,43 @@ function createMetricsRoutes(options = {}) {
     function top(ctx) {
         const by = ctx.query.by || 'source';
         const limit = normalizeLimit(ctx.query.limit, DEFAULT_TOP_LIMIT);
+        const windowSeconds = parseWindowSeconds(ctx.query?.window);
+        const { from, to } = parseFromTo(ctx);
+        const timeFilter = reader.buildTimeFilter(windowSeconds, from, to);
 
         if (by === 'recipient') {
-            const data = reader.topRecipient(limit);
+            const data = reader.topRecipient(limit, timeFilter);
             return {
                 statusCode: 200,
-                body: { status: 'ok', by, limit, data }
+                body: {
+                    status: 'ok', by, limit, data,
+                    ...(from && to ? { from, to } : { window: windowSeconds })
+                }
             };
         }
 
-        const data = reader.topSource(limit);
+        const data = reader.topSource(limit, timeFilter);
         return {
             statusCode: 200,
-            body: { status: 'ok', by, limit, data }
+            body: {
+                status: 'ok', by, limit, data,
+                ...(from && to ? { from, to } : { window: windowSeconds })
+            }
         };
     }
 
     function errors(ctx) {
         const limit = normalizeLimit(ctx.query.limit, DEFAULT_ERRORS_LIMIT);
-        const data = reader.errors(limit);
+        const windowSeconds = parseWindowSeconds(ctx.query?.window);
+        const { from, to } = parseFromTo(ctx);
+        const timeFilter = reader.buildTimeFilter(windowSeconds, from, to);
+        const data = reader.errors(limit, timeFilter);
         return {
             statusCode: 200,
             body: {
                 status: 'ok',
-                limit,
-                data
+                limit, data,
+                ...(from && to ? { from, to } : { window: windowSeconds })
             }
         };
     }

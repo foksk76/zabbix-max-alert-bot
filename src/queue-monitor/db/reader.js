@@ -78,8 +78,28 @@ function createQueueReader(options = {}) {
         };
     }
 
-    function summary() {
-        const rows = stmts.summary.all();
+    function buildTimeFilter(windowSeconds, from, to) {
+        const now = Math.floor(Date.now() / 1000);
+
+        if (from && to && from > 0 && to > from) {
+            return { clause: 'created_at >= ? AND created_at <= ?', params: [from, to] };
+        }
+
+        if (windowSeconds && windowSeconds > 0) {
+            return { clause: 'created_at >= ?', params: [now - windowSeconds] };
+        }
+
+        return { clause: '1=1', params: [] };
+    }
+
+    function summary(timeFilter) {
+        const tf = timeFilter || { clause: '1=1', params: [] };
+        const rows = db.prepare(`
+            SELECT status, COUNT(*) as count, SUM(attempts) as total_attempts
+            FROM delivery_queue
+            WHERE ${tf.clause}
+            GROUP BY status
+        `).all(...tf.params);
         const result = { pending: 0, processing: 0, delivered: 0, failed: 0, totalAttempts: 0 };
 
         for (const row of rows) {
@@ -106,19 +126,44 @@ function createQueueReader(options = {}) {
         }));
     }
 
-    function topSource(limit) {
+    function topSource(limit, timeFilter) {
         const topLimit = limit || 5;
-        return stmts.topSource.all(topLimit);
+        const tf = timeFilter || { clause: '1=1', params: [] };
+        return db.prepare(`
+            SELECT source, COUNT(*) as count
+            FROM delivery_queue
+            WHERE source != '' AND ${tf.clause}
+            GROUP BY source
+            ORDER BY count DESC
+            LIMIT ?
+        `).all(...tf.params, topLimit);
     }
 
-    function topRecipient(limit) {
+    function topRecipient(limit, timeFilter) {
         const topLimit = limit || 5;
-        return stmts.topRecipient.all(topLimit);
+        const tf = timeFilter || { clause: '1=1', params: [] };
+        return db.prepare(`
+            SELECT
+                    json_extract(payload, '$.recipient.value') as recipient,
+                    COUNT(*) as count
+            FROM delivery_queue
+            WHERE payload LIKE '%"recipient"%' AND ${tf.clause}
+            GROUP BY recipient
+            ORDER BY count DESC
+            LIMIT ?
+        `).all(...tf.params, topLimit);
     }
 
-    function errors(limit) {
+    function errors(limit, timeFilter) {
         const errorLimit = limit || 20;
-        const rows = stmts.errors.all(errorLimit);
+        const tf = timeFilter || { clause: '1=1', params: [] };
+        const rows = db.prepare(`
+            SELECT id, req_id, source, payload, attempts, updated_at
+            FROM delivery_queue
+            WHERE status = 'failed' AND ${tf.clause}
+            ORDER BY updated_at DESC
+            LIMIT ?
+        `).all(...tf.params, errorLimit);
 
         return rows.map((row) => ({
             id: row.id,
@@ -163,7 +208,8 @@ function createQueueReader(options = {}) {
         topRecipient,
         errors,
         ready,
-        close
+        close,
+        buildTimeFilter
     };
 }
 

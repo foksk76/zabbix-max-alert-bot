@@ -1,18 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card.jsx';
-import { Button } from './ui/button.jsx';
-import { Clock } from 'lucide-react';
 import { semantic, neutral } from '../tokens/colors.js';
 import { useTheme } from '../hooks/useTheme.js';
 
-const WINDOWS = [
-    { label: '1ч', seconds: 3600 },
-    { label: '6ч', seconds: 21600 },
-    { label: '12ч', seconds: 43200 },
-    { label: '24ч', seconds: 86400 }
-];
+// ADR-0041: TimeseriesChart — чистый компонент отображения данных.
+// Window picker вынесен в TimeRangeBar. Drag-to-pan позволяет выбирать
+// абсолютный диапазон перетаскиванием на графике.
 
 const STATUS_LABELS = {
     delivered: 'Доставлено',
@@ -69,10 +64,60 @@ function CustomTooltip({ active, payload, label }) {
     );
 }
 
-export default function TimeseriesChart({ timeseries, windowSeconds, onWindowChange }) {
+// ADR-0041: drag-to-pan — порог 10px для предотвращения случайных drag.
+const DRAG_THRESHOLD_PX = 10;
+
+export default function TimeseriesChart({ timeseries, onPan }) {
     const theme = useTheme();
     const gridStroke = theme === 'dark' ? neutral[700] : neutral[200];
     const axisTick = theme === 'dark' ? neutral[400] : neutral[600];
+
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStartX, setDragStartX] = useState(null);
+    const chartRef = useRef(null);
+
+    const handleMouseDown = useCallback((e) => {
+        if (e && e.chartX !== undefined) {
+            setIsDragging(true);
+            setDragStartX(e.chartX);
+        }
+    }, []);
+
+    const handleMouseUp = useCallback((e) => {
+        if (!isDragging || dragStartX === null || !e || e.chartX === undefined) {
+            setIsDragging(false);
+            setDragStartX(null);
+            return;
+        }
+
+        const endX = e.chartX;
+        const delta = Math.abs(endX - dragStartX);
+
+        if (delta > DRAG_THRESHOLD_PX && data.length > 0 && onPan) {
+            // Конвертируем pixel coordinates в data coordinates через XAxis domain
+            const minX = Math.min(dragStartX, endX);
+            const maxX = Math.max(dragStartX, endX);
+            const chartWidth = chartRef.current?.offsetWidth || 1;
+            const axisLeft = 60; // приблизительный отступ YAxis
+            const axisRight = 20;
+            const plotWidth = chartWidth - axisLeft - axisRight;
+
+            const firstBucket = data[0].bucket;
+            const lastBucket = data[data.length - 1].bucket;
+            const timeRange = lastBucket - firstBucket;
+
+            const fromTs = Math.floor(firstBucket + ((minX - axisLeft) / plotWidth) * timeRange);
+            const toTs = Math.floor(firstBucket + ((maxX - axisLeft) / plotWidth) * timeRange);
+
+            if (fromTs < toTs) {
+                onPan(fromTs, toTs);
+            }
+        }
+
+        setIsDragging(false);
+        setDragStartX(null);
+    }, [isDragging, dragStartX, onPan, data]);
+
     if (timeseries === null) {
         return (
             <Card>
@@ -95,45 +140,41 @@ export default function TimeseriesChart({ timeseries, windowSeconds, onWindowCha
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle>Временные ряды по статусам</CardTitle>
-                    <div className="flex gap-1">
-                        {WINDOWS.map((w) => (
-                            <Button
-                                key={w.seconds}
-                                variant={windowSeconds === w.seconds ? 'default' : 'ghost'}
-                                size="sm"
-                                onClick={() => onWindowChange(w.seconds)}
-                            >
-                                <Clock className="w-3.5 h-3.5 mr-1 shrink-0 hidden sm:inline" />
-                                {w.label}
-                            </Button>
-                        ))}
-                    </div>
                 </div>
             </CardHeader>
             <CardContent>
                 {data.length === 0 ? (
                     <p className="text-sm text-muted-foreground py-12 text-center">Нет данных за период</p>
                 ) : (
-                    <ResponsiveContainer width="100%" height={260}>
-                        <LineChart data={data}>
-                            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-                            <XAxis dataKey="bucket" tickFormatter={formatBucket} fontSize={11} tick={{ fill: axisTick }} />
-                            <YAxis allowDecimals={false} fontSize={11} tick={{ fill: axisTick }} />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend wrapperStyle={{ color: axisTick }} />
-                            {Object.keys(STATUS_COLORS).map((status) => (
-                                <Line
-                                    key={status}
-                                    name={STATUS_LABELS[status] || status}
-                                    type="monotone"
-                                    dataKey={status}
-                                    stroke={STATUS_COLORS[status]}
-                                    strokeWidth={2}
-                                    dot={false}
-                                />
-                            ))}
-                        </LineChart>
-                    </ResponsiveContainer>
+                    <div
+                        ref={chartRef}
+                        style={{ cursor: isDragging ? 'grabbing' : 'default' }}
+                    >
+                        <ResponsiveContainer width="100%" height={260}>
+                            <LineChart
+                                data={data}
+                                onMouseDown={handleMouseDown}
+                                onMouseUp={handleMouseUp}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                                <XAxis dataKey="bucket" tickFormatter={formatBucket} fontSize={11} tick={{ fill: axisTick }} />
+                                <YAxis allowDecimals={false} fontSize={11} tick={{ fill: axisTick }} />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Legend wrapperStyle={{ color: axisTick }} />
+                                {Object.keys(STATUS_COLORS).map((status) => (
+                                    <Line
+                                        key={status}
+                                        name={STATUS_LABELS[status] || status}
+                                        type="monotone"
+                                        dataKey={status}
+                                        stroke={STATUS_COLORS[status]}
+                                        strokeWidth={2}
+                                        dot={false}
+                                    />
+                                ))}
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
                 )}
             </CardContent>
         </Card>

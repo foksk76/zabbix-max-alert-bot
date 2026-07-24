@@ -316,3 +316,130 @@ test('close closes the DB connection', () => {
     assert.throws(() => reader.summary());
     fs.unlinkSync(dbPath);
 });
+
+// ADR-0041: buildTimeFilter
+test('buildTimeFilter with relative window', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    db.close();
+    const reader = createQueueReader({ dbPath });
+    const now = Math.floor(Date.now() / 1000);
+
+    const tf = reader.buildTimeFilter(3600);
+
+    assert.equal(tf.clause, 'created_at >= ?');
+    assert.equal(tf.params.length, 1);
+    assert.ok(Math.abs(tf.params[0] - (now - 3600)) < 2);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('buildTimeFilter with absolute from/to', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    db.close();
+    const reader = createQueueReader({ dbPath });
+
+    const tf = reader.buildTimeFilter(0, 1721020800, 1721056800);
+
+    assert.equal(tf.clause, 'created_at >= ? AND created_at <= ?');
+    assert.deepEqual(tf.params, [1721020800, 1721056800]);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('buildTimeFilter absolute takes priority over relative', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    db.close();
+    const reader = createQueueReader({ dbPath });
+
+    const tf = reader.buildTimeFilter(3600, 1721020800, 1721056800);
+
+    assert.equal(tf.clause, 'created_at >= ? AND created_at <= ?');
+    assert.deepEqual(tf.params, [1721020800, 1721056800]);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('buildTimeFilter returns no-filter for zero/missing values', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    db.close();
+    const reader = createQueueReader({ dbPath });
+
+    const tf1 = reader.buildTimeFilter(0);
+    assert.equal(tf1.clause, '1=1');
+    assert.deepEqual(tf1.params, []);
+
+    const tf2 = reader.buildTimeFilter(0, null, null);
+    assert.equal(tf2.clause, '1=1');
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('summary with timeFilter returns only matching rows', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    seedRow(db, { status: 'delivered' });
+    seedRow(db, { status: 'failed' });
+    db.close();
+    const reader = createQueueReader({ dbPath });
+
+    const now = Math.floor(Date.now() / 1000);
+    const tf = reader.buildTimeFilter(3600);
+    const result = reader.summary(tf);
+
+    assert.equal(result.delivered, 1);
+    assert.equal(result.failed, 1);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('topSource with timeFilter returns only matching rows', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    seedRow(db, { source: 'zabbix' });
+    seedRow(db, { source: 'grafana' });
+    db.close();
+    const reader = createQueueReader({ dbPath });
+
+    const tf = reader.buildTimeFilter(3600);
+    const result = reader.topSource(5, tf);
+
+    assert.ok(Array.isArray(result));
+    assert.ok(result.length > 0);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});
+
+test('errors with timeFilter returns only matching rows', () => {
+    const dbPath = tmpDb();
+    const db = new Database(dbPath);
+    initSchema(db);
+    seedRow(db, { status: 'failed' });
+    seedRow(db, { status: 'delivered' });
+    db.close();
+    const reader = createQueueReader({ dbPath });
+
+    const tf = reader.buildTimeFilter(3600);
+    const result = reader.errors(10, tf);
+
+    assert.ok(Array.isArray(result));
+    assert.equal(result.length, 1);
+
+    reader.close();
+    fs.unlinkSync(dbPath);
+});

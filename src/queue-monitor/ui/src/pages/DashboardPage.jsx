@@ -6,12 +6,14 @@ import TopTable from '../components/TopTable.jsx';
 import ErrorsTable from '../components/ErrorsTable.jsx';
 import ErrorBoundary from '../components/ErrorBoundary.jsx';
 import { useMetrics } from '../hooks/useMetrics.js';
+import { useTimeRange } from '../hooks/useTimeRange.js';
+import TimeRangeBar from '../components/TimeRangeBar.jsx';
 import { Button } from '../components/ui/button.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 import { RefreshCw, LogOut, Clock, Activity } from 'lucide-react';
 
 export default function DashboardPage({ user, csrf }) {
-    const [windowSeconds, setWindowSeconds] = useState(3600);
+    const { timeRange, setRelative, setAbsolute } = useTimeRange();
     const [logoutError, setLogoutError] = useState(null);
     const [topLimit, setTopLimit] = useState(5);
     const [errorsLimit, setErrorsLimit] = useState(20);
@@ -19,7 +21,7 @@ export default function DashboardPage({ user, csrf }) {
     const logoutTimerRef = useRef(null);
 
     const metrics = useMetrics({
-        windowSeconds,
+        timeRange,
         refreshMs: 30000,
         topLimit,
         errorsLimit
@@ -42,7 +44,7 @@ export default function DashboardPage({ user, csrf }) {
             return;
         }
         setCountdown(30);
-    }, [topLimit, errorsLimit, metrics.topBy, windowSeconds, sessionExpired]);
+    }, [topLimit, errorsLimit, metrics.topBy, timeRange, sessionExpired]);
 
     useEffect(() => {
         return () => {
@@ -63,6 +65,14 @@ export default function DashboardPage({ user, csrf }) {
     function handleRefresh() {
         metrics.refreshNow();
         setCountdown(30);
+    }
+
+    function handleTimeRangeChange(mode, value) {
+        if (mode === 'relative') {
+            setRelative(value);
+        } else {
+            setAbsolute(value.from, value.to);
+        }
     }
 
     async function logout() {
@@ -131,6 +141,11 @@ export default function DashboardPage({ user, csrf }) {
                     </div>
                 )}
 
+                <TimeRangeBar
+                    timeRange={timeRange}
+                    onTimeRangeChange={handleTimeRangeChange}
+                />
+
                 <ErrorBoundary>
                     <SummaryCards summary={metrics.summary} />
                 </ErrorBoundary>
@@ -138,8 +153,6 @@ export default function DashboardPage({ user, csrf }) {
                 <ErrorBoundary>
                     <TimeseriesChart
                         timeseries={metrics.timeseries}
-                        windowSeconds={windowSeconds}
-                        onWindowChange={setWindowSeconds}
                     />
                 </ErrorBoundary>
 

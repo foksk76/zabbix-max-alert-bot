@@ -1,12 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-// ADR-0034/ADR-0035: загрузка метрик с /api/metrics/* с автообновлением.
+// ADR-0034/ADR-0035/ADR-0041: загрузка метрик с /api/metrics/* с автообновлением.
 // Session-авторизация (ADR-0035) — session cookie отправляется автоматически
 // (credentials: 'same-origin'), Bearer token не нужен для UI.
 //
+// ADR-0041: timeRange — объект { mode: 'relative'|'absolute', seconds, from, to }.
+// Конвертация в query string происходит внутри хука.
+//
 // Возвращает { summary, timeseries, top, errors, loading, error, refresh, lastUpdated }.
-export function useMetrics({ windowSeconds = 3600, refreshMs = 30000, topLimit = 5, errorsLimit = 20 }) {
+export function useMetrics({ timeRange, windowSeconds: windowSecondsDeprecated, refreshMs = 30000, topLimit = 5, errorsLimit = 20 }) {
+    // Backward compatibility: если передан windowSeconds (deprecated), конвертируем в timeRange
+    const effectiveTimeRange = timeRange || { mode: 'relative', seconds: windowSecondsDeprecated || 3600 };
+
     const [summary, setSummary] = useState(null);
     const [timeseries, setTimeseries] = useState(null);
     const [top, setTop] = useState(null);
@@ -17,6 +23,14 @@ export function useMetrics({ windowSeconds = 3600, refreshMs = 30000, topLimit =
     const [lastUpdated, setLastUpdated] = useState(null);
     const refreshRef = useRef(null);
     const redirectRef = useRef(null);
+
+    const buildTimeQuery = useCallback(() => {
+        if (effectiveTimeRange.mode === 'absolute' && effectiveTimeRange.from && effectiveTimeRange.to) {
+            return `from=${effectiveTimeRange.from}&to=${effectiveTimeRange.to}`;
+        }
+        const w = effectiveTimeRange.seconds || 3600;
+        return `window=${w}`;
+    }, [effectiveTimeRange]);
 
     const refresh = useCallback(async () => {
         try {
@@ -30,11 +44,12 @@ export function useMetrics({ windowSeconds = 3600, refreshMs = 30000, topLimit =
                 }
                 return r.json();
             };
+            const timeQ = buildTimeQuery();
             const [sumRes, tsRes, topRes, errRes] = await Promise.all([
-                fetchJson('/api/metrics/summary'),
-                fetchJson(`/api/metrics/timeseries?window=${windowSeconds}`),
-                fetchJson(`/api/metrics/top?by=${topBy}&limit=${topLimit}`),
-                fetchJson(`/api/metrics/errors?limit=${errorsLimit}`)
+                fetchJson(`/api/metrics/summary?${timeQ}`),
+                fetchJson(`/api/metrics/timeseries?${timeQ}`),
+                fetchJson(`/api/metrics/top?by=${topBy}&limit=${topLimit}&${timeQ}`),
+                fetchJson(`/api/metrics/errors?limit=${errorsLimit}&${timeQ}`)
             ]);
             setSummary(sumRes);
             setTimeseries(tsRes);
@@ -58,7 +73,7 @@ export function useMetrics({ windowSeconds = 3600, refreshMs = 30000, topLimit =
         } finally {
             setLoading(false);
         }
-    }, [windowSeconds, topBy, topLimit, errorsLimit]);
+    }, [buildTimeQuery, topBy, topLimit, errorsLimit]);
 
     useEffect(() => {
         refresh();
