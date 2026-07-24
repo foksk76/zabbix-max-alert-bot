@@ -141,6 +141,12 @@ export default function DashboardPage({ user, csrf }) {
                         </Button>
                         <RefreshDropdown value={refreshMs} onChange={setRefreshMs} />
                     </div>
+                    <div className="flex items-center gap-2">
+                        <TimeRangeBar
+                            timeRange={timeRange}
+                            onTimeRangeChange={handleTimeRangeChange}
+                        />
+                    </div>
                 </div>
 
                 {metrics.error && (
@@ -148,11 +154,6 @@ export default function DashboardPage({ user, csrf }) {
                         Ошибка загрузки метрик: {metrics.error}
                     </div>
                 )}
-
-                <TimeRangeBar
-                    timeRange={timeRange}
-                    onTimeRangeChange={handleTimeRangeChange}
-                />
 
                 <ErrorBoundary>
                     <SummaryCards summary={metrics.summary} />

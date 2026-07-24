@@ -91,7 +91,7 @@ export function useMetrics({ timeRange, windowSeconds: windowSecondsDeprecated, 
                 clearTimeout(redirectRef.current);
             }
         };
-    }, [refresh, refreshMs]);
+    }, [refresh, refreshMs, timeRange]);
 
     const refreshNow = useCallback(async () => {
         await refresh();
