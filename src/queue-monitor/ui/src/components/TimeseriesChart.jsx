@@ -136,7 +136,7 @@ export default function TimeseriesChart({ timeseries, onPan }) {
                 {data.length === 0 ? (
                     <p className="text-sm text-muted-foreground py-12 text-center">Нет данных за период</p>
                 ) : (
-                    <div style={{ cursor: isDragging ? 'col-resize' : 'default' }}>
+                    <div style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
                         <ResponsiveContainer width="100%" height={260}>
                             <LineChart
                                 data={data}

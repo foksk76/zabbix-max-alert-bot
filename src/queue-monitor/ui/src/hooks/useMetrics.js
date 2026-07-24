@@ -80,7 +80,9 @@ export function useMetrics({ timeRange, windowSeconds: windowSecondsDeprecated, 
         if (refreshRef.current) {
             clearInterval(refreshRef.current);
         }
-        refreshRef.current = setInterval(refresh, refreshMs);
+        if (refreshMs > 0) {
+            refreshRef.current = setInterval(refresh, refreshMs);
+        }
         return () => {
             if (refreshRef.current) {
                 clearInterval(refreshRef.current);
@@ -99,7 +101,9 @@ export function useMetrics({ timeRange, windowSeconds: windowSecondsDeprecated, 
         if (refreshRef.current) {
             clearInterval(refreshRef.current);
         }
-        refreshRef.current = setInterval(refresh, refreshMs);
+        if (refreshMs > 0) {
+            refreshRef.current = setInterval(refresh, refreshMs);
+        }
     }, [refresh, refreshMs]);
 
     return {
